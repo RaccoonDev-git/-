@@ -83,11 +83,13 @@ public class MessageServiceImpl implements MessageService {
 
         for (Long partnerId : partnerIds) {
             User partner = userRepository.findById(partnerId).orElse(null);
-            if (partner == null) continue;
+            if (partner == null)
+                continue;
 
             // 获取最新消息
             Message latestMessage = messageRepository.findLatestMessageBetweenUsers(userId, partnerId);
-            if (latestMessage == null) continue;
+            if (latestMessage == null)
+                continue;
 
             // 获取未读消息数量
             Long unreadCount = messageRepository.countUnreadMessagesBetweenUsers(userId, partnerId);
