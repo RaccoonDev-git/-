@@ -425,6 +425,171 @@ curl -X PUT http://localhost:8080/api/students/1 \
 
 ---
 
-**版本**: v2.0  
-**更新日期**: 2024 年 10 月 5 日  
+## 消息聊天 API
+
+### 1. 发送消息
+
+```
+POST /api/messages?senderId={senderId}
+Content-Type: application/json
+
+{
+  "receiverId": 2,
+  "content": "你好，请问有关于C语言的问题",
+  "messageType": "text"
+}
+
+响应: 201 Created
+{
+  "id": 1,
+  "senderId": 1,
+  "senderName": "student01",
+  "receiverId": 2,
+  "receiverName": "teacher01",
+  "content": "你好，请问有关于C语言的问题",
+  "messageType": "text",
+  "isRead": false,
+  "createdAt": "2024-10-05T14:30:00",
+  "readAt": null
+}
+```
+
+### 2. 获取聊天记录
+
+```
+GET /api/messages/chat-history?userId1={userId1}&userId2={userId2}
+
+示例: GET /api/messages/chat-history?userId1=1&userId2=2
+
+响应: 200 OK
+[
+  {
+    "id": 1,
+    "senderId": 1,
+    "senderName": "student01",
+    "receiverId": 2,
+    "receiverName": "teacher01",
+    "content": "你好，请问有关于C语言的问题",
+    "messageType": "text",
+    "isRead": true,
+    "createdAt": "2024-10-05T14:30:00",
+    "readAt": "2024-10-05T14:31:00"
+  },
+  {
+    "id": 2,
+    "senderId": 2,
+    "senderName": "teacher01",
+    "receiverId": 1,
+    "receiverName": "student01",
+    "content": "你好，请说明你的问题",
+    "messageType": "text",
+    "isRead": false,
+    "createdAt": "2024-10-05T14:31:00",
+    "readAt": null
+  }
+]
+```
+
+### 3. 获取聊天列表
+
+```
+GET /api/messages/chat-list?userId={userId}
+
+示例: GET /api/messages/chat-list?userId=1
+
+响应: 200 OK
+[
+  {
+    "partnerId": 2,
+    "partnerName": "teacher01",
+    "partnerUsername": "teacher01",
+    "partnerAvatarUrl": null,
+    "lastMessageContent": "你好，请说明你的问题",
+    "lastMessageTime": "2024-10-05T14:31:00",
+    "unreadCount": 1,
+    "lastMessageFromSelf": false
+  },
+  {
+    "partnerId": 3,
+    "partnerName": "student02",
+    "partnerUsername": "student02",
+    "partnerAvatarUrl": null,
+    "lastMessageContent": "作业提交了吗",
+    "lastMessageTime": "2024-10-05T14:25:00",
+    "unreadCount": 0,
+    "lastMessageFromSelf": true
+  }
+]
+```
+
+### 4. 标记消息为已读
+
+```
+PUT /api/messages/{messageId}/read?userId={userId}
+
+示例: PUT /api/messages/1/read?userId=2
+
+响应: 200 OK
+```
+
+### 5. 标记所有消息为已读
+
+```
+PUT /api/messages/read-all?userId={userId}&partnerId={partnerId}
+
+示例: PUT /api/messages/read-all?userId=1&partnerId=2
+
+响应: 200 OK
+```
+
+### 6. 获取未读消息数量
+
+```
+GET /api/messages/unread-count?userId={userId}
+
+示例: GET /api/messages/unread-count?userId=1
+
+响应: 200 OK
+{
+  "unreadCount": 5
+}
+```
+
+### 7. 删除消息
+
+```
+DELETE /api/messages/{messageId}?userId={userId}
+
+示例: DELETE /api/messages/1?userId=1
+
+响应: 204 No Content
+```
+
+### 8. 获取消息详情
+
+```
+GET /api/messages/{messageId}
+
+示例: GET /api/messages/1
+
+响应: 200 OK
+{
+  "id": 1,
+  "senderId": 1,
+  "senderName": "student01",
+  "receiverId": 2,
+  "receiverName": "teacher01",
+  "content": "你好，请问有关于C语言的问题",
+  "messageType": "text",
+  "isRead": true,
+  "createdAt": "2024-10-05T14:30:00",
+  "readAt": "2024-10-05T14:31:00"
+}
+```
+
+---
+
+**版本**: v2.1  
+**更新日期**: 2025 年 10 月 5 日  
 **维护团队**: Student Learning Analysis System
+
