@@ -762,6 +762,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
         margin-bottom: 5px;
+        position: relative;
       }
 
       .chat-item:hover {
@@ -786,6 +787,7 @@
 
       .chat-info {
         flex: 1;
+        min-width: 0;
       }
 
       .chat-name {
@@ -796,6 +798,34 @@
       .chat-preview {
         font-size: 12px;
         color: rgba(255, 255, 255, 0.6);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .chat-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+        margin-left: 10px;
+      }
+
+      .chat-time {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+        white-space: nowrap;
+      }
+
+      .unread-badge {
+        background: #f44336;
+        color: white;
+        border-radius: 10px;
+        padding: 2px 6px;
+        font-size: 11px;
+        font-weight: bold;
+        min-width: 18px;
+        text-align: center;
       }
 
       .chat-main {
@@ -4901,92 +4931,25 @@
         content.className = "content";
       });
 
-      // 聊天功能
-      const chatData = {
-        2023001: {
-          name: "张三",
-          messages: [
-            {
-              content: "老师好，我有一个关于C语言指针的问题",
-              time: "2024-01-15 14:30",
-              type: "received",
-            },
-            {
-              content: "你好，请说明你的问题",
-              time: "2024-01-15 14:31",
-              type: "sent",
-            },
-          ],
-        },
-        2023002: {
-          name: "李四",
-          messages: [
-            {
-              content: "老师，我想请教一下高数题",
-              time: "2024-01-15 15:00",
-              type: "received",
-            },
-          ],
-        },
-      };
+      // 聊天功能 - 集成真实 API
+      const API_BASE_URL = 'http://localhost:8082/api';
+      let currentUserId = null; // 当前登录的教师ID
+      let currentChatPartnerId = null; // 当前聊天对象ID
+      let chatUpdateInterval = null; // 自动刷新定时器
 
-      function initializeChatList() {
-        const chatItems = document.querySelector(".chat-items");
-        chatItems.innerHTML = "";
-
-        Object.entries(chatData).forEach(([id, data]) => {
-          const lastMessage = data.messages[data.messages.length - 1];
-          const div = document.createElement("div");
-          div.className = "chat-item";
-          div.setAttribute("data-id", id);
-          div.innerHTML = `
-                  <div class="chat-avatar">${data.name[0]}</div>
-                  <div class="chat-info">
-                      <div class="chat-name">${data.name}</div>
-                      <div class="chat-preview">${lastMessage.content}</div>
-                  </div>
-              `;
-          div.addEventListener("click", () => selectChat(id));
-          chatItems.appendChild(div);
-        });
+      // 获取当前用户ID (从localStorage获取)
+      function getCurrentUserId() {
+        if (!currentUserId) {
+          const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+          currentUserId = userInfo.id || 1; // 默认ID为1
+        }
+        return currentUserId;
       }
 
-      function selectChat(studentId) {
-        document.querySelectorAll(".chat-item").forEach((item) => {
-          item.classList.remove("active");
-        });
-        document
-          .querySelector(`[data-id="${studentId}"]`)
-          .classList.add("active");
-
-        const chatTitle = document.querySelector(".chat-title");
-        chatTitle.textContent = chatData[studentId].name;
-
-        displayMessages(studentId);
-      }
-
-      function displayMessages(studentId) {
-        const messagesContainer = document.querySelector(".chat-messages");
-        messagesContainer.innerHTML = "";
-
-        chatData[studentId].messages.forEach((msg) => {
-          const messageDiv = document.createElement("div");
-          messageDiv.className = `message message-${msg.type}`;
-          messageDiv.innerHTML = `
-                  <div class="message-content">${msg.content}</div>
-                  <div class="message-time">${msg.time}</div>
-              `;
-          messagesContainer.appendChild(messageDiv);
-        });
-
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
-
-      function sendMessage(studentId, content) {
-        if (!content.trim()) return;
-
-        const now = new Date();
-        const timeString = now.toLocaleString("zh-CN", {
+      // 格式化时间
+      function formatMessageTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleString("zh-CN", {
           hour12: false,
           year: "numeric",
           month: "2-digit",
@@ -4994,18 +4957,224 @@
           hour: "2-digit",
           minute: "2-digit",
         });
+      }
 
-        const newMessage = {
-          content: content,
-          time: timeString,
-          type: "sent",
-        };
+      // 加载聊天列表
+      async function loadChatList() {
+        try {
+          const userId = getCurrentUserId();
+          const response = await fetch(`${API_BASE_URL}/messages/chat-list?userId=${userId}`);
+          
+          if (!response.ok) {
+            throw new Error('加载聊天列表失败');
+          }
 
-        chatData[studentId].messages.push(newMessage);
-        displayMessages(studentId);
+          const chatList = await response.json();
+          displayChatList(chatList);
+          
+          // 更新未读消息总数
+          const totalUnread = chatList.reduce((sum, chat) => sum + chat.unreadCount, 0);
+          updateUnreadBadge(totalUnread);
+        } catch (error) {
+          console.error('加载聊天列表错误:', error);
+          showNotification('加载聊天列表失败', 'error');
+        }
+      }
 
-        const chatInput = document.querySelector(".chat-input");
-        chatInput.value = "";
+      // 显示聊天列表
+      function displayChatList(chatList) {
+        const chatItems = document.querySelector(".chat-items");
+        chatItems.innerHTML = "";
+
+        if (chatList.length === 0) {
+          chatItems.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">暂无聊天记录</div>';
+          return;
+        }
+
+        chatList.forEach((chat) => {
+          const div = document.createElement("div");
+          div.className = "chat-item";
+          div.setAttribute("data-id", chat.partnerId);
+          
+          // 如果有未读消息,添加未读标记
+          const unreadBadge = chat.unreadCount > 0 
+            ? `<span class="unread-badge">${chat.unreadCount}</span>` 
+            : '';
+          
+          div.innerHTML = `
+            <div class="chat-avatar">${chat.partnerName ? chat.partnerName[0] : '?'}</div>
+            <div class="chat-info">
+              <div class="chat-name">${chat.partnerName || '未知用户'}</div>
+              <div class="chat-preview">${chat.lastMessageFromSelf ? '我: ' : ''}${chat.lastMessageContent || '暂无消息'}</div>
+            </div>
+            <div class="chat-meta">
+              <div class="chat-time">${formatMessageTime(chat.lastMessageTime)}</div>
+              ${unreadBadge}
+            </div>
+          `;
+          
+          div.addEventListener("click", () => selectChat(chat.partnerId, chat.partnerName));
+          chatItems.appendChild(div);
+        });
+      }
+
+      // 选择聊天对象
+      async function selectChat(partnerId, partnerName) {
+        currentChatPartnerId = partnerId;
+        
+        // 更新UI状态
+        document.querySelectorAll(".chat-item").forEach((item) => {
+          item.classList.remove("active");
+        });
+        const selectedItem = document.querySelector(`[data-id="${partnerId}"]`);
+        if (selectedItem) {
+          selectedItem.classList.add("active");
+        }
+
+        const chatTitle = document.querySelector(".chat-title");
+        chatTitle.textContent = partnerName;
+
+        // 加载聊天记录
+        await loadChatHistory(partnerId);
+        
+        // 标记所有消息为已读
+        await markAllAsRead(partnerId);
+        
+        // 启动自动刷新 (每5秒刷新一次)
+        if (chatUpdateInterval) {
+          clearInterval(chatUpdateInterval);
+        }
+        chatUpdateInterval = setInterval(() => {
+          loadChatHistory(partnerId, false); // 静默刷新,不滚动
+        }, 5000);
+      }
+
+      // 加载聊天记录
+      async function loadChatHistory(partnerId, scrollToBottom = true) {
+        try {
+          const userId = getCurrentUserId();
+          const response = await fetch(
+            `${API_BASE_URL}/messages/chat-history?userId1=${userId}&userId2=${partnerId}`
+          );
+          
+          if (!response.ok) {
+            throw new Error('加载聊天记录失败');
+          }
+
+          const messages = await response.json();
+          displayMessages(messages, scrollToBottom);
+        } catch (error) {
+          console.error('加载聊天记录错误:', error);
+          showNotification('加载聊天记录失败', 'error');
+        }
+      }
+
+      // 显示聊天消息
+      function displayMessages(messages, scrollToBottom = true) {
+        const messagesContainer = document.querySelector(".chat-messages");
+        const userId = getCurrentUserId();
+        
+        messagesContainer.innerHTML = "";
+
+        if (messages.length === 0) {
+          messagesContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">开始聊天吧</div>';
+          return;
+        }
+
+        messages.forEach((msg) => {
+          const messageDiv = document.createElement("div");
+          const isSent = msg.senderId === userId;
+          messageDiv.className = `message message-${isSent ? 'sent' : 'received'}`;
+          
+          messageDiv.innerHTML = `
+            <div class="message-content">${msg.content}</div>
+            <div class="message-time">${formatMessageTime(msg.createdAt)}</div>
+          `;
+          messagesContainer.appendChild(messageDiv);
+        });
+
+        if (scrollToBottom) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }
+
+      // 发送消息
+      async function sendMessage(partnerId, content) {
+        if (!content || !content.trim()) return;
+
+        try {
+          const userId = getCurrentUserId();
+          const response = await fetch(`${API_BASE_URL}/messages?senderId=${userId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              receiverId: partnerId,
+              content: content.trim(),
+              messageType: 'text'
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('发送消息失败');
+          }
+
+          // 清空输入框
+          const chatInput = document.querySelector(".chat-input");
+          chatInput.value = "";
+
+          // 重新加载聊天记录
+          await loadChatHistory(partnerId);
+          
+          // 重新加载聊天列表 (更新最后消息)
+          await loadChatList();
+        } catch (error) {
+          console.error('发送消息错误:', error);
+          showNotification('发送消息失败,请重试', 'error');
+        }
+      }
+
+      // 标记所有消息为已读
+      async function markAllAsRead(partnerId) {
+        try {
+          const userId = getCurrentUserId();
+          await fetch(
+            `${API_BASE_URL}/messages/read-all?userId=${userId}&partnerId=${partnerId}`,
+            { method: 'PUT' }
+          );
+          
+          // 更新聊天列表中的未读标记
+          await loadChatList();
+        } catch (error) {
+          console.error('标记已读错误:', error);
+        }
+      }
+
+      // 更新未读消息徽章
+      function updateUnreadBadge(count) {
+        // 可以在这里更新导航栏的未读消息数量
+        const badge = document.querySelector('.message-badge');
+        if (badge) {
+          badge.textContent = count > 0 ? count : '';
+          badge.style.display = count > 0 ? 'block' : 'none';
+        }
+      }
+
+      // 通知函数
+      function showNotification(message, type = 'info') {
+        // 简单的 alert 通知,可以后续升级为更好的 UI
+        if (type === 'error') {
+          console.error(message);
+          // 可以在这里添加更好的错误提示UI
+        } else {
+          console.log(message);
+        }
+      }
+
+      // 初始化聊天列表
+      function initializeChatList() {
+        loadChatList();
       }
 
       // 初始化聊天功能
@@ -5041,6 +5210,13 @@
               .textContent.toLowerCase();
             item.style.display = name.includes(searchTerm) ? "flex" : "none";
           });
+        });
+
+        // 页面卸载时清理定时器
+        window.addEventListener("beforeunload", () => {
+          if (chatUpdateInterval) {
+            clearInterval(chatUpdateInterval);
+          }
         });
       });
 
