@@ -158,16 +158,106 @@ public class StudentPortalController {
     @Operation(summary = "获取资源列表")
     @GetMapping("/resources")
     @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'TEACHER')")
-    public ResponseEntity<List<ResourceResponse>> getResources() {
+    public ResponseEntity<List<Map<String, Object>>> getResources() {
         try {
             List<ResourceResponse> resources = resourceService.getAllResources();
+            List<Map<String, Object>> formattedResources = formatResourceList(resources);
 
             log.info("学生获取资源列表，共 {} 个资源", resources.size());
-            return ResponseEntity.ok(resources);
+            return ResponseEntity.ok(formattedResources);
         } catch (Exception e) {
             log.error("获取资源列表失败", e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    /**
+     * 筛选资源
+     */
+    @Operation(summary = "筛选资源")
+    @GetMapping("/resources/filter")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'TEACHER')")
+    public ResponseEntity<List<Map<String, Object>>> filterResources(
+            @RequestParam(required = false) String subject,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String search) {
+        try {
+            List<ResourceResponse> resources;
+
+            // 如果有筛选条件，调用服务层筛选
+            if ((type != null && !type.equals("all")) ||
+                    (subject != null && !subject.equals("all"))) {
+                // 使用 ResourceService 的 filterResources 方法
+                resources = resourceService.filterResources(type, subject, null);
+            } else {
+                // 否则获取所有资源
+                resources = resourceService.getAllResources();
+            }
+
+            // 转换格式
+            List<Map<String, Object>> formattedResources = formatResourceList(resources);
+
+            // 如果有搜索关键字，在前端格式化后的数据中进行搜索
+            if (search != null && !search.isEmpty()) {
+                String searchLower = search.toLowerCase();
+                formattedResources = formattedResources.stream()
+                        .filter(resource -> {
+                            String title = (String) resource.get("title");
+                            String teacher = (String) resource.get("teacher");
+                            String description = (String) resource.get("description");
+                            return (title != null && title.toLowerCase().contains(searchLower)) ||
+                                    (teacher != null && teacher.toLowerCase().contains(searchLower)) ||
+                                    (description != null && description.toLowerCase().contains(searchLower));
+                        })
+                        .toList();
+            }
+
+            log.info("筛选资源: subject={}, type={}, search={}, 结果数={}",
+                    subject, type, search, formattedResources.size());
+            return ResponseEntity.ok(formattedResources);
+        } catch (Exception e) {
+            log.error("筛选资源失败", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 格式化资源列表为前端期望的格式
+     */
+    private List<Map<String, Object>> formatResourceList(List<ResourceResponse> resources) {
+        List<Map<String, Object>> formattedResources = new ArrayList<>();
+        for (ResourceResponse resource : resources) {
+            Map<String, Object> formattedResource = new HashMap<>();
+            formattedResource.put("id", resource.getId());
+            formattedResource.put("title", resource.getName());
+            formattedResource.put("type", resource.getFileType());
+            formattedResource.put("subject", resource.getCategory() != null ? resource.getCategory() : "通用");
+            formattedResource.put("teacher", resource.getUploaderName());
+            formattedResource.put("uploadTime", resource.getUploadTime() != null
+                    ? resource.getUploadTime().toString().substring(0, 10)
+                    : "");
+            formattedResource.put("size", formatFileSize(resource.getFileSize()));
+            formattedResource.put("downloads", resource.getDownloadCount());
+            formattedResource.put("description", resource.getDescription());
+            formattedResource.put("originalFilename", resource.getOriginalFilename());
+            formattedResources.add(formattedResource);
+        }
+        return formattedResources;
+    }
+
+    /**
+     * 格式化文件大小
+     */
+    private String formatFileSize(Long size) {
+        if (size == null)
+            return "未知";
+        if (size < 1024)
+            return size + " B";
+        if (size < 1024 * 1024)
+            return String.format("%.2f KB", size / 1024.0);
+        if (size < 1024 * 1024 * 1024)
+            return String.format("%.2f MB", size / (1024.0 * 1024));
+        return String.format("%.2f GB", size / (1024.0 * 1024 * 1024));
     }
 
     /**

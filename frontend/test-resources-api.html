@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>资源API测试</title>
+    <style>
+      body {
+        font-family: "Microsoft YaHei", Arial, sans-serif;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .section {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #333;
+        border-bottom: 2px solid #4caf50;
+        padding-bottom: 10px;
+      }
+      button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #45a049;
+      }
+      .result {
+        background: #f9f9f9;
+        padding: 15px;
+        margin-top: 10px;
+        border-left: 4px solid #4caf50;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .error {
+        border-left-color: #f44336;
+        color: #d32f2f;
+      }
+      .success {
+        border-left-color: #4caf50;
+        color: #2e7d32;
+      }
+      .info {
+        background: #e3f2fd;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .resource-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+      .resource-card h4 {
+        margin: 0 0 10px 0;
+        color: #2196f3;
+      }
+      .resource-meta {
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 学习资源API测试工具</h1>
+
+    <div class="section">
+      <h2>1. 检查登录状态</h2>
+      <button onclick="checkToken()">检查Token</button>
+      <div id="token-result" class="result" style="display: none"></div>
+    </div>
+
+    <div class="section">
+      <h2>2. 测试资源API</h2>
+      <button onclick="testGetAllResources()">获取所有资源</button>
+      <button onclick="testFilterPPT()">筛选PPT</button>
+      <button onclick="testFilterPDF()">筛选PDF</button>
+      <button onclick="testSearch()">搜索测试</button>
+      <div id="api-result" class="result" style="display: none"></div>
+    </div>
+
+    <div class="section">
+      <h2>3. 资源列表显示</h2>
+      <div class="info">找到 <span id="resource-count">0</span> 个资源</div>
+      <div id="resource-list"></div>
+    </div>
+
+    <script>
+      function showResult(elementId, content, className = "") {
+        const el = document.getElementById(elementId);
+        el.innerHTML = content;
+        el.className = "result " + className;
+        el.style.display = "block";
+      }
+
+      function checkToken() {
+        const token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            showResult(
+              "token-result",
+              `✓ Token存在\n` +
+                `用户ID: ${payload.userId}\n` +
+                `用户名: ${payload.sub}\n` +
+                `角色: ${payload.role}\n` +
+                `过期时间: ${new Date(payload.exp * 1000).toLocaleString()}`,
+              "success"
+            );
+          } catch (e) {
+            showResult(
+              "token-result",
+              "✗ Token格式错误: " + e.message,
+              "error"
+            );
+          }
+        } else {
+          showResult("token-result", "✗ 未找到Token，请先登录", "error");
+        }
+      }
+
+      async function testGetAllResources() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          showResult("api-result", "✗ 请先登录", "error");
+          return;
+        }
+
+        try {
+          showResult("api-result", "⏳ 正在请求...", "info");
+
+          const response = await fetch("/api/student/resources", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const text = await response.text();
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            showResult(
+              "api-result",
+              `✗ 响应不是JSON格式\n` +
+                `状态码: ${response.status}\n` +
+                `响应内容: ${text}`,
+              "error"
+            );
+            return;
+          }
+
+          if (response.ok) {
+            showResult(
+              "api-result",
+              `✓ 请求成功\n` +
+                `状态码: ${response.status}\n` +
+                `资源数量: ${data.length}\n\n` +
+                `数据:\n${JSON.stringify(data, null, 2)}`,
+              "success"
+            );
+            displayResources(data);
+          } else {
+            showResult(
+              "api-result",
+              `✗ 请求失败\n` +
+                `状态码: ${response.status}\n` +
+                `响应: ${JSON.stringify(data, null, 2)}`,
+              "error"
+            );
+          }
+        } catch (error) {
+          showResult("api-result", `✗ 请求异常: ${error.message}`, "error");
+        }
+      }
+
+      async function testFilterPPT() {
+        await testFilter("ppt", "PPT课件");
+      }
+
+      async function testFilterPDF() {
+        await testFilter("pdf", "PDF文档");
+      }
+
+      async function testFilter(type, typeName) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          showResult("api-result", "✗ 请先登录", "error");
+          return;
+        }
+
+        try {
+          showResult("api-result", `⏳ 正在筛选${typeName}...`, "info");
+
+          const response = await fetch(
+            `/api/student/resources/filter?type=${type}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            showResult(
+              "api-result",
+              `✓ 筛选成功\n` +
+                `类型: ${typeName}\n` +
+                `结果数量: ${data.length}\n\n` +
+                `数据:\n${JSON.stringify(data, null, 2)}`,
+              "success"
+            );
+            displayResources(data);
+          } else {
+            showResult(
+              "api-result",
+              `✗ 筛选失败\n状态码: ${response.status}`,
+              "error"
+            );
+          }
+        } catch (error) {
+          showResult("api-result", `✗ 请求异常: ${error.message}`, "error");
+        }
+      }
+
+      async function testSearch() {
+        const keyword = prompt("请输入搜索关键字:", "课件");
+        if (!keyword) return;
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+          showResult("api-result", "✗ 请先登录", "error");
+          return;
+        }
+
+        try {
+          showResult("api-result", `⏳ 正在搜索"${keyword}"...`, "info");
+
+          const response = await fetch(
+            `/api/student/resources/filter?search=${encodeURIComponent(
+              keyword
+            )}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            showResult(
+              "api-result",
+              `✓ 搜索成功\n` +
+                `关键字: ${keyword}\n` +
+                `结果数量: ${data.length}\n\n` +
+                `数据:\n${JSON.stringify(data, null, 2)}`,
+              "success"
+            );
+            displayResources(data);
+          } else {
+            showResult(
+              "api-result",
+              `✗ 搜索失败\n状态码: ${response.status}`,
+              "error"
+            );
+          }
+        } catch (error) {
+          showResult("api-result", `✗ 请求异常: ${error.message}`, "error");
+        }
+      }
+
+      function displayResources(resources) {
+        const countEl = document.getElementById("resource-count");
+        const listEl = document.getElementById("resource-list");
+
+        countEl.textContent = resources.length;
+
+        if (resources.length === 0) {
+          listEl.innerHTML =
+            '<p style="color:#999;text-align:center;padding:40px;">暂无资源</p>';
+          return;
+        }
+
+        listEl.innerHTML = resources
+          .map(
+            (r) => `
+                <div class="resource-card">
+                    <h4>📄 ${r.title}</h4>
+                    <div class="resource-meta">
+                        <div><strong>ID:</strong> ${r.id}</div>
+                        <div><strong>类型:</strong> ${r.type}</div>
+                        <div><strong>分类:</strong> ${r.subject}</div>
+                        <div><strong>上传者:</strong> ${r.teacher}</div>
+                        <div><strong>上传时间:</strong> ${r.uploadTime}</div>
+                        <div><strong>文件大小:</strong> ${r.size}</div>
+                        <div><strong>下载次数:</strong> ${r.downloads}</div>
+                        ${
+                          r.description
+                            ? `<div><strong>描述:</strong> ${r.description}</div>`
+                            : ""
+                        }
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // 页面加载时自动检查Token
+      window.addEventListener("DOMContentLoaded", () => {
+        checkToken();
+      });
+    </script>
+  </body>
+</html>
