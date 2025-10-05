@@ -1,0 +1,1 @@
+INSERT INTO users (username, password, role, phone) VALUES ('admin', 'admin123', 'TEACHER', '13800138000') ON DUPLICATE KEY UPDATE username=username;

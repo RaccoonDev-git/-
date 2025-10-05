@@ -1,0 +1,127 @@
+package com.example.studentanalysissystem.controller;
+
+import com.example.studentanalysissystem.dto.request.CreateStudentRequest;
+import com.example.studentanalysissystem.dto.request.UpdateStudentRequest;
+import com.example.studentanalysissystem.dto.response.StudentResponse;
+import com.example.studentanalysissystem.service.StudentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * 学生控制器
+ */
+@RestController
+@RequestMapping("/api/students")
+@RequiredArgsConstructor
+@Tag(name = "学生管理", description = "学生信息的CRUD操作")
+public class StudentController {
+
+    private final StudentService studentService;
+
+    @PostMapping
+    @Operation(summary = "创建学生", description = "添加新学生信息")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "创建成功"),
+            @ApiResponse(responseCode = "400", description = "请求参数错误或学号已存在")
+    })
+    public ResponseEntity<StudentResponse> createStudent(@Valid @RequestBody CreateStudentRequest request) {
+        StudentResponse response = studentService.createStudent(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "根据ID查询学生", description = "获取学生详细信息")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "404", description = "学生不存在")
+    })
+    public ResponseEntity<StudentResponse> getStudentById(@PathVariable Long id) {
+        StudentResponse response = studentService.getStudentById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/student-number/{studentNumber}")
+    @Operation(summary = "根据学号查询学生", description = "通过学号获取学生信息")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "404", description = "学生不存在")
+    })
+    public ResponseEntity<StudentResponse> getStudentByStudentNumber(@PathVariable String studentNumber) {
+        StudentResponse response = studentService.getStudentByStudentNumber(studentNumber);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    @Operation(summary = "查询所有学生", description = "获取学生列表")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<StudentResponse>> getAllStudents() {
+        List<StudentResponse> students = studentService.getAllStudents();
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/class/{className}")
+    @Operation(summary = "按班级查询学生", description = "获取指定班级的学生列表")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<StudentResponse>> getStudentsByClassName(@PathVariable String className) {
+        List<StudentResponse> students = studentService.getStudentsByClassName(className);
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/grade/{gradeLevel}")
+    @Operation(summary = "按年级查询学生", description = "获取指定年级的学生列表")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<StudentResponse>> getStudentsByGradeLevel(@PathVariable Integer gradeLevel) {
+        List<StudentResponse> students = studentService.getStudentsByGradeLevel(gradeLevel);
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/major/{major}")
+    @Operation(summary = "按专业查询学生", description = "获取指定专业的学生列表")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<StudentResponse>> getStudentsByMajor(@PathVariable String major) {
+        List<StudentResponse> students = studentService.getStudentsByMajor(major);
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "搜索学生", description = "根据关键字搜索学生(姓名、学号、班级等)")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<StudentResponse>> searchStudents(@RequestParam String keyword) {
+        List<StudentResponse> students = studentService.searchStudents(keyword);
+        return ResponseEntity.ok(students);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "更新学生信息", description = "修改学生基本信息")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "更新成功"),
+            @ApiResponse(responseCode = "404", description = "学生不存在"),
+            @ApiResponse(responseCode = "400", description = "请求参数错误")
+    })
+    public ResponseEntity<StudentResponse> updateStudent(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateStudentRequest request) {
+        StudentResponse response = studentService.updateStudent(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除学生", description = "删除学生信息")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "删除成功"),
+            @ApiResponse(responseCode = "404", description = "学生不存在")
+    })
+    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.noContent().build();
+    }
+}
