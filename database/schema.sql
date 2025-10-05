@@ -109,12 +109,10 @@ CREATE TABLE IF NOT EXISTS grades (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '成绩ID',
     student_id BIGINT NOT NULL COMMENT '学生ID',
     course_id BIGINT NOT NULL COMMENT '课程ID',
-    exam_type VARCHAR(50) COMMENT '考试类型: 期中, 期末, 作业, 测验',
     score DECIMAL(5,2) NOT NULL COMMENT '分数',
     max_score DECIMAL(5,2) DEFAULT 100 COMMENT '满分',
     percentage DECIMAL(5,2) COMMENT '百分比',
     grade_level VARCHAR(10) COMMENT '等级: A, B, C, D, F',
-    exam_date DATE COMMENT '考试日期',
     remarks TEXT COMMENT '备注',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -122,9 +120,7 @@ CREATE TABLE IF NOT EXISTS grades (
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     INDEX idx_student (student_id),
     INDEX idx_course (course_id),
-    INDEX idx_exam_date (exam_date),
-    INDEX idx_student_course (student_id, course_id),
-    INDEX idx_exam_type (exam_type)
+    INDEX idx_student_course (student_id, course_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='成绩表';
 
 -- 创建学习行为记录表 (跟踪学生学习活动)
@@ -132,7 +128,7 @@ CREATE TABLE IF NOT EXISTS learning_activities (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '活动ID',
     student_id BIGINT NOT NULL COMMENT '学生ID',
     course_id BIGINT COMMENT '课程ID',
-    activity_type VARCHAR(50) NOT NULL COMMENT '活动类型: LOGIN, VIEW_MATERIAL, SUBMIT_ASSIGNMENT, TAKE_QUIZ',
+    activity_type VARCHAR(50) NOT NULL COMMENT '活动类型: LOGIN, VIEW_MATERIAL, SUBMIT_ASSIGNMENT',
     activity_data JSON COMMENT '活动数据',
     duration INT COMMENT '持续时间(秒)',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

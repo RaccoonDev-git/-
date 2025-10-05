@@ -113,31 +113,31 @@ INSERT INTO course_enrollments (student_id, course_id, status) VALUES
 -- =============================================
 
 -- 陈同学的成绩 (优秀学生)
-INSERT INTO grades (student_id, course_id, exam_type, score, max_score, percentage, grade_level, exam_date) VALUES
-(1, 1, '期中考试', 88.0, 100, 88.0, 'B', '2024-05-15'),
-(1, 1, '期末考试', 92.0, 100, 92.0, 'A', '2024-07-10'),
-(1, 1, '平时作业', 95.0, 100, 95.0, 'A', '2024-06-20'),
-(1, 2, '期中考试', 85.0, 100, 85.0, 'B', '2024-05-20'),
-(1, 2, '期末考试', 90.0, 100, 90.0, 'A', '2024-07-15'),
-(1, 3, '期中考试', 78.0, 100, 78.0, 'C', '2024-05-10'),
-(1, 3, '期末考试', 82.0, 100, 82.0, 'B', '2024-07-05');
+INSERT INTO grades (student_id, course_id, score, max_score, percentage, grade_level, remarks) VALUES
+(1, 1, 88.0, 100, 88.0, 'B', '课程表现良好'),
+(1, 1, 92.0, 100, 92.0, 'A', '成绩优秀'),
+(1, 1, 95.0, 100, 95.0, 'A', '平时作业认真'),
+(1, 2, 85.0, 100, 85.0, 'B', '进步明显'),
+(1, 2, 90.0, 100, 90.0, 'A', '表现优异'),
+(1, 3, 78.0, 100, 78.0, 'C', '需要加强'),
+(1, 3, 82.0, 100, 82.0, 'B', '有所进步');
 
 -- 刘同学的成绩 (中等学生)
-INSERT INTO grades (student_id, course_id, exam_type, score, max_score, percentage, grade_level, exam_date) VALUES
-(2, 1, '期中考试', 75.0, 100, 75.0, 'C', '2024-05-15'),
-(2, 1, '期末考试', 80.0, 100, 80.0, 'B', '2024-07-10'),
-(2, 3, '期中考试', 70.0, 100, 70.0, 'C', '2024-05-10'),
-(2, 3, '期末考试', 75.0, 100, 75.0, 'C', '2024-07-05');
+INSERT INTO grades (student_id, course_id, score, max_score, percentage, grade_level, remarks) VALUES
+(2, 1, 75.0, 100, 75.0, 'C', '基础扎实'),
+(2, 1, 80.0, 100, 80.0, 'B', '稳步提升'),
+(2, 3, 70.0, 100, 70.0, 'C', '努力学习'),
+(2, 3, 75.0, 100, 75.0, 'C', '持续进步');
 
 -- 赵同学的成绩
-INSERT INTO grades (student_id, course_id, exam_type, score, max_score, percentage, grade_level, exam_date) VALUES
-(3, 3, '期中考试', 82.0, 100, 82.0, 'B', '2024-05-10'),
-(3, 3, '期末考试', 88.0, 100, 88.0, 'B', '2024-07-05');
+INSERT INTO grades (student_id, course_id, score, max_score, percentage, grade_level, remarks) VALUES
+(3, 3, 82.0, 100, 82.0, 'B', '表现良好'),
+(3, 3, 88.0, 100, 88.0, 'B', '成绩优秀');
 
 -- 孙同学的成绩
-INSERT INTO grades (student_id, course_id, exam_type, score, max_score, percentage, grade_level, exam_date) VALUES
-(4, 3, '期中考试', 65.0, 100, 65.0, 'D', '2024-05-10'),
-(4, 3, '期末考试', 70.0, 100, 70.0, 'C', '2024-07-05');
+INSERT INTO grades (student_id, course_id, score, max_score, percentage, grade_level, remarks) VALUES
+(4, 3, 65.0, 100, 65.0, 'D', '需要努力'),
+(4, 3, 70.0, 100, 70.0, 'C', '有所改善');
 
 -- =============================================
 -- 7. 插入学习活动记录
@@ -149,8 +149,7 @@ INSERT INTO learning_activities (student_id, course_id, activity_type, activity_
 (1, 1, 'VIEW_MATERIAL', '{"material": "第一章课件", "chapter": 1}', 1200),
 (1, 1, 'SUBMIT_ASSIGNMENT', '{"assignment": "作业1", "score": 95}', 3600),
 (1, 2, 'LOGIN', '{"ip": "192.168.1.100", "device": "Windows"}', 0),
-(1, 2, 'VIEW_MATERIAL', '{"material": "SQL基础", "chapter": 2}', 1800),
-(1, 2, 'TAKE_QUIZ', '{"quiz": "测验1", "score": 90}', 1200);
+(1, 2, 'VIEW_MATERIAL', '{"material": "SQL基础", "chapter": 2}', 1800);
 
 -- 刘同学的学习活动 (中等活跃)
 INSERT INTO learning_activities (student_id, course_id, activity_type, activity_data, duration) VALUES
@@ -163,11 +162,11 @@ INSERT INTO learning_activities (student_id, course_id, activity_type, activity_
 -- =============================================
 
 INSERT INTO notifications (user_id, title, content, type, is_read) VALUES
-(5, '新成绩发布', '您的数据结构期末考试成绩已发布,请查看', 'GRADE', FALSE),
+(5, '新成绩发布', '您的数据结构成绩已发布,请查看', 'GRADE', FALSE),
 (5, '选课通知', '下学期选课系统将于下周一开放', 'COURSE', FALSE),
 (5, '系统维护通知', '系统将于本周六进行维护,届时无法访问', 'SYSTEM', TRUE),
 (6, '作业提醒', '数据结构作业2即将截止,请及时提交', 'COURSE', FALSE),
-(7, '成绩公布', '高等数学期末成绩已公布', 'GRADE', FALSE);
+(7, '成绩公布', '高等数学成绩已公布', 'GRADE', FALSE);
 
 -- =============================================
 -- 数据插入完成

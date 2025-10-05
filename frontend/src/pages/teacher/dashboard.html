@@ -1383,115 +1383,6 @@
             color: #00acc1;
         }
 
-        /* 考试管理样式 */
-        .exam-controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-
-        .add-exam-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: rgba(57, 247, 255, 0.2);
-            border: 2px solid rgba(57, 247, 255, 0.4);
-            border-radius: 8px;
-            color: #39f7ff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .add-exam-btn:hover {
-            background: rgba(57, 247, 255, 0.3);
-            border-color: rgba(57, 247, 255, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .exam-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
-        }
-
-        .exam-card {
-            background: rgba(15, 23, 42, 0.3);
-            border: 1px solid rgba(57, 247, 255, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .exam-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(57, 247, 255, 0.4);
-            box-shadow: 0 5px 15px rgba(57, 247, 255, 0.1);
-        }
-
-        .exam-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .exam-card-title {
-            font-size: 1.2em;
-            font-weight: 500;
-            color: #39f7ff;
-        }
-
-        .exam-card-type {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        .exam-type {
-            background: rgba(57, 247, 255, 0.1);
-            color: #39f7ff;
-        }
-
-        .practice-type {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
-        }
-
-        .exam-card-info {
-            margin: 10px 0;
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .exam-card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .exam-card-actions button {
-            flex: 1;
-            padding: 8px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .edit-exam-btn {
-            background: rgba(57, 247, 255, 0.2);
-            color: #39f7ff;
-        }
-
-        .delete-exam-btn {
-            background: rgba(255, 99, 132, 0.2);
-            color: #ff6384;
-        }
-
         /* 模态框样式 */
         .modal {
             display: none;
@@ -1590,44 +1481,6 @@
         }
 
         /* 日间模式样式 */
-        .day-mode .exam-card {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(0, 172, 193, 0.2);
-        }
-
-        .day-mode .exam-card:hover {
-            border-color: rgba(0, 172, 193, 0.4);
-            box-shadow: 0 5px 15px rgba(0, 172, 193, 0.1);
-        }
-
-        .day-mode .exam-card-title {
-            color: #00838f;
-        }
-
-        .day-mode .exam-type {
-            background: rgba(0, 172, 193, 0.1);
-            color: #00838f;
-        }
-
-        .day-mode .practice-type {
-            background: rgba(255, 152, 0, 0.1);
-            color: #f57c00;
-        }
-
-        .day-mode .exam-card-info {
-            color: rgba(0, 0, 0, 0.7);
-        }
-
-        .day-mode .edit-exam-btn {
-            background: rgba(0, 172, 193, 0.1);
-            color: #00838f;
-        }
-
-        .day-mode .delete-exam-btn {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-
         .day-mode .modal-content {
             background: rgba(255, 255, 255, 0.95);
             color: #333;
@@ -1643,15 +1496,6 @@
             background: white;
             color: #333;
             border-color: rgba(0, 172, 193, 0.3);
-        }
-
-        .day-mode .add-question-btn {
-            background: rgba(0, 172, 193, 0.1);
-            color: #00838f;
-        }
-
-        .day-mode .question-item {
-            background: rgba(0, 172, 193, 0.05);
         }
     </style>
 </head>
@@ -1676,7 +1520,6 @@
     <div class="sidebar">
         <a href="#student-management">学生管理</a>
         <a href="#learning-analysis">学情分析</a>
-        <a href="#exam-management">发布考试与练习</a>
         <a href="#resource-management">教学资源管理</a>
         <a href="#communication">沟通与互动</a>
     </div>
@@ -1808,95 +1651,8 @@
             </div>
         </div>
 
-        <!-- 考试与练习管理模块 -->
-        <div id="exam-management" style="display: none;">
-            <h2>考试与练习管理</h2>
-            <div class="exam-controls">
-                <button class="add-exam-btn" onclick="showAddExamModal()">
-                    <i class="fas fa-plus"></i> 添加考试/练习
-                </button>
-                <select id="exam-type-filter" onchange="filterExams()">
-                    <option value="all">所有类型</option>
-                    <option value="exam">考试</option>
-                    <option value="practice">练习</option>
-                </select>
-                <select id="exam-subject-filter" onchange="filterExams()">
-                    <option value="all">所有科目</option>
-                    <option value="cLanguage">C语言</option>
-                    <option value="math">高等数学</option>
-                    <option value="english">大学英语</option>
-                    <option value="physics">大学物理</option>
-                </select>
-                <input type="text" id="exam-search" placeholder="搜索..." oninput="filterExams()">
-            </div>
-
-            <div class="exam-list">
-                <!-- 考试列表将通过JavaScript动态生成 -->
-            </div>
-        </div>
-
-        <!-- 添加考试/练习的模态框 -->
-        <div class="modal" id="addExamModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>添加考试/练习</h3>
-                    <button class="close-btn" onclick="closeAddExamModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <form id="addExamForm">
-                        <div class="form-group">
-                            <label for="examTitle">标题</label>
-                            <input type="text" id="examTitle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="examType">类型</label>
-                            <select id="examType" required>
-                                <option value="exam">考试</option>
-                                <option value="practice">练习</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="examSubject">科目</label>
-                            <select id="examSubject" required>
-                                <option value="cLanguage">C语言</option>
-                                <option value="math">高等数学</option>
-                                <option value="english">大学英语</option>
-                                <option value="physics">大学物理</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="examClass">班级</label>
-                            <select id="examClass" required>
-                                <option value="class1">计算机科学与技术1班</option>
-                                <option value="class2">软件工程2班</option>
-                                <option value="class3">信息安全3班</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="examStartTime">开始时间</label>
-                            <input type="datetime-local" id="examStartTime" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="examDuration">时长(分钟)</label>
-                            <input type="number" id="examDuration" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="examQuestions">题目</label>
-                            <div id="questionsList">
-                                <!-- 题目列表将通过JavaScript动态生成 -->
-                            </div>
-                            <button type="button" onclick="addQuestion()" class="add-question-btn">
-                                <i class="fas fa-plus"></i> 添加题目
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button onclick="closeAddExamModal()">取消</button>
-                    <button onclick="saveExam()" class="primary-btn">保存</button>
-                </div>
-            </div>
-        </div>
+        <!-- 教学资源管理模块 (此处可以添加未来的资源管理功能) -->
+        <!-- 沟通与互动模块 (此处可以添加未来的沟通功能) -->
     </div>
 </div>
 

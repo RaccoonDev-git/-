@@ -258,7 +258,7 @@ async function renderStudentTrend() {
                 <canvas id="studentTrendChart"></canvas>
             </div>
             <div class="chart-info">
-                <p>该图表显示了选定学生在各次考试中的成绩变化趋势。</p>
+                <p>该图表显示了选定学生的成绩变化趋势。</p>
             </div>
         `;
 
@@ -305,14 +305,13 @@ function renderStudentChart(studentId) {
         return;
     }
 
-    // 按考试日期排序
-    studentScores.sort((a, b) => new Date(a.examDate) - new Date(b.examDate));
+    // 按创建时间排序
+    studentScores.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
     // 准备图表数据
-    const labels = studentScores.map(score => {
+    const labels = studentScores.map((score, index) => {
         const course = courses.find(c => c.id === score.courseId);
-        return `${formatDate(score.examDate)}
-${course ? course.courseName : `课程ID: ${score.courseId}`}`;
+        return `${course ? course.courseName : `课程ID: ${score.courseId}`} (${index + 1})`;
     });
 
     const data = studentScores.map(score => score.scoreValue);
@@ -351,7 +350,7 @@ ${course ? course.courseName : `课程ID: ${score.courseId}`}`;
                 x: {
                     title: {
                         display: true,
-                        text: '考试日期及课程'
+                        text: '课程及成绩记录'
                     }
                 }
             },
