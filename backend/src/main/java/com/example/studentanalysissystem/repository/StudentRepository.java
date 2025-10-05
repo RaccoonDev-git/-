@@ -72,4 +72,18 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
      */
     @Query("SELECT s FROM Student s WHERE s.studentNumber LIKE %:keyword% OR s.name LIKE %:keyword%")
     List<Student> searchByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * 高级筛选学生
+     */
+    @Query("SELECT s FROM Student s WHERE " +
+           "(:gradeLevel IS NULL OR s.gradeLevel = :gradeLevel) AND " +
+           "(:className IS NULL OR s.className = :className) AND " +
+           "(:major IS NULL OR s.major = :major) AND " +
+           "(:keyword IS NULL OR s.name LIKE %:keyword% OR s.studentNumber LIKE %:keyword%)")
+    List<Student> filterStudents(
+            @Param("gradeLevel") Integer gradeLevel,
+            @Param("className") String className,
+            @Param("major") String major,
+            @Param("keyword") String keyword);
 }

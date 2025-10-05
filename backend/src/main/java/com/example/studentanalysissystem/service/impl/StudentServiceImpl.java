@@ -108,6 +108,9 @@ public class StudentServiceImpl implements StudentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
 
         // 更新学生信息(只更新非空字段)
+        if (request.getName() != null) {
+            student.setName(request.getName());
+        }
         if (request.getClassName() != null) {
             student.setClassName(request.getClassName());
         }
@@ -116,6 +119,21 @@ public class StudentServiceImpl implements StudentService {
         }
         if (request.getMajor() != null) {
             student.setMajor(request.getMajor());
+        }
+        if (request.getEnrollmentDate() != null) {
+            student.setEnrollmentDate(request.getEnrollmentDate());
+        }
+        if (request.getGraduationDate() != null) {
+            student.setGraduationDate(request.getGraduationDate());
+        }
+        if (request.getRemarks() != null) {
+            student.setRemarks(request.getRemarks());
+        }
+        if (request.getPhone() != null) {
+            // 更新用户表的手机号
+            User user = student.getUser();
+            user.setPhone(request.getPhone());
+            userRepository.save(user);
         }
 
         Student updatedStudent = studentRepository.save(student);
@@ -131,8 +149,33 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Transactional
+    public void batchDeleteStudents(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        // 批量删除学生
+        studentRepository.deleteAllById(ids);
+    }
+
+    @Override
     public List<StudentResponse> searchStudents(String keyword) {
         List<Student> students = studentRepository.searchByKeyword(keyword);
+        return studentMapper.toResponseList(students);
+    }
+
+    @Override
+    public List<StudentResponse> filterStudents(Integer gradeLevel, String className, String major, String keyword) {
+        List<Student> students;
+        
+        // 如果所有参数都为空，返回所有学生
+        if (gradeLevel == null && className == null && major == null && keyword == null) {
+            students = studentRepository.findAll();
+        } else {
+            // 使用仓库方法进行高级筛选
+            students = studentRepository.filterStudents(gradeLevel, className, major, keyword);
+        }
+        
         return studentMapper.toResponseList(students);
     }
 }

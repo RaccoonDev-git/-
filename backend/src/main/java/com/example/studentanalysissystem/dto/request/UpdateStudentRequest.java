@@ -2,11 +2,15 @@ package com.example.studentanalysissystem.dto.request;
 
 import lombok.Data;
 
+import java.time.LocalDate;
+
 /**
  * 更新学生请求DTO
  */
 @Data
 public class UpdateStudentRequest {
+
+    private String name;
 
     private String className;
 
@@ -14,9 +18,11 @@ public class UpdateStudentRequest {
 
     private String major;
 
-    private String gender;
+    private LocalDate enrollmentDate;
 
-    private String contactPhone;
+    private LocalDate graduationDate;
 
-    private String address;
+    private String remarks;
+
+    private String phone;
 }

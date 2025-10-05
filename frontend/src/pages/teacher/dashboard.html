@@ -1596,7 +1596,11 @@
         align-items: center;
         margin-bottom: 15px;
         padding: 12px 20px;
-        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(255, 193, 7, 0.1) 0%,
+          rgba(255, 152, 0, 0.1) 100%
+        );
         border-radius: 10px;
         border: 1px solid rgba(255, 193, 7, 0.3);
       }
@@ -2442,7 +2446,7 @@
         <!-- 学生管理模块 -->
         <div id="student-management">
           <h2>学生管理</h2>
-          
+
           <!-- 工具栏 -->
           <div class="student-toolbar">
             <div class="toolbar-left">
@@ -2455,16 +2459,28 @@
               <button class="btn-secondary" onclick="exportStudents()">
                 <i class="fas fa-file-export"></i> 导出数据
               </button>
-              <button class="btn-secondary" onclick="toggleBatchMode()" id="batchModeBtn">
+              <button
+                class="btn-secondary"
+                onclick="toggleBatchMode()"
+                id="batchModeBtn"
+              >
                 <i class="fas fa-check-square"></i> 批量操作
               </button>
             </div>
             <div class="toolbar-right">
               <div class="view-switcher">
-                <button class="view-btn active" onclick="switchView('table')" data-view="table">
+                <button
+                  class="view-btn active"
+                  onclick="switchView('table')"
+                  data-view="table"
+                >
                   <i class="fas fa-table"></i>
                 </button>
-                <button class="view-btn" onclick="switchView('card')" data-view="card">
+                <button
+                  class="view-btn"
+                  onclick="switchView('card')"
+                  data-view="card"
+                >
                   <i class="fas fa-th"></i>
                 </button>
               </div>
@@ -2510,14 +2526,18 @@
                 placeholder="搜索姓名、学号、手机号..."
                 oninput="searchStudents()"
               />
-              <button class="clear-search" onclick="clearSearch()" style="display:none;">
+              <button
+                class="clear-search"
+                onclick="clearSearch()"
+                style="display: none"
+              >
                 <i class="fas fa-times"></i>
               </button>
             </div>
           </div>
 
           <!-- 批量操作工具栏 (默认隐藏) -->
-          <div class="batch-toolbar" id="batchToolbar" style="display: none;">
+          <div class="batch-toolbar" id="batchToolbar" style="display: none">
             <div class="batch-info">
               <span>已选择 <strong id="selectedCount">0</strong> 个学生</span>
             </div>
@@ -2539,8 +2559,12 @@
             <table class="student-table">
               <thead>
                 <tr>
-                  <th class="batch-column" style="display: none;">
-                    <input type="checkbox" id="selectAllCheckbox" onchange="selectAll(this)">
+                  <th class="batch-column" style="display: none">
+                    <input
+                      type="checkbox"
+                      id="selectAllCheckbox"
+                      onchange="selectAll(this)"
+                    />
                   </th>
                   <th onclick="sortTable('name')">
                     姓名 <i class="fas fa-sort"></i>
@@ -2568,7 +2592,11 @@
           </div>
 
           <!-- 卡片视图 (默认隐藏) -->
-          <div id="card-view" class="student-card-container" style="display: none;">
+          <div
+            id="card-view"
+            class="student-card-container"
+            style="display: none"
+          >
             <div id="student-card-grid" class="student-cards-grid">
               <!-- 动态生成学生卡片 -->
             </div>
@@ -2577,9 +2605,9 @@
           <!-- 分页控件 -->
           <div class="pagination-container">
             <div class="pagination-info">
-              共 <strong id="totalCount">0</strong> 个学生，
-              显示第 <strong id="currentPage">1</strong> 页，
-              共 <strong id="totalPages">1</strong> 页
+              共 <strong id="totalCount">0</strong> 个学生， 显示第
+              <strong id="currentPage">1</strong> 页， 共
+              <strong id="totalPages">1</strong> 页
             </div>
             <div class="pagination-controls">
               <button onclick="firstPage()" id="firstPageBtn">
@@ -2588,8 +2616,13 @@
               <button onclick="prevPage()" id="prevPageBtn">
                 <i class="fas fa-angle-left"></i>
               </button>
-              <input type="number" id="pageInput" min="1" value="1" 
-                     onchange="goToPage(this.value)" />
+              <input
+                type="number"
+                id="pageInput"
+                min="1"
+                value="1"
+                onchange="goToPage(this.value)"
+              />
               <button onclick="nextPage()" id="nextPageBtn">
                 <i class="fas fa-angle-right"></i>
               </button>
@@ -2724,7 +2757,7 @@
 
     <!-- 自定义光标 -->
     <div class="custom-cursor"></div>
-    
+
     <!-- 学生详情/编辑模态框 -->
     <div class="modal" id="studentDetailModal">
       <div class="modal-content modal-large">
@@ -2734,28 +2767,42 @@
         </div>
         <div class="modal-body">
           <div class="student-detail-tabs">
-            <button class="tab-btn active" onclick="switchTab('info')">基本信息</button>
-            <button class="tab-btn" onclick="switchTab('grades')">成绩记录</button>
-            <button class="tab-btn" onclick="switchTab('courses')">选课情况</button>
-            <button class="tab-btn" onclick="switchTab('activities')">学习活动</button>
+            <button class="tab-btn active" onclick="switchTab('info')">
+              基本信息
+            </button>
+            <button class="tab-btn" onclick="switchTab('grades')">
+              成绩记录
+            </button>
+            <button class="tab-btn" onclick="switchTab('courses')">
+              选课情况
+            </button>
+            <button class="tab-btn" onclick="switchTab('activities')">
+              学习活动
+            </button>
           </div>
-          
+
           <!-- 基本信息标签页 -->
           <div class="tab-content active" id="info-tab">
             <form id="studentForm" class="student-form">
               <div class="form-row">
                 <div class="form-group">
-                  <label for="studentName">姓名 <span class="required">*</span></label>
+                  <label for="studentName"
+                    >姓名 <span class="required">*</span></label
+                  >
                   <input type="text" id="studentName" required />
                 </div>
                 <div class="form-group">
-                  <label for="studentNumber">学号 <span class="required">*</span></label>
+                  <label for="studentNumber"
+                    >学号 <span class="required">*</span></label
+                  >
                   <input type="text" id="studentNumber" required />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="studentGrade">年级 <span class="required">*</span></label>
+                  <label for="studentGrade"
+                    >年级 <span class="required">*</span></label
+                  >
                   <select id="studentGrade" required>
                     <option value="">请选择年级</option>
                     <option value="1">一年级</option>
@@ -2765,13 +2812,22 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="studentClass">班级 <span class="required">*</span></label>
-                  <input type="text" id="studentClass" placeholder="如：计算机科学与技术1班" required />
+                  <label for="studentClass"
+                    >班级 <span class="required">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="studentClass"
+                    placeholder="如：计算机科学与技术1班"
+                    required
+                  />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="studentMajor">专业 <span class="required">*</span></label>
+                  <label for="studentMajor"
+                    >专业 <span class="required">*</span></label
+                  >
                   <select id="studentMajor" required>
                     <option value="">请选择专业</option>
                     <option value="计算机科学与技术">计算机科学与技术</option>
@@ -2789,14 +2845,18 @@
               <div class="form-row">
                 <div class="form-group full-width">
                   <label for="studentRemarks">备注</label>
-                  <textarea id="studentRemarks" rows="3" placeholder="其他备注信息..."></textarea>
+                  <textarea
+                    id="studentRemarks"
+                    rows="3"
+                    placeholder="其他备注信息..."
+                  ></textarea>
                 </div>
               </div>
             </form>
           </div>
-          
+
           <!-- 成绩记录标签页 -->
-          <div class="tab-content" id="grades-tab" style="display: none;">
+          <div class="tab-content" id="grades-tab" style="display: none">
             <div class="grades-summary">
               <div class="summary-card">
                 <div class="summary-label">平均成绩</div>
@@ -2831,18 +2891,18 @@
               </tbody>
             </table>
           </div>
-          
+
           <!-- 选课情况标签页 -->
-          <div class="tab-content" id="courses-tab" style="display: none;">
+          <div class="tab-content" id="courses-tab" style="display: none">
             <div class="courses-list">
               <div id="coursesListBody">
                 <!-- 动态加载选课数据 -->
               </div>
             </div>
           </div>
-          
+
           <!-- 学习活动标签页 -->
-          <div class="tab-content" id="activities-tab" style="display: none;">
+          <div class="tab-content" id="activities-tab" style="display: none">
             <div class="activities-stats">
               <div class="stat-item">
                 <i class="fas fa-clock"></i>
@@ -2868,8 +2928,16 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" onclick="closeStudentModal()">取消</button>
-          <button class="btn-primary" onclick="saveStudent()" id="saveStudentBtn">保存</button>
+          <button class="btn-secondary" onclick="closeStudentModal()">
+            取消
+          </button>
+          <button
+            class="btn-primary"
+            onclick="saveStudent()"
+            id="saveStudentBtn"
+          >
+            保存
+          </button>
         </div>
       </div>
     </div>
@@ -2899,17 +2967,28 @@
                 <h4>选择文件</h4>
                 <p>选择填写好的Excel文件(.xlsx, .xls)或CSV文件</p>
                 <div class="file-upload-area" id="fileUploadArea">
-                  <input type="file" id="importFile" accept=".xlsx,.xls,.csv" 
-                         onchange="handleFileSelect(event)" style="display:none;" />
+                  <input
+                    type="file"
+                    id="importFile"
+                    accept=".xlsx,.xls,.csv"
+                    onchange="handleFileSelect(event)"
+                    style="display: none"
+                  />
                   <label for="importFile" class="upload-label">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <div>点击或拖拽文件到此处</div>
                     <div class="file-hint">支持 .xlsx, .xls, .csv 格式</div>
                   </label>
-                  <div class="selected-file" id="selectedFile" style="display:none;">
+                  <div
+                    class="selected-file"
+                    id="selectedFile"
+                    style="display: none"
+                  >
                     <i class="fas fa-file-excel"></i>
                     <span id="fileName"></span>
-                    <button onclick="clearFile()"><i class="fas fa-times"></i></button>
+                    <button onclick="clearFile()">
+                      <i class="fas fa-times"></i>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -2919,9 +2998,15 @@
               <div class="step-content">
                 <h4>预览与导入</h4>
                 <p>预览导入数据,确认无误后点击导入</p>
-                <div class="import-preview" id="importPreview" style="display:none;">
+                <div
+                  class="import-preview"
+                  id="importPreview"
+                  style="display: none"
+                >
                   <div class="preview-stats">
-                    <span>准备导入 <strong id="importCount">0</strong> 条记录</span>
+                    <span
+                      >准备导入 <strong id="importCount">0</strong> 条记录</span
+                    >
                   </div>
                   <div class="preview-table-container">
                     <table class="preview-table">
@@ -2935,8 +3020,15 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" onclick="closeImportModal()">取消</button>
-          <button class="btn-primary" onclick="executeImport()" id="importBtn" disabled>
+          <button class="btn-secondary" onclick="closeImportModal()">
+            取消
+          </button>
+          <button
+            class="btn-primary"
+            onclick="executeImport()"
+            id="importBtn"
+            disabled
+          >
             <i class="fas fa-upload"></i> 开始导入
           </button>
         </div>
@@ -3469,53 +3561,59 @@
       }
 
       // ========== 学生管理增强功能 ==========
-      
+
       // 全局状态
-      let currentView = 'table'; // 'table' or 'card'
+      let currentView = "table"; // 'table' or 'card'
       let batchMode = false;
       let selectedStudents = new Set();
       let currentFilters = {
-        grade: '',
-        class: '',
-        major: '',
-        search: ''
+        grade: "",
+        class: "",
+        major: "",
+        search: "",
       };
       let currentSort = {
-        field: '',
-        order: 'asc' // 'asc' or 'desc'
+        field: "",
+        order: "asc", // 'asc' or 'desc'
       };
       let currentPageSize = 10;
 
       // 视图切换
       function switchView(view) {
         currentView = view;
-        document.querySelectorAll('.view-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.view === view);
+        document.querySelectorAll(".view-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.view === view);
         });
-        document.getElementById('table-view').style.display = view === 'table' ? 'block' : 'none';
-        document.getElementById('card-view').style.display = view === 'card' ? 'block' : 'none';
+        document.getElementById("table-view").style.display =
+          view === "table" ? "block" : "none";
+        document.getElementById("card-view").style.display =
+          view === "card" ? "block" : "none";
         refreshStudentList();
       }
 
       // 批量选择模式
       function toggleBatchMode() {
         batchMode = !batchMode;
-        document.getElementById('batch-toolbar').style.display = batchMode ? 'flex' : 'none';
-        document.querySelectorAll('.batch-column').forEach(el => {
-          el.style.display = batchMode ? 'table-cell' : 'none';
+        document.getElementById("batch-toolbar").style.display = batchMode
+          ? "flex"
+          : "none";
+        document.querySelectorAll(".batch-column").forEach((el) => {
+          el.style.display = batchMode ? "table-cell" : "none";
         });
         if (!batchMode) {
           selectedStudents.clear();
-          document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+          document
+            .querySelectorAll(".student-checkbox")
+            .forEach((cb) => (cb.checked = false));
         }
         updateBatchInfo();
       }
 
       // 全选/取消全选
       function toggleSelectAll() {
-        const checkAll = document.getElementById('checkAll');
-        const checkboxes = document.querySelectorAll('.student-checkbox');
-        checkboxes.forEach(cb => {
+        const checkAll = document.getElementById("checkAll");
+        const checkboxes = document.querySelectorAll(".student-checkbox");
+        checkboxes.forEach((cb) => {
           cb.checked = checkAll.checked;
           if (checkAll.checked) {
             selectedStudents.add(cb.dataset.studentId);
@@ -3534,60 +3632,68 @@
           selectedStudents.delete(studentId);
         }
         updateBatchInfo();
-        
+
         // 更新全选状态
-        const allCheckboxes = document.querySelectorAll('.student-checkbox');
-        const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
-        document.getElementById('checkAll').checked = checkedCount === allCheckboxes.length && checkedCount > 0;
+        const allCheckboxes = document.querySelectorAll(".student-checkbox");
+        const checkedCount = document.querySelectorAll(
+          ".student-checkbox:checked"
+        ).length;
+        document.getElementById("checkAll").checked =
+          checkedCount === allCheckboxes.length && checkedCount > 0;
       }
 
       // 更新批量选择信息
       function updateBatchInfo() {
         const count = selectedStudents.size;
-        document.getElementById('batch-info').textContent = `已选择 ${count} 个学生`;
+        document.getElementById(
+          "batch-info"
+        ).textContent = `已选择 ${count} 个学生`;
       }
 
       // 批量删除
       function batchDelete() {
         if (selectedStudents.size === 0) {
-          alert('请先选择要删除的学生');
+          alert("请先选择要删除的学生");
           return;
         }
-        
+
         if (confirm(`确定删除选中的 ${selectedStudents.size} 个学生吗？`)) {
-          const classSelect = document.getElementById('class-filter');
+          const classSelect = document.getElementById("class-filter");
           const selectedClass = classSelect.value;
-          
+
           // 从数据中删除选中的学生
           students[selectedClass] = students[selectedClass].filter(
-            s => !selectedStudents.has(s.id)
+            (s) => !selectedStudents.has(s.id)
           );
-          
+
           selectedStudents.clear();
           saveStudentsData();
           refreshStudentList();
           toggleBatchMode(); // 退出批量模式
-          alert('删除成功');
+          alert("删除成功");
         }
       }
 
       // 批量导出
       function batchExport() {
         if (selectedStudents.size === 0) {
-          alert('请先选择要导出的学生');
+          alert("请先选择要导出的学生");
           return;
         }
-        
-        const classSelect = document.getElementById('class-filter');
+
+        const classSelect = document.getElementById("class-filter");
         const selectedClass = classSelect.value;
-        
+
         // 获取选中的学生数据
-        const selectedData = students[selectedClass].filter(
-          s => selectedStudents.has(s.id)
+        const selectedData = students[selectedClass].filter((s) =>
+          selectedStudents.has(s.id)
         );
-        
+
         // 导出为CSV
-        exportToCSV(selectedData, `学生数据_${new Date().toLocaleDateString()}.csv`);
+        exportToCSV(
+          selectedData,
+          `学生数据_${new Date().toLocaleDateString()}.csv`
+        );
       }
 
       // 筛选功能
@@ -3610,119 +3716,137 @@
 
       // 清空搜索
       function clearSearch() {
-        document.getElementById('search-input').value = '';
-        currentFilters.search = '';
+        document.getElementById("search-input").value = "";
+        currentFilters.search = "";
         refreshStudentList();
       }
 
       // 排序功能
       function sortTable(field) {
         if (currentSort.field === field) {
-          currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+          currentSort.order = currentSort.order === "asc" ? "desc" : "asc";
         } else {
           currentSort.field = field;
-          currentSort.order = 'asc';
+          currentSort.order = "asc";
         }
-        
+
         // 更新排序图标
-        document.querySelectorAll('.student-table th i').forEach(icon => {
-          icon.className = 'fas fa-sort';
+        document.querySelectorAll(".student-table th i").forEach((icon) => {
+          icon.className = "fas fa-sort";
         });
         const currentIcon = document.querySelector(`[data-sort="${field}"] i`);
         if (currentIcon) {
-          currentIcon.className = currentSort.order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+          currentIcon.className =
+            currentSort.order === "asc" ? "fas fa-sort-up" : "fas fa-sort-down";
         }
-        
+
         refreshStudentList();
       }
 
       // 刷新学生列表
       function refreshStudentList() {
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+
         // 获取所有学生数据
         let studentList = [...students[selectedClass]];
-        
+
         // 应用筛选
         if (currentFilters.grade) {
-          studentList = studentList.filter(s => s.grade === currentFilters.grade);
-        }
-        if (currentFilters.major) {
-          studentList = studentList.filter(s => s.major === currentFilters.major);
-        }
-        if (currentFilters.search) {
-          studentList = studentList.filter(s => 
-            s.name.toLowerCase().includes(currentFilters.search) ||
-            s.id.toLowerCase().includes(currentFilters.search) ||
-            (s.phone && s.phone.includes(currentFilters.search))
+          studentList = studentList.filter(
+            (s) => s.grade === currentFilters.grade
           );
         }
-        
+        if (currentFilters.major) {
+          studentList = studentList.filter(
+            (s) => s.major === currentFilters.major
+          );
+        }
+        if (currentFilters.search) {
+          studentList = studentList.filter(
+            (s) =>
+              s.name.toLowerCase().includes(currentFilters.search) ||
+              s.id.toLowerCase().includes(currentFilters.search) ||
+              (s.phone && s.phone.includes(currentFilters.search))
+          );
+        }
+
         // 应用排序
         if (currentSort.field) {
           studentList.sort((a, b) => {
-            let aVal = a[currentSort.field] || '';
-            let bVal = b[currentSort.field] || '';
-            
-            if (typeof aVal === 'string') {
+            let aVal = a[currentSort.field] || "";
+            let bVal = b[currentSort.field] || "";
+
+            if (typeof aVal === "string") {
               aVal = aVal.toLowerCase();
               bVal = bVal.toLowerCase();
             }
-            
-            if (currentSort.order === 'asc') {
+
+            if (currentSort.order === "asc") {
               return aVal > bVal ? 1 : -1;
             } else {
               return aVal < bVal ? 1 : -1;
             }
           });
         }
-        
+
         // 分页
         const totalItems = studentList.length;
         const totalPages = Math.ceil(totalItems / currentPageSize);
         const start = (currentPage - 1) * currentPageSize;
         const end = start + currentPageSize;
         const paginatedList = studentList.slice(start, end);
-        
+
         // 渲染列表
-        if (currentView === 'table') {
+        if (currentView === "table") {
           renderTableView(paginatedList);
         } else {
           renderCardView(paginatedList);
         }
-        
+
         // 更新分页信息
         updatePagination(totalItems, totalPages);
       }
 
       // 渲染表格视图
       function renderTableView(studentList) {
-        const tbody = document.getElementById('student-table-body');
-        tbody.innerHTML = '';
-        
-        studentList.forEach(student => {
-          const row = document.createElement('tr');
+        const tbody = document.getElementById("student-table-body");
+        tbody.innerHTML = "";
+
+        studentList.forEach((student) => {
+          const row = document.createElement("tr");
           row.innerHTML = `
-            ${batchMode ? `<td class="batch-column" style="display: table-cell;">
+            ${
+              batchMode
+                ? `<td class="batch-column" style="display: table-cell;">
               <input type="checkbox" class="student-checkbox" 
                      data-student-id="${student.id}"
-                     onchange="toggleSelectStudent('${student.id}', this.checked)"
-                     ${selectedStudents.has(student.id) ? 'checked' : ''}>
-            </td>` : '<td class="batch-column" style="display: none;"></td>'}
+                     onchange="toggleSelectStudent('${
+                       student.id
+                     }', this.checked)"
+                     ${selectedStudents.has(student.id) ? "checked" : ""}>
+            </td>`
+                : '<td class="batch-column" style="display: none;"></td>'
+            }
             <td>${student.name}</td>
             <td>${student.id}</td>
-            <td>${student.class || '-'}</td>
-            <td>${student.grade || '-'}</td>
-            <td>${student.major || '-'}</td>
+            <td>${student.class || "-"}</td>
+            <td>${student.grade || "-"}</td>
+            <td>${student.major || "-"}</td>
             <td class="actions-column">
-              <button class="action-btn btn-view" onclick="viewStudentDetail('${student.id}')">
+              <button class="action-btn btn-view" onclick="viewStudentDetail('${
+                student.id
+              }')">
                 <i class="fas fa-eye"></i> 查看
               </button>
-              <button class="action-btn btn-edit" onclick="editStudent('${student.id}')">
+              <button class="action-btn btn-edit" onclick="editStudent('${
+                student.id
+              }')">
                 <i class="fas fa-edit"></i> 编辑
               </button>
-              <button class="action-btn btn-delete" onclick="deleteStudent('${student.id}')">
+              <button class="action-btn btn-delete" onclick="deleteStudent('${
+                student.id
+              }')">
                 <i class="fas fa-trash"></i> 删除
               </button>
             </td>
@@ -3733,12 +3857,12 @@
 
       // 渲染卡片视图
       function renderCardView(studentList) {
-        const container = document.getElementById('student-cards-grid');
-        container.innerHTML = '';
-        
-        studentList.forEach(student => {
-          const card = document.createElement('div');
-          card.className = 'student-card';
+        const container = document.getElementById("student-cards-grid");
+        container.innerHTML = "";
+
+        studentList.forEach((student) => {
+          const card = document.createElement("div");
+          card.className = "student-card";
           card.innerHTML = `
             <div class="student-card-header">
               <div class="student-avatar">
@@ -3752,29 +3876,33 @@
             <div class="student-card-details">
               <div class="detail-item">
                 <i class="fas fa-graduation-cap"></i>
-                <span>年级: ${student.grade || '-'}</span>
+                <span>年级: ${student.grade || "-"}</span>
               </div>
               <div class="detail-item">
                 <i class="fas fa-users"></i>
-                <span>班级: ${student.class || '-'}</span>
+                <span>班级: ${student.class || "-"}</span>
               </div>
               <div class="detail-item">
                 <i class="fas fa-book"></i>
-                <span>专业: ${student.major || '-'}</span>
+                <span>专业: ${student.major || "-"}</span>
               </div>
               <div class="detail-item">
                 <i class="fas fa-phone"></i>
-                <span>${student.phone || '未填写'}</span>
+                <span>${student.phone || "未填写"}</span>
               </div>
             </div>
             <div class="student-card-actions">
-              <button class="btn-view" onclick="viewStudentDetail('${student.id}')">
+              <button class="btn-view" onclick="viewStudentDetail('${
+                student.id
+              }')">
                 <i class="fas fa-eye"></i> 查看
               </button>
               <button class="btn-edit" onclick="editStudent('${student.id}')">
                 <i class="fas fa-edit"></i> 编辑
               </button>
-              <button class="btn-delete" onclick="deleteStudent('${student.id}')">
+              <button class="btn-delete" onclick="deleteStudent('${
+                student.id
+              }')">
                 <i class="fas fa-trash"></i> 删除
               </button>
             </div>
@@ -3785,17 +3913,23 @@
 
       // 更新分页控件
       function updatePagination(totalItems, totalPages) {
-        document.getElementById('pagination-info').textContent = 
-          `显示 ${(currentPage - 1) * currentPageSize + 1}-${Math.min(currentPage * currentPageSize, totalItems)} 条，共 ${totalItems} 条`;
-        
-        document.getElementById('btn-first').disabled = currentPage === 1;
-        document.getElementById('btn-prev').disabled = currentPage === 1;
-        document.getElementById('btn-next').disabled = currentPage === totalPages || totalPages === 0;
-        document.getElementById('btn-last').disabled = currentPage === totalPages || totalPages === 0;
-        
-        document.getElementById('page-input').value = currentPage;
-        document.getElementById('page-input').max = totalPages || 1;
-        document.getElementById('total-pages').textContent = totalPages || 1;
+        document.getElementById("pagination-info").textContent = `显示 ${
+          (currentPage - 1) * currentPageSize + 1
+        }-${Math.min(
+          currentPage * currentPageSize,
+          totalItems
+        )} 条，共 ${totalItems} 条`;
+
+        document.getElementById("btn-first").disabled = currentPage === 1;
+        document.getElementById("btn-prev").disabled = currentPage === 1;
+        document.getElementById("btn-next").disabled =
+          currentPage === totalPages || totalPages === 0;
+        document.getElementById("btn-last").disabled =
+          currentPage === totalPages || totalPages === 0;
+
+        document.getElementById("page-input").value = currentPage;
+        document.getElementById("page-input").max = totalPages || 1;
+        document.getElementById("total-pages").textContent = totalPages || 1;
       }
 
       // 分页控制
@@ -3812,10 +3946,12 @@
       }
 
       function goToNextPage() {
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        const totalPages = Math.ceil(students[selectedClass].length / currentPageSize);
-        
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+        const totalPages = Math.ceil(
+          students[selectedClass].length / currentPageSize
+        );
+
         if (currentPage < totalPages) {
           currentPage++;
           refreshStudentList();
@@ -3823,19 +3959,23 @@
       }
 
       function goToLastPage() {
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        currentPage = Math.ceil(students[selectedClass].length / currentPageSize);
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+        currentPage = Math.ceil(
+          students[selectedClass].length / currentPageSize
+        );
         refreshStudentList();
       }
 
       function goToPage() {
-        const input = document.getElementById('page-input');
+        const input = document.getElementById("page-input");
         const page = parseInt(input.value);
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        const totalPages = Math.ceil(students[selectedClass].length / currentPageSize);
-        
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+        const totalPages = Math.ceil(
+          students[selectedClass].length / currentPageSize
+        );
+
         if (page >= 1 && page <= totalPages) {
           currentPage = page;
           refreshStudentList();
@@ -3845,7 +3985,7 @@
       }
 
       function changePageSize() {
-        const select = document.getElementById('page-size');
+        const select = document.getElementById("page-size");
         currentPageSize = parseInt(select.value);
         currentPage = 1;
         refreshStudentList();
@@ -3853,33 +3993,37 @@
 
       // 查看学生详情
       function viewStudentDetail(studentId) {
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        const student = students[selectedClass].find(s => s.id === studentId);
-        
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+        const student = students[selectedClass].find((s) => s.id === studentId);
+
         if (!student) return;
-        
+
         // 填充基本信息
-        document.getElementById('detail-name').value = student.name;
-        document.getElementById('detail-number').value = student.id;
-        document.getElementById('detail-grade').value = student.grade || '';
-        document.getElementById('detail-class').value = student.class || '';
-        document.getElementById('detail-major').value = student.major || '';
-        document.getElementById('detail-phone').value = student.phone || '';
-        document.getElementById('detail-remarks').value = student.remarks || '';
-        
+        document.getElementById("detail-name").value = student.name;
+        document.getElementById("detail-number").value = student.id;
+        document.getElementById("detail-grade").value = student.grade || "";
+        document.getElementById("detail-class").value = student.class || "";
+        document.getElementById("detail-major").value = student.major || "";
+        document.getElementById("detail-phone").value = student.phone || "";
+        document.getElementById("detail-remarks").value = student.remarks || "";
+
         // 设置为查看模式（禁用输入）
-        document.querySelectorAll('#studentDetailModal input, #studentDetailModal select, #studentDetailModal textarea').forEach(input => {
-          input.disabled = true;
-        });
-        document.querySelector('.modal-footer').style.display = 'none';
-        
+        document
+          .querySelectorAll(
+            "#studentDetailModal input, #studentDetailModal select, #studentDetailModal textarea"
+          )
+          .forEach((input) => {
+            input.disabled = true;
+          });
+        document.querySelector(".modal-footer").style.display = "none";
+
         // 切换到基本信息标签
-        switchTab('info');
-        
+        switchTab("info");
+
         // 显示模态框
-        document.getElementById('studentDetailModal').style.display = 'block';
-        
+        document.getElementById("studentDetailModal").style.display = "block";
+
         // 加载成绩数据
         loadStudentGrades(studentId);
         // 加载选课数据
@@ -3890,71 +4034,77 @@
 
       // 编辑学生
       function editStudent(studentId) {
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        const student = students[selectedClass].find(s => s.id === studentId);
-        
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+        const student = students[selectedClass].find((s) => s.id === studentId);
+
         if (!student) return;
-        
+
         // 填充表单
-        document.getElementById('detail-name').value = student.name;
-        document.getElementById('detail-number').value = student.id;
-        document.getElementById('detail-grade').value = student.grade || '';
-        document.getElementById('detail-class').value = student.class || '';
-        document.getElementById('detail-major').value = student.major || '';
-        document.getElementById('detail-phone').value = student.phone || '';
-        document.getElementById('detail-remarks').value = student.remarks || '';
-        
+        document.getElementById("detail-name").value = student.name;
+        document.getElementById("detail-number").value = student.id;
+        document.getElementById("detail-grade").value = student.grade || "";
+        document.getElementById("detail-class").value = student.class || "";
+        document.getElementById("detail-major").value = student.major || "";
+        document.getElementById("detail-phone").value = student.phone || "";
+        document.getElementById("detail-remarks").value = student.remarks || "";
+
         // 设置为编辑模式
-        document.querySelectorAll('#studentDetailModal input, #studentDetailModal select, #studentDetailModal textarea').forEach(input => {
-          input.disabled = false;
-        });
-        document.getElementById('detail-number').disabled = true; // 学号不可编辑
-        document.querySelector('.modal-footer').style.display = 'flex';
-        
+        document
+          .querySelectorAll(
+            "#studentDetailModal input, #studentDetailModal select, #studentDetailModal textarea"
+          )
+          .forEach((input) => {
+            input.disabled = false;
+          });
+        document.getElementById("detail-number").disabled = true; // 学号不可编辑
+        document.querySelector(".modal-footer").style.display = "flex";
+
         // 切换到基本信息标签
-        switchTab('info');
-        
+        switchTab("info");
+
         // 显示模态框
-        document.getElementById('studentDetailModal').style.display = 'block';
-        
+        document.getElementById("studentDetailModal").style.display = "block";
+
         // 设置当前编辑的学生ID
-        document.getElementById('studentDetailModal').dataset.editingId = studentId;
+        document.getElementById("studentDetailModal").dataset.editingId =
+          studentId;
       }
 
       // 保存学生信息
       function saveStudentDetail() {
-        const studentId = document.getElementById('studentDetailModal').dataset.editingId;
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        const student = students[selectedClass].find(s => s.id === studentId);
-        
+        const studentId =
+          document.getElementById("studentDetailModal").dataset.editingId;
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+        const student = students[selectedClass].find((s) => s.id === studentId);
+
         if (!student) return;
-        
+
         // 更新学生信息
-        student.name = document.getElementById('detail-name').value;
-        student.grade = document.getElementById('detail-grade').value;
-        student.class = document.getElementById('detail-class').value;
-        student.major = document.getElementById('detail-major').value;
-        student.phone = document.getElementById('detail-phone').value;
-        student.remarks = document.getElementById('detail-remarks').value;
-        
+        student.name = document.getElementById("detail-name").value;
+        student.grade = document.getElementById("detail-grade").value;
+        student.class = document.getElementById("detail-class").value;
+        student.major = document.getElementById("detail-major").value;
+        student.phone = document.getElementById("detail-phone").value;
+        student.remarks = document.getElementById("detail-remarks").value;
+
         saveStudentsData();
         refreshStudentList();
-        closeModal('studentDetailModal');
-        alert('保存成功');
+        closeModal("studentDetailModal");
+        alert("保存成功");
       }
 
       // 切换详情标签
       function switchTab(tabName) {
         // 更新标签按钮状态
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.tab === tabName);
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.tab === tabName);
         });
-        
+
         // 显示对应内容
-        document.querySelectorAll('.tab-content').forEach(content => {
-          content.classList.toggle('active', content.id === `${tabName}-tab`);
+        document.querySelectorAll(".tab-content").forEach((content) => {
+          content.classList.toggle("active", content.id === `${tabName}-tab`);
         });
       }
 
@@ -3963,182 +4113,227 @@
         // 这里应该从后端API加载真实数据
         // 模拟数据
         const grades = [
-          { course: 'C语言', score: 85, credit: 4, semester: '2023-2024-1' },
-          { course: '数据结构', score: 92, credit: 4, semester: '2023-2024-1' },
-          { course: '计算机网络', score: 78, credit: 3, semester: '2023-2024-2' }
+          { course: "C语言", score: 85, credit: 4, semester: "2023-2024-1" },
+          { course: "数据结构", score: 92, credit: 4, semester: "2023-2024-1" },
+          {
+            course: "计算机网络",
+            score: 78,
+            credit: 3,
+            semester: "2023-2024-2",
+          },
         ];
-        
+
         // 计算统计信息
-        const avgScore = grades.reduce((sum, g) => sum + g.score, 0) / grades.length;
-        const maxScore = Math.max(...grades.map(g => g.score));
-        const minScore = Math.min(...grades.map(g => g.score));
-        
-        document.getElementById('avg-score').textContent = avgScore.toFixed(1);
-        document.getElementById('max-score').textContent = maxScore;
-        document.getElementById('min-score').textContent = minScore;
-        document.getElementById('course-count').textContent = grades.length;
-        
+        const avgScore =
+          grades.reduce((sum, g) => sum + g.score, 0) / grades.length;
+        const maxScore = Math.max(...grades.map((g) => g.score));
+        const minScore = Math.min(...grades.map((g) => g.score));
+
+        document.getElementById("avg-score").textContent = avgScore.toFixed(1);
+        document.getElementById("max-score").textContent = maxScore;
+        document.getElementById("min-score").textContent = minScore;
+        document.getElementById("course-count").textContent = grades.length;
+
         // 渲染成绩表格
-        const tbody = document.getElementById('grades-table-body');
-        tbody.innerHTML = grades.map(g => `
+        const tbody = document.getElementById("grades-table-body");
+        tbody.innerHTML = grades
+          .map(
+            (g) => `
           <tr>
             <td>${g.course}</td>
             <td>${g.score}</td>
             <td>${g.credit}</td>
             <td>${g.semester}</td>
           </tr>
-        `).join('');
+        `
+          )
+          .join("");
       }
 
       // 加载学生选课
       function loadStudentCourses(studentId) {
         // 模拟数据
         const courses = [
-          { name: '操作系统', teacher: '王老师', time: '周一 1-2节', status: '进行中' },
-          { name: '软件工程', teacher: '李老师', time: '周三 3-4节', status: '进行中' }
+          {
+            name: "操作系统",
+            teacher: "王老师",
+            time: "周一 1-2节",
+            status: "进行中",
+          },
+          {
+            name: "软件工程",
+            teacher: "李老师",
+            time: "周三 3-4节",
+            status: "进行中",
+          },
         ];
-        
-        const container = document.getElementById('courses-list');
-        container.innerHTML = courses.map(c => `
+
+        const container = document.getElementById("courses-list");
+        container.innerHTML = courses
+          .map(
+            (c) => `
           <div class="course-item">
             <h4>${c.name}</h4>
             <p>教师: ${c.teacher} | 时间: ${c.time} | 状态: ${c.status}</p>
           </div>
-        `).join('');
+        `
+          )
+          .join("");
       }
 
       // 加载学习活动
       function loadStudentActivities(studentId) {
         // 模拟数据
-        document.getElementById('study-time').textContent = '126';
-        document.getElementById('login-count').textContent = '42';
-        
+        document.getElementById("study-time").textContent = "126";
+        document.getElementById("login-count").textContent = "42";
+
         const activities = [
-          { date: '2024-01-15', action: '完成作业：数据结构课后练习' },
-          { date: '2024-01-14', action: '观看视频：操作系统原理' },
-          { date: '2024-01-13', action: '参加测验：C语言期中考试' }
+          { date: "2024-01-15", action: "完成作业：数据结构课后练习" },
+          { date: "2024-01-14", action: "观看视频：操作系统原理" },
+          { date: "2024-01-13", action: "参加测验：C语言期中考试" },
         ];
-        
-        const container = document.getElementById('activities-timeline');
-        container.innerHTML = activities.map(a => `
+
+        const container = document.getElementById("activities-timeline");
+        container.innerHTML = activities
+          .map(
+            (a) => `
           <div class="activity-item">
             <strong>${a.date}</strong>
             <p>${a.action}</p>
           </div>
-        `).join('');
+        `
+          )
+          .join("");
       }
 
       // 导入功能
       function showImportModal() {
-        document.getElementById('importModal').style.display = 'block';
+        document.getElementById("importModal").style.display = "block";
         resetImportForm();
       }
 
       function resetImportForm() {
-        document.getElementById('import-file').value = '';
-        document.getElementById('selected-file-name').textContent = '';
-        document.getElementById('selected-file-info').style.display = 'none';
-        document.getElementById('import-preview').style.display = 'none';
+        document.getElementById("import-file").value = "";
+        document.getElementById("selected-file-name").textContent = "";
+        document.getElementById("selected-file-info").style.display = "none";
+        document.getElementById("import-preview").style.display = "none";
       }
 
       function downloadTemplate() {
         const template = [
-          { name: '示例姓名', id: '2024001', grade: '2024级', class: '计算机1班', major: '计算机科学', phone: '13800138000', remarks: '' }
+          {
+            name: "示例姓名",
+            id: "2024001",
+            grade: "2024级",
+            class: "计算机1班",
+            major: "计算机科学",
+            phone: "13800138000",
+            remarks: "",
+          },
         ];
-        exportToCSV(template, '学生信息导入模板.csv');
+        exportToCSV(template, "学生信息导入模板.csv");
       }
 
       function handleFileSelect(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
-        document.getElementById('selected-file-name').textContent = file.name;
-        document.getElementById('selected-file-info').style.display = 'flex';
-        
+
+        document.getElementById("selected-file-name").textContent = file.name;
+        document.getElementById("selected-file-info").style.display = "flex";
+
         // 读取并预览文件
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           try {
             const content = e.target.result;
             let data;
-            
-            if (file.name.endsWith('.csv')) {
+
+            if (file.name.endsWith(".csv")) {
               data = parseCSV(content);
-            } else if (file.name.endsWith('.json')) {
+            } else if (file.name.endsWith(".json")) {
               data = JSON.parse(content);
             } else {
-              alert('不支持的文件格式');
+              alert("不支持的文件格式");
               return;
             }
-            
+
             previewImportData(data);
           } catch (error) {
-            alert('文件解析失败：' + error.message);
+            alert("文件解析失败：" + error.message);
           }
         };
         reader.readAsText(file);
       }
 
       function removeSelectedFile() {
-        document.getElementById('import-file').value = '';
-        document.getElementById('selected-file-info').style.display = 'none';
-        document.getElementById('import-preview').style.display = 'none';
+        document.getElementById("import-file").value = "";
+        document.getElementById("selected-file-info").style.display = "none";
+        document.getElementById("import-preview").style.display = "none";
       }
 
       function previewImportData(data) {
-        document.getElementById('preview-count').textContent = data.length;
-        
-        const tbody = document.getElementById('preview-table-body');
-        tbody.innerHTML = data.slice(0, 10).map(student => `
+        document.getElementById("preview-count").textContent = data.length;
+
+        const tbody = document.getElementById("preview-table-body");
+        tbody.innerHTML = data
+          .slice(0, 10)
+          .map(
+            (student) => `
           <tr>
             <td>${student.name}</td>
             <td>${student.id}</td>
-            <td>${student.grade || '-'}</td>
-            <td>${student.class || '-'}</td>
-            <td>${student.major || '-'}</td>
+            <td>${student.grade || "-"}</td>
+            <td>${student.class || "-"}</td>
+            <td>${student.major || "-"}</td>
           </tr>
-        `).join('');
-        
+        `
+          )
+          .join("");
+
         if (data.length > 10) {
-          tbody.innerHTML += `<tr><td colspan="5" style="text-align: center; color: #ffc107;">... 还有 ${data.length - 10} 条数据未显示</td></tr>`;
+          tbody.innerHTML += `<tr><td colspan="5" style="text-align: center; color: #ffc107;">... 还有 ${
+            data.length - 10
+          } 条数据未显示</td></tr>`;
         }
-        
-        document.getElementById('import-preview').style.display = 'block';
-        
+
+        document.getElementById("import-preview").style.display = "block";
+
         // 保存数据以便导入
-        document.getElementById('importModal').dataset.importData = JSON.stringify(data);
+        document.getElementById("importModal").dataset.importData =
+          JSON.stringify(data);
       }
 
       function confirmImport() {
-        const dataStr = document.getElementById('importModal').dataset.importData;
+        const dataStr =
+          document.getElementById("importModal").dataset.importData;
         if (!dataStr) {
-          alert('请先选择文件');
+          alert("请先选择文件");
           return;
         }
-        
+
         const data = JSON.parse(dataStr);
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
-        
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
+
         // 合并数据
         students[selectedClass] = [...students[selectedClass], ...data];
-        
+
         saveStudentsData();
         refreshStudentList();
-        closeModal('importModal');
+        closeModal("importModal");
         alert(`成功导入 ${data.length} 条学生数据`);
       }
 
       // CSV解析
       function parseCSV(content) {
-        const lines = content.split('\n').filter(line => line.trim());
-        const headers = lines[0].split(',').map(h => h.trim());
-        
-        return lines.slice(1).map(line => {
-          const values = line.split(',').map(v => v.trim());
+        const lines = content.split("\n").filter((line) => line.trim());
+        const headers = lines[0].split(",").map((h) => h.trim());
+
+        return lines.slice(1).map((line) => {
+          const values = line.split(",").map((v) => v.trim());
           const obj = {};
           headers.forEach((header, i) => {
-            obj[header] = values[i] || '';
+            obj[header] = values[i] || "";
           });
           return obj;
         });
@@ -4147,16 +4342,18 @@
       // CSV导出
       function exportToCSV(data, filename) {
         if (data.length === 0) return;
-        
+
         const headers = Object.keys(data[0]);
         const csv = [
-          headers.join(','),
-          ...data.map(row => headers.map(h => row[h] || '').join(','))
-        ].join('\n');
-        
-        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+          headers.join(","),
+          ...data.map((row) => headers.map((h) => row[h] || "").join(",")),
+        ].join("\n");
+
+        const blob = new Blob(["\ufeff" + csv], {
+          type: "text/csv;charset=utf-8;",
+        });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = filename;
         a.click();
@@ -4165,42 +4362,59 @@
 
       // 导出功能增强
       function exportAllStudents() {
-        const classSelect = document.getElementById('class-filter');
-        const selectedClass = classSelect.value || 'class1';
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value || "class1";
         const data = students[selectedClass];
-        
-        exportToCSV(data, `学生数据_${selectedClass}_${new Date().toLocaleDateString()}.csv`);
+
+        exportToCSV(
+          data,
+          `学生数据_${selectedClass}_${new Date().toLocaleDateString()}.csv`
+        );
       }
 
       // 关闭模态框
       function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
+        document.getElementById(modalId).style.display = "none";
       }
 
       // 页面加载时初始化
-      window.addEventListener('DOMContentLoaded', function() {
+      window.addEventListener("DOMContentLoaded", function () {
         // 初始化视图按钮事件
-        document.querySelectorAll('.view-btn').forEach(btn => {
-          btn.addEventListener('click', () => switchView(btn.dataset.view));
+        document.querySelectorAll(".view-btn").forEach((btn) => {
+          btn.addEventListener("click", () => switchView(btn.dataset.view));
         });
-        
+
         // 初始化筛选器事件
-        document.getElementById('grade-filter')?.addEventListener('change', (e) => applyFilter('grade', e.target.value));
-        document.getElementById('class-filter')?.addEventListener('change', (e) => applyFilter('class', e.target.value));
-        document.getElementById('major-filter')?.addEventListener('change', (e) => applyFilter('major', e.target.value));
-        
+        document
+          .getElementById("grade-filter")
+          ?.addEventListener("change", (e) =>
+            applyFilter("grade", e.target.value)
+          );
+        document
+          .getElementById("class-filter")
+          ?.addEventListener("change", (e) =>
+            applyFilter("class", e.target.value)
+          );
+        document
+          .getElementById("major-filter")
+          ?.addEventListener("change", (e) =>
+            applyFilter("major", e.target.value)
+          );
+
         // 初始化搜索框
-        document.getElementById('search-input')?.addEventListener('input', (e) => handleSearch(e.target.value));
-        
+        document
+          .getElementById("search-input")
+          ?.addEventListener("input", (e) => handleSearch(e.target.value));
+
         // 初始化模态框关闭事件
-        document.querySelectorAll('.modal').forEach(modal => {
-          modal.addEventListener('click', (e) => {
+        document.querySelectorAll(".modal").forEach((modal) => {
+          modal.addEventListener("click", (e) => {
             if (e.target === modal) {
-              modal.style.display = 'none';
+              modal.style.display = "none";
             }
           });
         });
-        
+
         // 加载初始数据
         refreshStudentList();
       });

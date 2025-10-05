@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS students (
     enrollment_date DATE COMMENT '入学日期',
     graduation_date DATE COMMENT '毕业日期',
     avatar_url VARCHAR(255) COMMENT '头像URL',
+    remarks TEXT COMMENT '备注信息',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

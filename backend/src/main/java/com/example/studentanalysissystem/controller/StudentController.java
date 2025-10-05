@@ -124,4 +124,49 @@ public class StudentController {
         studentService.deleteStudent(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/batch")
+    @Operation(summary = "批量删除学生", description = "根据ID列表批量删除学生")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "删除成功"),
+            @ApiResponse(responseCode = "400", description = "请求参数错误")
+    })
+    public ResponseEntity<Void> batchDeleteStudents(@RequestBody List<Long> ids) {
+        studentService.batchDeleteStudents(ids);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/filter")
+    @Operation(summary = "高级筛选学生", description = "根据多个条件筛选学生")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<StudentResponse>> filterStudents(
+            @RequestParam(required = false) Integer gradeLevel,
+            @RequestParam(required = false) String className,
+            @RequestParam(required = false) String major,
+            @RequestParam(required = false) String keyword) {
+        List<StudentResponse> students = studentService.filterStudents(gradeLevel, className, major, keyword);
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/{id}/grades")
+    @Operation(summary = "获取学生成绩", description = "获取指定学生的所有成绩记录")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "404", description = "学生不存在")
+    })
+    public ResponseEntity<?> getStudentGrades(@PathVariable Long id) {
+        // 这里返回学生成绩信息
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/courses")
+    @Operation(summary = "获取学生选课", description = "获取指定学生的选课情况")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "404", description = "学生不存在")
+    })
+    public ResponseEntity<?> getStudentCourses(@PathVariable Long id) {
+        // 这里返回学生选课信息
+        return ResponseEntity.ok().build();
+    }
 }

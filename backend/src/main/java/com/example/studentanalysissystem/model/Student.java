@@ -30,7 +30,7 @@ public class Student {
     @Column(name = "student_number", unique = true, nullable = false, length = 50)
     private String studentNumber;
 
-    @Column(name = "class_name", length = 100)
+    @Column(name = "class", length = 100)
     private String className;
 
     @Column(name = "grade_level")
@@ -38,6 +38,15 @@ public class Student {
 
     @Column(name = "major", length = 100)
     private String major;
+
+    @Column(name = "enrollment_date")
+    private java.time.LocalDate enrollmentDate;
+
+    @Column(name = "graduation_date")
+    private java.time.LocalDate graduationDate;
+
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
 
     @Column(name = "remarks", columnDefinition = "TEXT")
     private String remarks;

@@ -61,7 +61,17 @@ public interface StudentService {
     void deleteStudent(Long id);
 
     /**
+     * 批量删除学生
+     */
+    void batchDeleteStudents(List<Long> ids);
+
+    /**
      * 搜索学生 (根据姓名或学号)
      */
     List<StudentResponse> searchStudents(String keyword);
+
+    /**
+     * 高级筛选学生
+     */
+    List<StudentResponse> filterStudents(Integer gradeLevel, String className, String major, String keyword);
 }
