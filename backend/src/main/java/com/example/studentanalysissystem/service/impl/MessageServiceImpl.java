@@ -73,39 +73,43 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<ChatListItemResponse> getChatList(Long userId) {
         // 验证用户存在
-        userRepository.findById(userId)
+        User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-
-        // 获取所有聊天对象
-        List<Long> partnerIds = messageRepository.findChatPartners(userId);
 
         List<ChatListItemResponse> chatList = new ArrayList<>();
 
-        for (Long partnerId : partnerIds) {
-            User partner = userRepository.findById(partnerId).orElse(null);
-            if (partner == null)
-                continue;
+        // 获取所有其他用户(排除当前用户)
+        List<User> allUsers = userRepository.findAll().stream()
+                .filter(user -> !user.getId().equals(userId))
+                .collect(Collectors.toList());
 
+        for (User partner : allUsers) {
             // 获取最新消息
-            Message latestMessage = messageRepository.findLatestMessageBetweenUsers(userId, partnerId);
-            if (latestMessage == null)
-                continue;
+            Message latestMessage = messageRepository.findLatestMessageBetweenUsers(userId, partner.getId());
 
             // 获取未读消息数量
-            Long unreadCount = messageRepository.countUnreadMessagesBetweenUsers(userId, partnerId);
+            Long unreadCount = messageRepository.countUnreadMessagesBetweenUsers(userId, partner.getId());
 
-            ChatListItemResponse item = ChatListItemResponse.builder()
-                    .partnerId(partnerId)
+            // 创建聊天列表项
+            ChatListItemResponse.ChatListItemResponseBuilder builder = ChatListItemResponse.builder()
+                    .partnerId(partner.getId())
                     .partnerName(partner.getUsername())
                     .partnerUsername(partner.getUsername())
                     .partnerAvatarUrl(null) // 暂时设为null,后续可添加头像字段
-                    .lastMessageContent(latestMessage.getContent())
-                    .lastMessageTime(latestMessage.getCreatedAt())
-                    .unreadCount(unreadCount)
-                    .lastMessageFromSelf(latestMessage.getSenderId().equals(userId))
-                    .build();
+                    .unreadCount(unreadCount);
 
-            chatList.add(item);
+            if (latestMessage != null) {
+                builder.lastMessageContent(latestMessage.getContent())
+                        .lastMessageTime(latestMessage.getCreatedAt())
+                        .lastMessageFromSelf(latestMessage.getSenderId().equals(userId));
+            } else {
+                // 如果没有消息记录,设置默认值
+                builder.lastMessageContent("还没有消息,开始聊天吧~")
+                        .lastMessageTime(LocalDateTime.now())
+                        .lastMessageFromSelf(false);
+            }
+
+            chatList.add(builder.build());
         }
 
         // 按最新消息时间倒序排序

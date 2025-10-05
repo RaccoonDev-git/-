@@ -754,6 +754,12 @@
         margin-bottom: 15px;
       }
 
+      .chat-items {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+      }
+
       .chat-item {
         display: flex;
         align-items: center;
@@ -851,6 +857,7 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
+        min-height: 0; /* 确保可以滚动 */
       }
 
       .message {
@@ -858,6 +865,12 @@
         padding: 10px 15px;
         border-radius: 15px;
         position: relative;
+      }
+
+      .message-content {
+        color: #fff;
+        word-wrap: break-word;
+        line-height: 1.5;
       }
 
       .message-received {
@@ -880,6 +893,10 @@
       }
 
       /* 白天模式下的聊天消息时间样式 */
+      .day-mode .message-content {
+        color: #333;
+      }
+
       .day-mode .message-received .message-time {
         color: rgba(0, 0, 0, 0.7);
         font-weight: 500;
@@ -970,6 +987,10 @@
 
       .light-theme .message-sent {
         background: rgba(57, 247, 255, 0.3);
+      }
+
+      .light-theme .message-content {
+        color: #333;
       }
 
       .light-theme .chat-item:hover {
@@ -4961,17 +4982,27 @@
 
       // 加载聊天列表
       async function loadChatList() {
+        console.log("loadChatList被调用");
         try {
           const userId = getCurrentUserId();
+          const token = localStorage.getItem("token");
           const response = await fetch(
-            `${API_BASE_URL}/messages/chat-list?userId=${userId}`
+            `${API_BASE_URL}/messages/chat-list?userId=${userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
+
+          console.log("loadChatList响应状态:", response.status);
 
           if (!response.ok) {
             throw new Error("加载聊天列表失败");
           }
 
           const chatList = await response.json();
+          console.log("聊天列表数据:", chatList);
           displayChatList(chatList);
 
           // 更新未读消息总数
@@ -4980,6 +5011,7 @@
             0
           );
           updateUnreadBadge(totalUnread);
+          console.log("聊天列表加载完成");
         } catch (error) {
           console.error("加载聊天列表错误:", error);
           showNotification("加载聊天列表失败", "error");
@@ -5035,19 +5067,28 @@
 
       // 选择聊天对象
       async function selectChat(partnerId, partnerName) {
+        console.log("selectChat被调用:", { partnerId, partnerName });
         currentChatPartnerId = partnerId;
 
         // 更新UI状态
         document.querySelectorAll(".chat-item").forEach((item) => {
           item.classList.remove("active");
         });
-        const selectedItem = document.querySelector(`[data-id="${partnerId}"]`);
+        const selectedItem = document.querySelector(
+          `.chat-item[data-id="${partnerId}"]`
+        );
+        console.log("找到的聊天项元素:", selectedItem);
         if (selectedItem) {
           selectedItem.classList.add("active");
+          console.log("已添加active类");
+        } else {
+          console.error("未找到聊天项元素,partnerId:", partnerId);
         }
 
         const chatTitle = document.querySelector(".chat-title");
-        chatTitle.textContent = partnerName;
+        if (chatTitle) {
+          chatTitle.textContent = partnerName;
+        }
 
         // 加载聊天记录
         await loadChatHistory(partnerId);
@@ -5066,17 +5107,28 @@
 
       // 加载聊天记录
       async function loadChatHistory(partnerId, scrollToBottom = true) {
+        console.log("loadChatHistory被调用:", { partnerId, scrollToBottom });
         try {
           const userId = getCurrentUserId();
+          const token = localStorage.getItem("token");
           const response = await fetch(
-            `${API_BASE_URL}/messages/chat-history?userId1=${userId}&userId2=${partnerId}`
+            `${API_BASE_URL}/messages/chat-history?userId1=${userId}&userId2=${partnerId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
+
+          console.log("loadChatHistory响应状态:", response.status);
 
           if (!response.ok) {
             throw new Error("加载聊天记录失败");
           }
 
           const messages = await response.json();
+          console.log("收到的消息数量:", messages.length);
+          console.log("消息内容:", messages);
           displayMessages(messages, scrollToBottom);
         } catch (error) {
           console.error("加载聊天记录错误:", error);
@@ -5086,8 +5138,11 @@
 
       // 显示聊天消息
       function displayMessages(messages, scrollToBottom = true) {
+        console.log("displayMessages被调用,消息数量:", messages.length);
         const messagesContainer = document.querySelector(".chat-messages");
         const userId = getCurrentUserId();
+
+        console.log("消息容器元素:", messagesContainer);
 
         messagesContainer.innerHTML = "";
 
@@ -5097,7 +5152,19 @@
           return;
         }
 
-        messages.forEach((msg) => {
+        // 按创建时间排序 (从旧到新)
+        const sortedMessages = [...messages].sort((a, b) => {
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        });
+
+        console.log(
+          "消息已排序,第一条:",
+          sortedMessages[0]?.content,
+          "最后一条:",
+          sortedMessages[sortedMessages.length - 1]?.content
+        );
+
+        sortedMessages.forEach((msg) => {
           const messageDiv = document.createElement("div");
           const isSent = msg.senderId === userId;
           messageDiv.className = `message message-${
@@ -5111,23 +5178,47 @@
           messagesContainer.appendChild(messageDiv);
         });
 
+        console.log("消息已添加到容器,共", sortedMessages.length, "条");
+
         if (scrollToBottom) {
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          // 使用 setTimeout 确保 DOM 渲染完成后再滚动
+          setTimeout(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            console.log(
+              "已滚动到底部, scrollTop:",
+              messagesContainer.scrollTop,
+              "scrollHeight:",
+              messagesContainer.scrollHeight
+            );
+          }, 0);
         }
       }
 
       // 发送消息
       async function sendMessage(partnerId, content) {
-        if (!content || !content.trim()) return;
+        console.log("sendMessage函数被调用:", { partnerId, content });
+
+        if (!content || !content.trim()) {
+          console.log("消息内容为空,返回");
+          return;
+        }
 
         try {
           const userId = getCurrentUserId();
+          const token = localStorage.getItem("token");
+          console.log("准备发送请求:", {
+            userId,
+            partnerId,
+            hasToken: !!token,
+          });
+
           const response = await fetch(
             `${API_BASE_URL}/messages?senderId=${userId}`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
               },
               body: JSON.stringify({
                 receiverId: partnerId,
@@ -5137,21 +5228,36 @@
             }
           );
 
+          console.log("收到响应:", response.status);
+
           if (!response.ok) {
+            const errorText = await response.text();
+            console.error("服务器返回错误:", errorText);
             throw new Error("发送消息失败");
           }
 
+          console.log("消息发送成功,准备刷新界面");
+
           // 清空输入框
           const chatInput = document.querySelector(".chat-input");
-          chatInput.value = "";
+          if (chatInput) {
+            chatInput.value = "";
+            console.log("输入框已清空");
+          } else {
+            console.error("未找到输入框元素");
+          }
 
+          console.log("准备重新加载聊天记录,partnerId:", partnerId);
           // 重新加载聊天记录
           await loadChatHistory(partnerId);
+          console.log("聊天记录已重新加载");
 
           // 重新加载聊天列表 (更新最后消息)
           await loadChatList();
+          console.log("聊天列表已重新加载");
         } catch (error) {
           console.error("发送消息错误:", error);
+          console.error("错误堆栈:", error.stack);
           showNotification("发送消息失败,请重试", "error");
         }
       }
@@ -5160,9 +5266,15 @@
       async function markAllAsRead(partnerId) {
         try {
           const userId = getCurrentUserId();
+          const token = localStorage.getItem("token");
           await fetch(
             `${API_BASE_URL}/messages/read-all?userId=${userId}&partnerId=${partnerId}`,
-            { method: "PUT" }
+            {
+              method: "PUT",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
 
           // 更新聊天列表中的未读标记
@@ -5205,20 +5317,38 @@
         const chatInput = document.querySelector(".chat-input");
         const sendButton = document.querySelector(".chat-send");
 
+        console.log("聊天元素检查:", { chatInput, sendButton });
+
+        if (!chatInput || !sendButton) {
+          console.error("未找到聊天输入框或发送按钮元素");
+          return;
+        }
+
         chatInput.addEventListener("keypress", (e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            const activeChat = document.querySelector(".chat-item.active");
-            if (activeChat) {
-              sendMessage(activeChat.getAttribute("data-id"), chatInput.value);
+            if (currentChatPartnerId) {
+              sendMessage(currentChatPartnerId, chatInput.value);
+            } else {
+              showNotification("请先选择聊天对象", "warning");
             }
           }
         });
 
         sendButton.addEventListener("click", () => {
-          const activeChat = document.querySelector(".chat-item.active");
-          if (activeChat) {
-            sendMessage(activeChat.getAttribute("data-id"), chatInput.value);
+          console.log("发送按钮被点击");
+          console.log("当前聊天对象ID:", currentChatPartnerId);
+
+          if (currentChatPartnerId) {
+            const content = chatInput.value;
+            console.log("准备发送消息:", {
+              partnerId: currentChatPartnerId,
+              content,
+            });
+            sendMessage(currentChatPartnerId, content);
+          } else {
+            console.warn("没有选中的聊天对象");
+            showNotification("请先选择聊天对象", "warning");
           }
         });
 
@@ -5640,6 +5770,11 @@
 
       function displayExams() {
         const examList = document.querySelector(".exam-list");
+        if (!examList) {
+          console.warn("Exam list element not found, skipping displayExams");
+          return;
+        }
+
         examList.innerHTML = "";
 
         exams.forEach((exam) => {
