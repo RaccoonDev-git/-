@@ -5372,28 +5372,28 @@
       });
 
       // 初始化资源数据
-      let resources = JSON.parse(localStorage.getItem("teacherResources")) || [
-        {
-          id: 1,
-          name: "C语言程序设计.pptx",
-          type: "ppt",
-          size: "2.5MB",
-          uploadTime: "2024-01-15 14:30",
-          path: "resources/c-programming.pptx",
-        },
-        {
-          id: 2,
-          name: "数据结构学习指南.pdf",
-          type: "pdf",
-          size: "1.8MB",
-          uploadTime: "2024-01-14 16:20",
-          path: "resources/data-structure-guide.pdf",
-        },
-      ];
+      let resources = [];
 
-      // 保存资源到 localStorage
-      function saveResources() {
-        localStorage.setItem("teacherResources", JSON.stringify(resources));
+      // 从后端加载资源列表
+      async function loadResources() {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${API_BASE_URL}/resources`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("加载资源列表失败");
+          }
+
+          resources = await response.json();
+          displayResources();
+        } catch (error) {
+          console.error("加载资源错误:", error);
+          showNotification("加载资源列表失败", "error");
+        }
       }
 
       function getFileIcon(type) {
@@ -5415,52 +5415,71 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
       }
 
-      // 添加 storage 事件监听器，当其他页面修改了资源时更新显示
-      window.addEventListener("storage", (e) => {
-        if (e.key === "teacherResources") {
-          resources = JSON.parse(e.newValue || "[]");
-          displayResources();
-        }
-      });
+      function formatDateTime(dateTime) {
+        if (!dateTime) return "";
+        const date = new Date(dateTime);
+        return date.toLocaleString("zh-CN");
+      }
 
-      // 修改资源显示函数，添加实时更新
+      // 显示资源列表
       function displayResources(filteredResources = resources) {
         const grid = document.querySelector(".resource-grid");
+        if (!grid) return;
+
         grid.innerHTML = "";
 
-        // 先从 localStorage 获取最新数据
-        const latestResources = JSON.parse(
-          localStorage.getItem("teacherResources") || "[]"
-        );
-        resources = latestResources;
+        const resourcesToDisplay = filteredResources || resources;
 
-        // 使用最新的资源数据进行显示
-        (filteredResources || resources).forEach((resource) => {
+        if (resourcesToDisplay.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+              <i class="fas fa-folder-open" style="font-size: 48px; margin-bottom: 16px;"></i>
+              <p>暂无资源,点击上传资源按钮添加文件</p>
+            </div>
+          `;
+          return;
+        }
+
+        resourcesToDisplay.forEach((resource) => {
           const card = document.createElement("div");
           card.className = "resource-card";
           card.innerHTML = `
-                  <div class="resource-icon">
-                      <i class="${getFileIcon(resource.type)}"></i>
-                  </div>
-                  <div class="resource-info">
-                      <div class="resource-name">${resource.name}</div>
-                      <div class="resource-meta">${resource.size} · ${
-            resource.uploadTime
+            <div class="resource-icon">
+              <i class="${getFileIcon(resource.fileType)}"></i>
+            </div>
+            <div class="resource-info">
+              <div class="resource-name" title="${resource.originalFilename}">${
+            resource.name || resource.originalFilename
           }</div>
-                      <div class="resource-actions">
-                          <button class="preview-btn" onclick="previewResource(${
-                            resource.id
-                          })">
-                              <i class="fas fa-eye"></i> 预览
-                          </button>
-                          <button class="delete-resource-btn" onclick="deleteResource(${
-                            resource.id
-                          })">
-                              <i class="fas fa-trash-alt"></i> 删除
-                          </button>
-                      </div>
-                  </div>
-              `;
+              <div class="resource-meta">
+                ${formatFileSize(resource.fileSize)} · ${formatDateTime(
+            resource.uploadTime
+          )}
+                ${
+                  resource.downloadCount > 0
+                    ? ` · ${resource.downloadCount} 次下载`
+                    : ""
+                }
+              </div>
+              ${
+                resource.description
+                  ? `<div style="font-size: 12px; color: #666; margin-top: 4px;">${resource.description}</div>`
+                  : ""
+              }
+              <div class="resource-actions">
+                <button class="preview-btn" onclick="downloadResource(${
+                  resource.id
+                })">
+                  <i class="fas fa-download"></i> 下载
+                </button>
+                <button class="delete-resource-btn" onclick="deleteResource(${
+                  resource.id
+                })">
+                  <i class="fas fa-trash-alt"></i> 删除
+                </button>
+              </div>
+            </div>
+          `;
           grid.appendChild(card);
         });
       }
@@ -5468,94 +5487,171 @@
       function filterResources() {
         const typeFilter = document.getElementById(
           "resource-type-filter"
-        ).value;
-        const searchTerm = document
-          .getElementById("resource-search-input")
-          .value.toLowerCase();
+        )?.value;
+        const searchTerm =
+          document
+            .getElementById("resource-search-input")
+            ?.value.toLowerCase() || "";
 
         let filtered = resources;
 
-        if (typeFilter !== "all") {
-          filtered = filtered.filter((r) => r.type === typeFilter);
+        if (typeFilter && typeFilter !== "all") {
+          filtered = filtered.filter((r) => r.fileType === typeFilter);
         }
 
         if (searchTerm) {
           filtered = filtered.filter(
             (r) =>
-              r.name.toLowerCase().includes(searchTerm) ||
-              r.type.toLowerCase().includes(searchTerm)
+              (r.name && r.name.toLowerCase().includes(searchTerm)) ||
+              (r.originalFilename &&
+                r.originalFilename.toLowerCase().includes(searchTerm)) ||
+              (r.description &&
+                r.description.toLowerCase().includes(searchTerm))
           );
         }
 
         displayResources(filtered);
       }
 
-      // 修改文件上传处理函数
-      function handleFileUpload(event) {
+      // 文件上传处理
+      async function handleFileUpload(event) {
         const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        const userId = getCurrentUserId();
+        const token = localStorage.getItem("token");
+
         for (let file of files) {
-          const fileType = file.name.split(".").pop().toLowerCase();
-          const type =
-            fileType === "pptx" || fileType === "ppt"
-              ? "ppt"
-              : fileType === "pdf"
-              ? "pdf"
-              : fileType === "doc" || fileType === "docx"
-              ? "doc"
-              : fileType === "mp4" || fileType === "webm"
-              ? "video"
-              : "default";
+          try {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("name", file.name);
+            formData.append("uploaderId", userId);
+            formData.append("category", "课件"); // 默认分类
 
-          const newResource = {
-            id: Date.now(), // 使用时间戳作为唯一ID
-            name: file.name,
-            type: type,
-            size: formatFileSize(file.size),
-            uploadTime: new Date().toLocaleString("zh-CN"),
-            path: URL.createObjectURL(file),
-          };
+            const response = await fetch(`${API_BASE_URL}/resources`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            });
 
-          resources.unshift(newResource);
+            if (!response.ok) {
+              throw new Error(`上传文件失败: ${file.name}`);
+            }
+
+            showNotification(`文件 ${file.name} 上传成功!`, "success");
+          } catch (error) {
+            console.error("上传文件错误:", error);
+            showNotification(`上传文件 ${file.name} 失败`, "error");
+          }
         }
-        saveResources(); // 保存到 localStorage
-        displayResources();
+
+        // 重新加载资源列表
+        await loadResources();
         event.target.value = "";
       }
 
-      function previewResource(id) {
-        const resource = resources.find((r) => r.id === id);
-        if (!resource) return;
+      // 下载资源
+      async function downloadResource(id) {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `${API_BASE_URL}/resources/${id}/download`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
-        // 根据文件类型打开预览
-        if (resource.path) {
-          window.open(resource.path, "_blank");
+          if (!response.ok) {
+            throw new Error("下载资源失败");
+          }
+
+          // 获取文件名
+          const contentDisposition = response.headers.get(
+            "content-disposition"
+          );
+          let filename = "download";
+          if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (filenameMatch) {
+              filename = decodeURIComponent(filenameMatch[1]);
+            }
+          }
+
+          // 下载文件
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          showNotification("下载成功!", "success");
+        } catch (error) {
+          console.error("下载资源错误:", error);
+          showNotification("下载资源失败", "error");
         }
       }
 
-      // 修改删除资源函数
-      function deleteResource(id) {
-        if (confirm("确定要删除这个资源吗？")) {
-          resources = resources.filter((r) => r.id !== id);
-          saveResources(); // 保存到 localStorage
-          displayResources();
+      // 删除资源
+      async function deleteResource(id) {
+        if (!confirm("确定要删除这个资源吗？")) {
+          return;
+        }
+
+        try {
+          const userId = getCurrentUserId();
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `${API_BASE_URL}/resources/${id}?userId=${userId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("删除资源失败");
+          }
+
+          showNotification("资源删除成功!", "success");
+          await loadResources();
+        } catch (error) {
+          console.error("删除资源错误:", error);
+          showNotification("删除资源失败", "error");
         }
       }
 
       // 初始化教学资源管理功能
       document.addEventListener("DOMContentLoaded", () => {
-        // 显示初始资源列表
-        displayResources();
+        // 加载资源列表
+        loadResources();
 
         // 文件上传处理
         const fileUpload = document.getElementById("file-upload");
-        fileUpload.addEventListener("change", handleFileUpload);
+        if (fileUpload) {
+          fileUpload.addEventListener("change", handleFileUpload);
+        }
 
         // 资源过滤处理
         const typeFilter = document.getElementById("resource-type-filter");
         const searchInput = document.getElementById("resource-search-input");
 
-        typeFilter.addEventListener("change", filterResources);
-        searchInput.addEventListener("input", filterResources);
+        if (typeFilter) {
+          typeFilter.addEventListener("change", filterResources);
+        }
+        if (searchInput) {
+          searchInput.addEventListener("input", filterResources);
+        }
 
         // 定期检查资源更新（每秒检查一次）
         setInterval(() => {

@@ -84,6 +84,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/enrollments/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/grades/**").hasAnyRole("ADMIN", "TEACHER")
                         .requestMatchers("/api/messages/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/resources/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
 
                         // 其他所有请求都需要认证
                         .anyRequest().authenticated())
