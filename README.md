@@ -8,7 +8,7 @@
 
 ### 主要功能
 
-- 🔐 **用户认证与授权** - 基于JWT的安全认证系统
+- 🔐 **用户认证与授权** - 基于 JWT 的安全认证系统
 - 👨‍🎓 **学生管理** - 学生信息管理、课程选课、成绩查询
 - 👨‍🏫 **教师管理** - 教师信息管理、课程管理、成绩录入
 - 📚 **课程管理** - 课程创建、编辑、删除、查询
@@ -18,6 +18,7 @@
 ## 🏗️ 技术栈
 
 ### 后端
+
 - **框架**: Spring Boot 3.2.0
 - **语言**: Java 17
 - **数据库**: MySQL 8.0
@@ -27,14 +28,16 @@
 - **工具**: Lombok, MapStruct
 
 ### 前端
+
 - **框架**: Flask (Python 3.x)
 - **UI**: HTML5 + CSS3 + JavaScript
 - **图表**: Chart.js
 - **HTTP**: Fetch API
 
 ### 数据库
+
 - MySQL 8.0
-- 8个核心表: users, students, teachers, courses, course_enrollments, grades, learning_activities, notifications
+- 8 个核心表: users, students, teachers, courses, course_enrollments, grades, learning_activities, notifications
 
 ## 🚀 快速开始
 
@@ -73,6 +76,7 @@ powershell -ExecutionPolicy Bypass -File create-database.ps1
 ```
 
 按提示输入 MySQL root 密码,脚本将自动:
+
 - 创建 `student_analysis` 数据库
 - 创建所有表结构
 - 建立索引和外键关系
@@ -145,16 +149,19 @@ start-frontend.bat
 系统预置了以下测试账户(密码统一为 `password123`):
 
 ### 管理员
+
 - 用户名: `admin`
 - 密码: `password123`
 - 邮箱: admin@school.com
 
 ### 教师账户
+
 - `teacher1` / `password123` - 张老师
 - `teacher2` / `password123` - 李老师
 - `teacher3` / `password123` - 王老师
 
 ### 学生账户
+
 - `student1` / `password123` - 张三
 - `student2` / `password123` - 李四
 - `student3` / `password123` - 王五
@@ -211,14 +218,16 @@ Student_Learning_Situation_Analysis_System/
 └── README.md                         # 项目说明文档
 ```
 
-## 🔑 核心API端点
+## 🔑 核心 API 端点
 
 ### 认证相关
+
 - `POST /api/authentication/register` - 用户注册
 - `POST /api/authentication/login` - 用户登录
 - `POST /api/authentication/change-password` - 修改密码
 
 ### 学生管理
+
 - `GET /api/students` - 获取学生列表
 - `GET /api/students/{id}` - 获取学生详情
 - `POST /api/students` - 创建学生
@@ -226,12 +235,14 @@ Student_Learning_Situation_Analysis_System/
 - `DELETE /api/students/{id}` - 删除学生
 
 ### 教师管理
+
 - `GET /api/teachers` - 获取教师列表
 - `GET /api/teachers/{id}` - 获取教师详情
 - `POST /api/teachers` - 创建教师
 - `PUT /api/teachers/{id}` - 更新教师信息
 
 ### 课程管理
+
 - `GET /api/courses` - 获取课程列表
 - `GET /api/courses/{id}` - 获取课程详情
 - `POST /api/courses` - 创建课程
@@ -239,6 +250,7 @@ Student_Learning_Situation_Analysis_System/
 - `DELETE /api/courses/{id}` - 删除课程
 
 ### 成绩管理
+
 - `GET /api/grades/student/{studentId}` - 获取学生成绩
 - `POST /api/grades` - 录入成绩
 - `PUT /api/grades/{id}` - 更新成绩
@@ -254,7 +266,7 @@ Student_Learning_Situation_Analysis_System/
 
 ## 📊 数据库设计
 
-系统包含8个核心表:
+系统包含 8 个核心表:
 
 1. **users** - 用户基础信息表
 2. **students** - 学生信息扩展表
@@ -305,10 +317,11 @@ mvn clean package
 ## 📮 联系方式
 
 如有问题或建议,请通过以下方式联系:
+
 - 提交 GitHub Issue
 - 发送邮件至项目维护者
 
 ---
 
-**开发时间**: 2025年10月
+**开发时间**: 2025 年 10 月
 **版本**: 2.0.0-SNAPSHOT
