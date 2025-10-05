@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>学生页面 - 学情分析系统</title>
-    <!-- 引入 Chart.js 库 -->
-    <script src="../../../js/chart.min.js"></script>
-    <script src="../../../js/chartjs-plugin-datalabels.min.js"></script>
+    <!-- 引入 Chart.js 库 - 使用CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
@@ -531,6 +531,47 @@
         padding: 15px;
         display: flex;
         flex-direction: column;
+        max-height: calc(100vh - 180px); /* 限制整体高度 */
+      }
+
+      .chat-items {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 5px;
+      }
+
+      /* 自定义滚动条样式 */
+      .chat-items::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-items::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+      }
+
+      .chat-items::-webkit-scrollbar-thumb {
+        background: rgba(57, 247, 255, 0.3);
+        border-radius: 3px;
+        transition: all 0.3s ease;
+      }
+
+      .chat-items::-webkit-scrollbar-thumb:hover {
+        background: rgba(57, 247, 255, 0.5);
+      }
+
+      /* 日间模式的滚动条样式 */
+      .day-mode .chat-items::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .day-mode .chat-items::-webkit-scrollbar-thumb {
+        background: rgba(0, 172, 193, 0.4);
+      }
+
+      .day-mode .chat-items::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 172, 193, 0.6);
       }
 
       .chat-main {
@@ -2200,7 +2241,7 @@
       }
 
       // 发送消息
-      function sendMessage() {
+      async function sendMessage() {
         if (!currentTeacher) {
           alert("请先选择一位老师");
           return;
@@ -2215,55 +2256,94 @@
         const messagesContainer = document.querySelector(".chat-messages");
         if (!messagesContainer) return;
 
-        if (messagesContainer.querySelector(".no-messages-placeholder")) {
-          messagesContainer.innerHTML = "";
+        // 获取当前学生ID
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("未登录,请先登录");
+          window.location.href = "student-login.html";
+          return;
         }
 
-        const now = new Date();
-        const newMessage = {
-          content: message,
-          time: now.toISOString(),
-          type: "sent",
-        };
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const studentId = payload.userId;
 
-        chatData[currentTeacher.id].messages.push(newMessage);
+        try {
+          // 调用后端API保存消息
+          const response = await fetch(`/api/messages?senderId=${studentId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              receiverId: currentTeacher.id,
+              content: message,
+              messageType: "text",
+            }),
+          });
 
-        const messageDiv = document.createElement("div");
-        messageDiv.className = "message message-sent";
+          if (!response.ok) {
+            throw new Error("发送消息失败");
+          }
 
-        const contentDiv = document.createElement("div");
-        contentDiv.className = "message-content";
-        contentDiv.textContent = message;
+          const savedMessage = await response.json();
 
-        const timeDiv = document.createElement("div");
-        timeDiv.className = "message-time";
-        timeDiv.textContent = now.toLocaleString("zh-CN", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        });
+          // 清除"暂无消息"提示
+          if (messagesContainer.querySelector(".no-messages-placeholder")) {
+            messagesContainer.innerHTML = "";
+          }
 
-        messageDiv.appendChild(contentDiv);
-        messageDiv.appendChild(timeDiv);
-        messagesContainer.appendChild(messageDiv);
+          const now = new Date();
+          const newMessage = {
+            content: message,
+            time: now.toISOString(),
+            type: "sent",
+          };
 
-        // 滚动到最新消息
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          chatData[currentTeacher.id].messages.push(newMessage);
 
-        // 清空输入框并重置高度
-        input.value = "";
-        input.style.height = "40px";
-        input.style.height = Math.min(input.scrollHeight, 120) + "px";
+          const messageDiv = document.createElement("div");
+          messageDiv.className = "message message-sent";
 
-        // 更新聊天列表预览
-        const chatItem = document.querySelector(
-          `[data-id="${currentTeacher.id}"] .chat-preview`
-        );
-        if (chatItem) {
-          chatItem.textContent = message;
+          const contentDiv = document.createElement("div");
+          contentDiv.className = "message-content";
+          contentDiv.textContent = message;
+
+          const timeDiv = document.createElement("div");
+          timeDiv.className = "message-time";
+          timeDiv.textContent = now.toLocaleString("zh-CN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+
+          messageDiv.appendChild(contentDiv);
+          messageDiv.appendChild(timeDiv);
+          messagesContainer.appendChild(messageDiv);
+
+          // 滚动到最新消息
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+          // 清空输入框并重置高度
+          input.value = "";
+          input.style.height = "40px";
+          input.style.height = Math.min(input.scrollHeight, 120) + "px";
+
+          // 更新聊天列表预览
+          const chatItem = document.querySelector(
+            `[data-id="${currentTeacher.id}"] .chat-preview`
+          );
+          if (chatItem) {
+            chatItem.textContent = message;
+          }
+
+          console.log("消息已保存到数据库:", savedMessage);
+        } catch (error) {
+          console.error("发送消息失败:", error);
+          alert("发送消息失败,请重试");
         }
       }
 
@@ -2858,7 +2938,8 @@
       function displayExams() {
         const examGrid = document.querySelector(".exam-grid");
         if (!examGrid) {
-          console.error("找不到考试列表容器");
+          // 考试功能暂未实现,跳过
+          // console.error("找不到考试列表容器");
           return;
         }
 

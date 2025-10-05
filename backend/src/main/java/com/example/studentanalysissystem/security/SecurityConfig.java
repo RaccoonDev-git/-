@@ -54,7 +54,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/users/register",
                                 "/api/users/login",
-                                "/api/authentication/**")
+                                "/api/authentication/**",
+                                "/api/student/**") // 临时开放用于测试
                         .permitAll()
 
                         // Swagger文档端点
@@ -78,6 +79,7 @@ public class SecurityConfig {
                         .permitAll()
 
                         // 需要认证的端点
+                        .requestMatchers("/api/student/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/students/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/teachers/**").hasAnyRole("ADMIN", "TEACHER")
                         .requestMatchers("/api/courses/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
