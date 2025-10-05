@@ -167,7 +167,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<StudentResponse> filterStudents(Integer gradeLevel, String className, String major, String keyword) {
         List<Student> students;
-        
+
         // 如果所有参数都为空，返回所有学生
         if (gradeLevel == null && className == null && major == null && keyword == null) {
             students = studentRepository.findAll();
@@ -175,7 +175,7 @@ public class StudentServiceImpl implements StudentService {
             // 使用仓库方法进行高级筛选
             students = studentRepository.filterStudents(gradeLevel, className, major, keyword);
         }
-        
+
         return studentMapper.toResponseList(students);
     }
 }

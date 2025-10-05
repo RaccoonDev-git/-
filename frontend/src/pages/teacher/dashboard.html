@@ -3133,25 +3133,25 @@
 
         // 创建加载状态
         element.innerHTML = `
-            <div class="loading-state" style="
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100px;
-                flex-direction: column;
-            ">
-                <div class="spinner" style="
-                    border: 4px solid rgba(57, 247, 255, 0.3);
-                    border-top: 4px solid #39f7ff;
-                    border-radius: 50%;
-                    width: 40px;
-                    height: 40px;
-                    animation: spin 1s linear infinite;
-                    margin-bottom: 10px;
-                "></div>
-                <div style="color: #39f7ff;">${message}</div>
-            </div>
-        `;
+              <div class="loading-state" style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  min-height: 100px;
+                  flex-direction: column;
+              ">
+                  <div class="spinner" style="
+                      border: 4px solid rgba(57, 247, 255, 0.3);
+                      border-top: 4px solid #39f7ff;
+                      border-radius: 50%;
+                      width: 40px;
+                      height: 40px;
+                      animation: spin 1s linear infinite;
+                      margin-bottom: 10px;
+                  "></div>
+                  <div style="color: #39f7ff;">${message}</div>
+              </div>
+          `;
       }
 
       // 隐藏加载状态
@@ -3174,28 +3174,28 @@
         if (!element) return;
 
         element.innerHTML = `
-            <div class="error-state" style="
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100px;
-                color: #ff6384;
-                flex-direction: column;
-            ">
-                <i class="fas fa-exclamation-circle" style="font-size: 32px; margin-bottom: 10px;"></i>
-                <div>${message}</div>
-            </div>
-        `;
+              <div class="error-state" style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  min-height: 100px;
+                  color: #ff6384;
+                  flex-direction: column;
+              ">
+                  <i class="fas fa-exclamation-circle" style="font-size: 32px; margin-bottom: 10px;"></i>
+                  <div>${message}</div>
+              </div>
+          `;
       }
 
       // 添加CSS动画
       const style = document.createElement("style");
       style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
+          @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+          }
+      `;
       document.head.appendChild(style);
 
       // 动态星空生成
@@ -3216,46 +3216,64 @@
 
       // 学生数据
       let students = {
-        class1: [
+        计算机科学与技术1班: [
           {
             name: "张三",
             id: "2023001",
+            grade: "2023",
             class: "计算机科学与技术1班",
+            major: "计算机科学与技术",
             phone: "13800138000",
+            remarks: "",
           },
           {
             name: "李四",
             id: "2023002",
+            grade: "2023",
             class: "计算机科学与技术1班",
+            major: "计算机科学与技术",
             phone: "13800138001",
+            remarks: "",
           },
         ],
-        class2: [
+        软件工程2班: [
           {
             name: "王五",
             id: "2023003",
+            grade: "2022",
             class: "软件工程2班",
+            major: "软件工程",
             phone: "13800138002",
+            remarks: "",
           },
           {
             name: "赵六",
             id: "2023004",
+            grade: "2022",
             class: "软件工程2班",
+            major: "软件工程",
             phone: "13800138003",
+            remarks: "",
           },
         ],
-        class3: [
+        信息安全3班: [
           {
             name: "孙七",
             id: "2023005",
+            grade: "2021",
             class: "信息安全3班",
+            major: "信息安全",
             phone: "13800138004",
+            remarks: "",
           },
           {
             name: "周八",
             id: "2023006",
+            grade: "2021",
             class: "信息安全3班",
+            major: "信息安全",
             phone: "13800138005",
+            remarks: "",
           },
         ],
       };
@@ -3323,32 +3341,43 @@
 
       // 学生管理功能
       function loadStudents() {
-        const classSelect = document.getElementById("class-select");
+        const classSelect = document.getElementById("class-filter");
+        if (!classSelect) return; // 如果元素不存在则退出
+
         const selectedClass = classSelect.value;
         const studentTableBody = document.getElementById("student-table-body");
+        if (!studentTableBody) return;
+
         studentTableBody.innerHTML = "";
+
+        // 如果没有选择班级或班级数据不存在,显示空表格
+        if (!selectedClass || !students[selectedClass]) {
+          return;
+        }
 
         const start = (currentPage - 1) * pageSize;
         const end = start + pageSize;
         students[selectedClass].slice(start, end).forEach((student) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td>${student.name}</td>
-            <td>${student.id}</td>
-            <td>${student.class}</td>
-            <td>${student.phone}</td>
-            <td>
-                <button class="delete-btn" onclick="deleteStudent('${student.id}')">
-                    <i class="fas fa-trash-alt"></i>
-                    删除
-                </button>
-            </td>
-        `;
+              <td>${student.name}</td>
+              <td>${student.id}</td>
+              <td>${student.class}</td>
+              <td>${student.phone}</td>
+              <td>
+                  <button class="delete-btn" onclick="deleteStudent('${student.id}')">
+                      <i class="fas fa-trash-alt"></i>
+                      删除
+                  </button>
+              </td>
+          `;
           studentTableBody.appendChild(row);
         });
-        document.getElementById(
-          "pageInfo"
-        ).textContent = `第 ${currentPage} 页`;
+
+        const pageInfoElem = document.getElementById("pageInfo");
+        if (pageInfoElem) {
+          pageInfoElem.textContent = `第 ${currentPage} 页`;
+        }
       }
 
       // 添加检查学生是否注册的函数
@@ -3476,19 +3505,19 @@
         document.getElementById("student-table-body").innerHTML = filtered
           .map(
             (s) => `
-        <tr>
-            <td>${s.name}</td>
-            <td>${s.id}</td>
-            <td>${s.class}</td>
-            <td>${s.phone}</td>
-            <td>
-                <button class="delete-btn" onclick="deleteStudent('${s.id}')">
-                    <i class="fas fa-trash-alt"></i>
-                    删除
-                </button>
-            </td>
-        </tr>
-    `
+          <tr>
+              <td>${s.name}</td>
+              <td>${s.id}</td>
+              <td>${s.class}</td>
+              <td>${s.phone}</td>
+              <td>
+                  <button class="delete-btn" onclick="deleteStudent('${s.id}')">
+                      <i class="fas fa-trash-alt"></i>
+                      删除
+                  </button>
+              </td>
+          </tr>
+      `
           )
           .join("");
       }
@@ -3533,6 +3562,37 @@
         };
 
         input.click();
+      }
+
+      // 显示添加学生模态框
+      function showAddStudentModal() {
+        // 清空表单
+        document.getElementById("detail-name").value = "";
+        document.getElementById("detail-number").value = "";
+        document.getElementById("detail-grade").value = "";
+        document.getElementById("detail-class").value = "";
+        document.getElementById("detail-major").value = "";
+        document.getElementById("detail-phone").value = "";
+        document.getElementById("detail-remarks").value = "";
+
+        // 设置为添加模式
+        document
+          .querySelectorAll(
+            "#studentDetailModal input, #studentDetailModal select, #studentDetailModal textarea"
+          )
+          .forEach((input) => {
+            input.disabled = false;
+          });
+        document.querySelector(".modal-footer").style.display = "flex";
+
+        // 切换到基本信息标签
+        switchTab("info");
+
+        // 显示模态框
+        document.getElementById("studentDetailModal").style.display = "block";
+
+        // 设置为添加模式标记
+        document.getElementById("studentDetailModal").dataset.editingId = "new";
       }
 
       function exportStudents() {
@@ -3645,9 +3705,29 @@
       // 更新批量选择信息
       function updateBatchInfo() {
         const count = selectedStudents.size;
-        document.getElementById(
-          "batch-info"
-        ).textContent = `已选择 ${count} 个学生`;
+        const infoElement = document.getElementById("selectedCount");
+        if (infoElement) {
+          infoElement.textContent = count;
+        }
+      }
+
+      // 全选功能
+      function selectAll(checkbox) {
+        const checkboxes = document.querySelectorAll(".student-checkbox");
+        checkboxes.forEach((cb) => {
+          cb.checked = checkbox.checked;
+          if (checkbox.checked) {
+            selectedStudents.add(cb.dataset.studentId);
+          } else {
+            selectedStudents.delete(cb.dataset.studentId);
+          }
+        });
+        updateBatchInfo();
+      }
+
+      // 取消批量模式
+      function cancelBatchMode() {
+        toggleBatchMode();
       }
 
       // 批量删除
@@ -3703,6 +3783,32 @@
         refreshStudentList();
       }
 
+      // 筛选学生（包装函数）
+      function filterStudents() {
+        const gradeFilter = document.getElementById("grade-filter");
+        const classFilter = document.getElementById("class-filter");
+        const majorFilter = document.getElementById("major-filter");
+
+        currentFilters.grade = gradeFilter ? gradeFilter.value : "";
+        currentFilters.class = classFilter ? classFilter.value : "";
+        currentFilters.major = majorFilter ? majorFilter.value : "";
+        currentPage = 1;
+        refreshStudentList();
+      }
+
+      // 搜索学生（包装函数）
+      function searchStudents() {
+        const searchInput = document.getElementById("student-search");
+        if (searchInput) {
+          handleSearch(searchInput.value);
+          // 显示或隐藏清空按钮
+          const clearBtn = document.querySelector(".clear-search");
+          if (clearBtn) {
+            clearBtn.style.display = searchInput.value ? "block" : "none";
+          }
+        }
+      }
+
       // 搜索功能（带防抖）
       let searchTimeout;
       function handleSearch(keyword) {
@@ -3746,10 +3852,23 @@
       // 刷新学生列表
       function refreshStudentList() {
         const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value || "class1";
+        const selectedClass = classSelect.value || "";
 
-        // 获取所有学生数据
-        let studentList = [...students[selectedClass]];
+        // 如果没有选择班级,获取所有学生
+        let studentList = [];
+        if (selectedClass) {
+          // 选择了特定班级
+          studentList = students[selectedClass]
+            ? [...students[selectedClass]]
+            : [];
+        } else {
+          // 全部班级 - 合并所有班级的学生
+          for (let className in students) {
+            if (students[className]) {
+              studentList = studentList.concat(students[className]);
+            }
+          }
+        }
 
         // 应用筛选
         if (currentFilters.grade) {
@@ -3816,41 +3935,42 @@
         studentList.forEach((student) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            ${
-              batchMode
-                ? `<td class="batch-column" style="display: table-cell;">
-              <input type="checkbox" class="student-checkbox" 
-                     data-student-id="${student.id}"
-                     onchange="toggleSelectStudent('${
-                       student.id
-                     }', this.checked)"
-                     ${selectedStudents.has(student.id) ? "checked" : ""}>
-            </td>`
-                : '<td class="batch-column" style="display: none;"></td>'
-            }
-            <td>${student.name}</td>
-            <td>${student.id}</td>
-            <td>${student.class || "-"}</td>
-            <td>${student.grade || "-"}</td>
-            <td>${student.major || "-"}</td>
-            <td class="actions-column">
-              <button class="action-btn btn-view" onclick="viewStudentDetail('${
-                student.id
-              }')">
-                <i class="fas fa-eye"></i> 查看
-              </button>
-              <button class="action-btn btn-edit" onclick="editStudent('${
-                student.id
-              }')">
-                <i class="fas fa-edit"></i> 编辑
-              </button>
-              <button class="action-btn btn-delete" onclick="deleteStudent('${
-                student.id
-              }')">
-                <i class="fas fa-trash"></i> 删除
-              </button>
-            </td>
-          `;
+              ${
+                batchMode
+                  ? `<td class="batch-column" style="display: table-cell;">
+                <input type="checkbox" class="student-checkbox"
+                       data-student-id="${student.id}"
+                       onchange="toggleSelectStudent('${
+                         student.id
+                       }', this.checked)"
+                       ${selectedStudents.has(student.id) ? "checked" : ""}>
+              </td>`
+                  : '<td class="batch-column" style="display: none;"></td>'
+              }
+              <td>${student.name}</td>
+              <td>${student.id}</td>
+              <td>${student.grade || "-"}</td>
+              <td>${student.class || "-"}</td>
+              <td>${student.major || "-"}</td>
+              <td>${student.phone || "-"}</td>
+              <td class="actions-column">
+                <button class="action-btn btn-view" onclick="viewStudentDetail('${
+                  student.id
+                }')">
+                  <i class="fas fa-eye"></i> 查看
+                </button>
+                <button class="action-btn btn-edit" onclick="editStudent('${
+                  student.id
+                }')">
+                  <i class="fas fa-edit"></i> 编辑
+                </button>
+                <button class="action-btn btn-delete" onclick="deleteStudent('${
+                  student.id
+                }')">
+                  <i class="fas fa-trash"></i> 删除
+                </button>
+              </td>
+            `;
           tbody.appendChild(row);
         });
       }
@@ -3864,72 +3984,82 @@
           const card = document.createElement("div");
           card.className = "student-card";
           card.innerHTML = `
-            <div class="student-card-header">
-              <div class="student-avatar">
-                ${student.name.charAt(0)}
+              <div class="student-card-header">
+                <div class="student-avatar">
+                  ${student.name.charAt(0)}
+                </div>
+                <div class="student-card-info">
+                  <h4>${student.name}</h4>
+                  <p>${student.id}</p>
+                </div>
               </div>
-              <div class="student-card-info">
-                <h4>${student.name}</h4>
-                <p>${student.id}</p>
+              <div class="student-card-details">
+                <div class="detail-item">
+                  <i class="fas fa-graduation-cap"></i>
+                  <span>年级: ${student.grade || "-"}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-users"></i>
+                  <span>班级: ${student.class || "-"}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-book"></i>
+                  <span>专业: ${student.major || "-"}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-phone"></i>
+                  <span>${student.phone || "未填写"}</span>
+                </div>
               </div>
-            </div>
-            <div class="student-card-details">
-              <div class="detail-item">
-                <i class="fas fa-graduation-cap"></i>
-                <span>年级: ${student.grade || "-"}</span>
+              <div class="student-card-actions">
+                <button class="btn-view" onclick="viewStudentDetail('${
+                  student.id
+                }')">
+                  <i class="fas fa-eye"></i> 查看
+                </button>
+                <button class="btn-edit" onclick="editStudent('${student.id}')">
+                  <i class="fas fa-edit"></i> 编辑
+                </button>
+                <button class="btn-delete" onclick="deleteStudent('${
+                  student.id
+                }')">
+                  <i class="fas fa-trash"></i> 删除
+                </button>
               </div>
-              <div class="detail-item">
-                <i class="fas fa-users"></i>
-                <span>班级: ${student.class || "-"}</span>
-              </div>
-              <div class="detail-item">
-                <i class="fas fa-book"></i>
-                <span>专业: ${student.major || "-"}</span>
-              </div>
-              <div class="detail-item">
-                <i class="fas fa-phone"></i>
-                <span>${student.phone || "未填写"}</span>
-              </div>
-            </div>
-            <div class="student-card-actions">
-              <button class="btn-view" onclick="viewStudentDetail('${
-                student.id
-              }')">
-                <i class="fas fa-eye"></i> 查看
-              </button>
-              <button class="btn-edit" onclick="editStudent('${student.id}')">
-                <i class="fas fa-edit"></i> 编辑
-              </button>
-              <button class="btn-delete" onclick="deleteStudent('${
-                student.id
-              }')">
-                <i class="fas fa-trash"></i> 删除
-              </button>
-            </div>
-          `;
+            `;
           container.appendChild(card);
         });
       }
 
       // 更新分页控件
       function updatePagination(totalItems, totalPages) {
-        document.getElementById("pagination-info").textContent = `显示 ${
-          (currentPage - 1) * currentPageSize + 1
-        }-${Math.min(
-          currentPage * currentPageSize,
-          totalItems
-        )} 条，共 ${totalItems} 条`;
+        // 更新总数和页码信息
+        const totalCountElem = document.getElementById("totalCount");
+        const currentPageElem = document.getElementById("currentPage");
+        const totalPagesElem = document.getElementById("totalPages");
 
-        document.getElementById("btn-first").disabled = currentPage === 1;
-        document.getElementById("btn-prev").disabled = currentPage === 1;
-        document.getElementById("btn-next").disabled =
-          currentPage === totalPages || totalPages === 0;
-        document.getElementById("btn-last").disabled =
-          currentPage === totalPages || totalPages === 0;
+        if (totalCountElem) totalCountElem.textContent = totalItems;
+        if (currentPageElem) currentPageElem.textContent = currentPage;
+        if (totalPagesElem) totalPagesElem.textContent = totalPages || 1;
 
-        document.getElementById("page-input").value = currentPage;
-        document.getElementById("page-input").max = totalPages || 1;
-        document.getElementById("total-pages").textContent = totalPages || 1;
+        // 更新按钮状态
+        const btnFirst = document.getElementById("firstPageBtn");
+        const btnPrev = document.getElementById("prevPageBtn");
+        const btnNext = document.getElementById("nextPageBtn");
+        const btnLast = document.getElementById("lastPageBtn");
+        const pageInput = document.getElementById("pageInput");
+
+        if (btnFirst) btnFirst.disabled = currentPage === 1;
+        if (btnPrev) btnPrev.disabled = currentPage === 1;
+        if (btnNext)
+          btnNext.disabled = currentPage === totalPages || totalPages === 0;
+        if (btnLast)
+          btnLast.disabled = currentPage === totalPages || totalPages === 0;
+
+        if (pageInput) {
+          pageInput.value = currentPage;
+          pageInput.max = totalPages || 1;
+        }
       }
 
       // 分页控制
@@ -4076,23 +4206,71 @@
         const studentId =
           document.getElementById("studentDetailModal").dataset.editingId;
         const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value || "class1";
-        const student = students[selectedClass].find((s) => s.id === studentId);
+        const selectedClass = classSelect.value || "计算机科学与技术1班";
 
-        if (!student) return;
+        const name = document.getElementById("detail-name").value;
+        const studentNumber = document.getElementById("detail-number").value;
+        const grade = document.getElementById("detail-grade").value;
+        const className = document.getElementById("detail-class").value;
+        const major = document.getElementById("detail-major").value;
+        const phone = document.getElementById("detail-phone").value;
+        const remarks = document.getElementById("detail-remarks").value;
 
-        // 更新学生信息
-        student.name = document.getElementById("detail-name").value;
-        student.grade = document.getElementById("detail-grade").value;
-        student.class = document.getElementById("detail-class").value;
-        student.major = document.getElementById("detail-major").value;
-        student.phone = document.getElementById("detail-phone").value;
-        student.remarks = document.getElementById("detail-remarks").value;
+        // 验证必填字段
+        if (!name || !studentNumber) {
+          alert("姓名和学号不能为空！");
+          return;
+        }
+
+        if (studentId === "new") {
+          // 添加新学生
+          const newStudent = {
+            id: studentNumber,
+            name: name,
+            grade: grade,
+            class: className,
+            major: major,
+            phone: phone,
+            remarks: remarks,
+          };
+
+          // 检查学号是否已存在
+          if (
+            students[selectedClass] &&
+            students[selectedClass].some((s) => s.id === studentNumber)
+          ) {
+            alert("该学号已存在！");
+            return;
+          }
+
+          if (!students[selectedClass]) {
+            students[selectedClass] = [];
+          }
+          students[selectedClass].push(newStudent);
+          alert("添加成功");
+        } else {
+          // 更新现有学生
+          const student = students[selectedClass].find(
+            (s) => s.id === studentId
+          );
+          if (!student) {
+            alert("学生不存在！");
+            return;
+          }
+
+          // 更新学生信息
+          student.name = name;
+          student.grade = grade;
+          student.class = className;
+          student.major = major;
+          student.phone = phone;
+          student.remarks = remarks;
+          alert("保存成功");
+        }
 
         saveStudentsData();
         refreshStudentList();
         closeModal("studentDetailModal");
-        alert("保存成功");
       }
 
       // 切换详情标签
@@ -4139,13 +4317,13 @@
         tbody.innerHTML = grades
           .map(
             (g) => `
-          <tr>
-            <td>${g.course}</td>
-            <td>${g.score}</td>
-            <td>${g.credit}</td>
-            <td>${g.semester}</td>
-          </tr>
-        `
+            <tr>
+              <td>${g.course}</td>
+              <td>${g.score}</td>
+              <td>${g.credit}</td>
+              <td>${g.semester}</td>
+            </tr>
+          `
           )
           .join("");
       }
@@ -4172,11 +4350,11 @@
         container.innerHTML = courses
           .map(
             (c) => `
-          <div class="course-item">
-            <h4>${c.name}</h4>
-            <p>教师: ${c.teacher} | 时间: ${c.time} | 状态: ${c.status}</p>
-          </div>
-        `
+            <div class="course-item">
+              <h4>${c.name}</h4>
+              <p>教师: ${c.teacher} | 时间: ${c.time} | 状态: ${c.status}</p>
+            </div>
+          `
           )
           .join("");
       }
@@ -4197,11 +4375,11 @@
         container.innerHTML = activities
           .map(
             (a) => `
-          <div class="activity-item">
-            <strong>${a.date}</strong>
-            <p>${a.action}</p>
-          </div>
-        `
+            <div class="activity-item">
+              <strong>${a.date}</strong>
+              <p>${a.action}</p>
+            </div>
+          `
           )
           .join("");
       }
@@ -4279,14 +4457,14 @@
           .slice(0, 10)
           .map(
             (student) => `
-          <tr>
-            <td>${student.name}</td>
-            <td>${student.id}</td>
-            <td>${student.grade || "-"}</td>
-            <td>${student.class || "-"}</td>
-            <td>${student.major || "-"}</td>
-          </tr>
-        `
+            <tr>
+              <td>${student.name}</td>
+              <td>${student.id}</td>
+              <td>${student.grade || "-"}</td>
+              <td>${student.class || "-"}</td>
+              <td>${student.major || "-"}</td>
+            </tr>
+          `
           )
           .join("");
 
@@ -4441,14 +4619,14 @@
         analysisTableBody.innerHTML = data
           .map(
             (s) => `
-            <tr>
-                <td>${s.name}</td>
-                <td>${s.id}</td>
-                <td>${classNames[selectedClass]}</td>
-                <td>${s.score}</td>
-                <td><button onclick="analyzeStudent('${s.id}')">分析</button></td>
-            </tr>
-        `
+              <tr>
+                  <td>${s.name}</td>
+                  <td>${s.id}</td>
+                  <td>${classNames[selectedClass]}</td>
+                  <td>${s.score}</td>
+                  <td><button onclick="analyzeStudent('${s.id}')">分析</button></td>
+              </tr>
+          `
           )
           .join("");
 
@@ -4569,11 +4747,11 @@
         ].recommendations
           .map(
             (rec) => `
-            <div class="recommendation-item">
-                <i class="${rec.icon} recommendation-icon"></i>
-                <div>${rec.text}</div>
-            </div>
-        `
+              <div class="recommendation-item">
+                  <i class="${rec.icon} recommendation-icon"></i>
+                  <div>${rec.text}</div>
+              </div>
+          `
           )
           .join("");
 
@@ -4762,12 +4940,12 @@
           div.className = "chat-item";
           div.setAttribute("data-id", id);
           div.innerHTML = `
-                <div class="chat-avatar">${data.name[0]}</div>
-                <div class="chat-info">
-                    <div class="chat-name">${data.name}</div>
-                    <div class="chat-preview">${lastMessage.content}</div>
-                </div>
-            `;
+                  <div class="chat-avatar">${data.name[0]}</div>
+                  <div class="chat-info">
+                      <div class="chat-name">${data.name}</div>
+                      <div class="chat-preview">${lastMessage.content}</div>
+                  </div>
+              `;
           div.addEventListener("click", () => selectChat(id));
           chatItems.appendChild(div);
         });
@@ -4795,9 +4973,9 @@
           const messageDiv = document.createElement("div");
           messageDiv.className = `message message-${msg.type}`;
           messageDiv.innerHTML = `
-                <div class="message-content">${msg.content}</div>
-                <div class="message-time">${msg.time}</div>
-            `;
+                  <div class="message-content">${msg.content}</div>
+                  <div class="message-time">${msg.time}</div>
+              `;
           messagesContainer.appendChild(messageDiv);
         });
 
@@ -4865,9 +5043,6 @@
           });
         });
       });
-
-      // 初始化
-      loadStudents();
 
       // 初始化资源数据
       let resources = JSON.parse(localStorage.getItem("teacherResources")) || [
@@ -4937,28 +5112,28 @@
           const card = document.createElement("div");
           card.className = "resource-card";
           card.innerHTML = `
-                <div class="resource-icon">
-                    <i class="${getFileIcon(resource.type)}"></i>
-                </div>
-                <div class="resource-info">
-                    <div class="resource-name">${resource.name}</div>
-                    <div class="resource-meta">${resource.size} · ${
+                  <div class="resource-icon">
+                      <i class="${getFileIcon(resource.type)}"></i>
+                  </div>
+                  <div class="resource-info">
+                      <div class="resource-name">${resource.name}</div>
+                      <div class="resource-meta">${resource.size} · ${
             resource.uploadTime
           }</div>
-                    <div class="resource-actions">
-                        <button class="preview-btn" onclick="previewResource(${
-                          resource.id
-                        })">
-                            <i class="fas fa-eye"></i> 预览
-                        </button>
-                        <button class="delete-resource-btn" onclick="deleteResource(${
-                          resource.id
-                        })">
-                            <i class="fas fa-trash-alt"></i> 删除
-                        </button>
-                    </div>
-                </div>
-            `;
+                      <div class="resource-actions">
+                          <button class="preview-btn" onclick="previewResource(${
+                            resource.id
+                          })">
+                              <i class="fas fa-eye"></i> 预览
+                          </button>
+                          <button class="delete-resource-btn" onclick="deleteResource(${
+                            resource.id
+                          })">
+                              <i class="fas fa-trash-alt"></i> 删除
+                          </button>
+                      </div>
+                  </div>
+              `;
           grid.appendChild(card);
         });
       }
@@ -5120,7 +5295,8 @@
           Object.assign(analysisData, JSON.parse(savedAnalysis));
         }
 
-        loadStudents();
+        // 初始化学生列表 - 使用 refreshStudentList 而不是 loadStudents
+        refreshStudentList();
       });
 
       // 考试与练习管理相关的JavaScript代码
@@ -5144,42 +5320,42 @@
         const questionDiv = document.createElement("div");
         questionDiv.className = "question-item";
         questionDiv.innerHTML = `
-            <div class="question-header">
-                <h4>题目 ${questionNumber}</h4>
-                <i class="fas fa-times remove-question" onclick="removeQuestion(this)"></i>
-            </div>
-            <div class="form-group">
-                <label>题目内容</label>
-                <textarea class="question-content" required></textarea>
-            </div>
-            <div class="form-group">
-                <label>题目类型</label>
-                <select class="question-type" onchange="updateQuestionOptions(this)" required>
-                    <option value="single">单选题</option>
-                    <option value="multiple">多选题</option>
-                    <option value="text">简答题</option>
-                </select>
-            </div>
-            <div class="options-container">
-                <div class="form-group">
-                    <label>选项</label>
-                    <div class="options-list">
-                        <input type="text" placeholder="选项A" required>
-                        <input type="text" placeholder="选项B" required>
-                        <input type="text" placeholder="选项C" required>
-                        <input type="text" placeholder="选项D" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>正确答案</label>
-                    <input type="text" class="correct-answer" placeholder="输入正确选项" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>分值</label>
-                <input type="number" class="question-score" min="1" required>
-            </div>
-        `;
+              <div class="question-header">
+                  <h4>题目 ${questionNumber}</h4>
+                  <i class="fas fa-times remove-question" onclick="removeQuestion(this)"></i>
+              </div>
+              <div class="form-group">
+                  <label>题目内容</label>
+                  <textarea class="question-content" required></textarea>
+              </div>
+              <div class="form-group">
+                  <label>题目类型</label>
+                  <select class="question-type" onchange="updateQuestionOptions(this)" required>
+                      <option value="single">单选题</option>
+                      <option value="multiple">多选题</option>
+                      <option value="text">简答题</option>
+                  </select>
+              </div>
+              <div class="options-container">
+                  <div class="form-group">
+                      <label>选项</label>
+                      <div class="options-list">
+                          <input type="text" placeholder="选项A" required>
+                          <input type="text" placeholder="选项B" required>
+                          <input type="text" placeholder="选项C" required>
+                          <input type="text" placeholder="选项D" required>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                      <label>正确答案</label>
+                      <input type="text" class="correct-answer" placeholder="输入正确选项" required>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label>分值</label>
+                  <input type="number" class="question-score" min="1" required>
+              </div>
+          `;
 
         questionsList.appendChild(questionDiv);
       }
@@ -5287,32 +5463,32 @@
           }
 
           card.innerHTML = `
-                <div class="exam-card-header">
-                    <div class="exam-card-title">${exam.title}</div>
-                    <div class="exam-card-type ${exam.type}-type">
-                        ${exam.type === "exam" ? "考试" : "练习"}
-                    </div>
-                </div>
-                <div class="exam-card-info">
-                    <div>科目：${getSubjectName(exam.subject)}</div>
-                    <div>班级：${getClassName(exam.class)}</div>
-                    <div>开始时间：${formatDateTime(exam.startTime)}</div>
-                    <div>时长：${exam.duration}分钟</div>
-                    <div>状态：${getStatusText(exam.status)}</div>
-                </div>
-                <div class="exam-card-actions">
-                    <button class="edit-exam-btn" onclick="editExam(${
-                      exam.id
-                    })" ${exam.status !== "upcoming" ? "disabled" : ""}>
-                        <i class="fas fa-edit"></i> 编辑
-                    </button>
-                    <button class="delete-exam-btn" onclick="deleteExam(${
-                      exam.id
-                    })" ${exam.status !== "upcoming" ? "disabled" : ""}>
-                        <i class="fas fa-trash-alt"></i> 删除
-                    </button>
-                </div>
-            `;
+                  <div class="exam-card-header">
+                      <div class="exam-card-title">${exam.title}</div>
+                      <div class="exam-card-type ${exam.type}-type">
+                          ${exam.type === "exam" ? "考试" : "练习"}
+                      </div>
+                  </div>
+                  <div class="exam-card-info">
+                      <div>科目：${getSubjectName(exam.subject)}</div>
+                      <div>班级：${getClassName(exam.class)}</div>
+                      <div>开始时间：${formatDateTime(exam.startTime)}</div>
+                      <div>时长：${exam.duration}分钟</div>
+                      <div>状态：${getStatusText(exam.status)}</div>
+                  </div>
+                  <div class="exam-card-actions">
+                      <button class="edit-exam-btn" onclick="editExam(${
+                        exam.id
+                      })" ${exam.status !== "upcoming" ? "disabled" : ""}>
+                          <i class="fas fa-edit"></i> 编辑
+                      </button>
+                      <button class="delete-exam-btn" onclick="deleteExam(${
+                        exam.id
+                      })" ${exam.status !== "upcoming" ? "disabled" : ""}>
+                          <i class="fas fa-trash-alt"></i> 删除
+                      </button>
+                  </div>
+              `;
 
           examList.appendChild(card);
         });

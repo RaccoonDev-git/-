@@ -1,10 +1,11 @@
-# 学生管理API文档
+# 学生管理 API 文档
 
-## API端点列表
+## API 端点列表
 
-### 基础CRUD操作
+### 基础 CRUD 操作
 
 #### 1. 创建学生
+
 ```
 POST /api/students
 Content-Type: application/json
@@ -40,7 +41,8 @@ Content-Type: application/json
 }
 ```
 
-#### 2. 根据ID查询学生
+#### 2. 根据 ID 查询学生
+
 ```
 GET /api/students/{id}
 
@@ -56,6 +58,7 @@ GET /api/students/{id}
 ```
 
 #### 3. 根据学号查询学生
+
 ```
 GET /api/students/student-number/{studentNumber}
 
@@ -65,6 +68,7 @@ GET /api/students/student-number/{studentNumber}
 ```
 
 #### 4. 查询所有学生
+
 ```
 GET /api/students
 
@@ -84,6 +88,7 @@ GET /api/students
 ```
 
 #### 5. 更新学生信息
+
 ```
 PUT /api/students/{id}
 Content-Type: application/json
@@ -101,6 +106,7 @@ Content-Type: application/json
 ```
 
 #### 6. 删除学生
+
 ```
 DELETE /api/students/{id}
 
@@ -110,6 +116,7 @@ DELETE /api/students/{id}
 ### 高级查询功能
 
 #### 7. 按班级查询
+
 ```
 GET /api/students/class/{className}
 
@@ -127,6 +134,7 @@ GET /api/students/class/{className}
 ```
 
 #### 8. 按年级查询
+
 ```
 GET /api/students/grade/{gradeLevel}
 
@@ -136,6 +144,7 @@ GET /api/students/grade/{gradeLevel}
 ```
 
 #### 9. 按专业查询
+
 ```
 GET /api/students/major/{major}
 
@@ -145,6 +154,7 @@ GET /api/students/major/{major}
 ```
 
 #### 10. 搜索学生
+
 ```
 GET /api/students/search?keyword={keyword}
 
@@ -158,6 +168,7 @@ GET /api/students/search?keyword={keyword}
 ### 新增功能（v2.0）
 
 #### 11. 批量删除学生 ⭐
+
 ```
 DELETE /api/students/batch
 Content-Type: application/json
@@ -170,6 +181,7 @@ Content-Type: application/json
 ```
 
 #### 12. 高级筛选 ⭐
+
 ```
 GET /api/students/filter?gradeLevel={gradeLevel}&className={className}&major={major}&keyword={keyword}
 
@@ -177,7 +189,7 @@ GET /api/students/filter?gradeLevel={gradeLevel}&className={className}&major={ma
 示例2: GET /api/students/filter?className=计算机1班&major=计算机科学与技术
 示例3: GET /api/students/filter?gradeLevel=2024&keyword=张
 
-说明: 
+说明:
 - 所有参数都是可选的
 - 多个参数可以组合使用
 - keyword 会搜索姓名和学号
@@ -193,6 +205,7 @@ GET /api/students/filter?gradeLevel={gradeLevel}&className={className}&major={ma
 ```
 
 #### 13. 获取学生成绩 ⭐
+
 ```
 GET /api/students/{id}/grades
 
@@ -209,6 +222,7 @@ GET /api/students/{id}/grades
 ```
 
 #### 14. 获取学生选课情况 ⭐
+
 ```
 GET /api/students/{id}/courses
 
@@ -227,6 +241,7 @@ GET /api/students/{id}/courses
 ## 错误响应
 
 ### 400 Bad Request
+
 ```json
 {
   "timestamp": "2024-10-05T10:00:00",
@@ -238,6 +253,7 @@ GET /api/students/{id}/courses
 ```
 
 ### 404 Not Found
+
 ```json
 {
   "timestamp": "2024-10-05T10:00:00",
@@ -249,6 +265,7 @@ GET /api/students/{id}/courses
 ```
 
 ### 409 Conflict
+
 ```json
 {
   "timestamp": "2024-10-05T10:00:00",
@@ -262,67 +279,74 @@ GET /api/students/{id}/courses
 ## 前端集成示例
 
 ### 1. 获取所有学生（带筛选）
+
 ```javascript
 async function loadStudents(filters) {
   const params = new URLSearchParams();
-  if (filters.gradeLevel) params.append('gradeLevel', filters.gradeLevel);
-  if (filters.className) params.append('className', filters.className);
-  if (filters.major) params.append('major', filters.major);
-  if (filters.keyword) params.append('keyword', filters.keyword);
-  
+  if (filters.gradeLevel) params.append("gradeLevel", filters.gradeLevel);
+  if (filters.className) params.append("className", filters.className);
+  if (filters.major) params.append("major", filters.major);
+  if (filters.keyword) params.append("keyword", filters.keyword);
+
   const response = await fetch(`/api/students/filter?${params}`, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
-  
+
   return await response.json();
 }
 ```
 
 ### 2. 批量删除学生
+
 ```javascript
 async function batchDeleteStudents(studentIds) {
-  const response = await fetch('/api/students/batch', {
-    method: 'DELETE',
+  const response = await fetch("/api/students/batch", {
+    method: "DELETE",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(studentIds)
+    body: JSON.stringify(studentIds),
   });
-  
+
   if (response.ok) {
-    alert('删除成功');
+    alert("删除成功");
   }
 }
 ```
 
 ### 3. 更新学生信息
+
 ```javascript
 async function updateStudent(studentId, data) {
   const response = await fetch(`/api/students/${studentId}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
-  
+
   return await response.json();
 }
 ```
 
 ### 4. 搜索学生
+
 ```javascript
 async function searchStudents(keyword) {
-  const response = await fetch(`/api/students/search?keyword=${encodeURIComponent(keyword)}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
+  const response = await fetch(
+    `/api/students/search?keyword=${encodeURIComponent(keyword)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
-  });
-  
+  );
+
   return await response.json();
 }
 ```
@@ -331,44 +355,47 @@ async function searchStudents(keyword) {
 
 ### Student 对象字段
 
-| 字段名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| id | Long | 自动生成 | 学生ID |
-| userId | Long | 是 | 关联用户ID |
-| username | String | 只读 | 用户名 |
-| email | String | 否 | 邮箱（来自用户表）|
-| phone | String | 否 | 手机号（来自用户表）|
-| studentNumber | String | 是 | 学号（唯一）|
-| name | String | 是 | 姓名 |
-| className | String | 否 | 班级 |
-| gradeLevel | Integer | 否 | 年级 |
-| major | String | 否 | 专业 |
-| enrollmentDate | Date | 否 | 入学日期 |
-| graduationDate | Date | 否 | 毕业日期 |
-| avatarUrl | String | 否 | 头像URL |
-| remarks | String | 否 | 备注信息 |
-| createdAt | DateTime | 自动生成 | 创建时间 |
-| updatedAt | DateTime | 自动更新 | 更新时间 |
+| 字段名         | 类型     | 必填     | 说明                 |
+| -------------- | -------- | -------- | -------------------- |
+| id             | Long     | 自动生成 | 学生 ID              |
+| userId         | Long     | 是       | 关联用户 ID          |
+| username       | String   | 只读     | 用户名               |
+| email          | String   | 否       | 邮箱（来自用户表）   |
+| phone          | String   | 否       | 手机号（来自用户表） |
+| studentNumber  | String   | 是       | 学号（唯一）         |
+| name           | String   | 是       | 姓名                 |
+| className      | String   | 否       | 班级                 |
+| gradeLevel     | Integer  | 否       | 年级                 |
+| major          | String   | 否       | 专业                 |
+| enrollmentDate | Date     | 否       | 入学日期             |
+| graduationDate | Date     | 否       | 毕业日期             |
+| avatarUrl      | String   | 否       | 头像 URL             |
+| remarks        | String   | 否       | 备注信息             |
+| createdAt      | DateTime | 自动生成 | 创建时间             |
+| updatedAt      | DateTime | 自动更新 | 更新时间             |
 
-## API版本变更记录
+## API 版本变更记录
 
 ### v2.0 (2024-10-05)
+
 - ✅ 添加批量删除接口 `/api/students/batch`
 - ✅ 添加高级筛选接口 `/api/students/filter`
 - ✅ 添加获取学生成绩接口 `/api/students/{id}/grades`
 - ✅ 添加获取学生选课接口 `/api/students/{id}/courses`
-- ✅ StudentResponse增加字段: email, phone, enrollmentDate, graduationDate, avatarUrl
-- ✅ UpdateStudentRequest增加字段: name, enrollmentDate, graduationDate, remarks, phone
+- ✅ StudentResponse 增加字段: email, phone, enrollmentDate, graduationDate, avatarUrl
+- ✅ UpdateStudentRequest 增加字段: name, enrollmentDate, graduationDate, remarks, phone
 - ✅ 数据库表添加字段: remarks, enrollment_date, graduation_date, avatar_url
 
 ### v1.0 (2024-10-04)
-- 基础CRUD操作
+
+- 基础 CRUD 操作
 - 按班级/年级/专业查询
 - 简单搜索功能
 
 ## 测试用例
 
 ### 测试批量删除
+
 ```bash
 curl -X DELETE http://localhost:8080/api/students/batch \
   -H "Content-Type: application/json" \
@@ -377,12 +404,14 @@ curl -X DELETE http://localhost:8080/api/students/batch \
 ```
 
 ### 测试高级筛选
+
 ```bash
 curl -X GET "http://localhost:8080/api/students/filter?gradeLevel=2024&className=计算机1班" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### 测试更新学生
+
 ```bash
 curl -X PUT http://localhost:8080/api/students/1 \
   -H "Content-Type: application/json" \
@@ -397,5 +426,5 @@ curl -X PUT http://localhost:8080/api/students/1 \
 ---
 
 **版本**: v2.0  
-**更新日期**: 2024年10月5日  
+**更新日期**: 2024 年 10 月 5 日  
 **维护团队**: Student Learning Analysis System
