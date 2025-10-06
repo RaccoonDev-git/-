@@ -62,4 +62,19 @@ public interface UserService {
      * 修改密码
      */
     void changePassword(Long id, String oldPassword, String newPassword);
+
+    /**
+     * 重置密码(管理员操作)
+     */
+    void resetPassword(Long id, String newPassword);
+
+    /**
+     * 获取最近注册的用户
+     */
+    List<UserResponse> getRecentUsers(int limit);
+
+    /**
+     * 搜索用户(根据用户名或邮箱)
+     */
+    List<UserResponse> searchUsers(String keyword);
 }

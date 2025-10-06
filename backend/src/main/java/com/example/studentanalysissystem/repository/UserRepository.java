@@ -72,4 +72,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query("SELECT u FROM User u WHERE u.username LIKE %:keyword% OR u.email LIKE %:keyword%")
     List<User> searchByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * 根据用户名或邮箱模糊搜索(忽略大小写)
+     */
+    List<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email);
 }

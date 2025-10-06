@@ -175,4 +175,34 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    @Override
+    @Transactional
+    public void resetPassword(Long id, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        // 管理员重置密码,不需要验证旧密码
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<UserResponse> getRecentUsers(int limit) {
+        List<User> users = userRepository.findAll();
+        // 按创建时间倒序排序,取前limit个
+        return users.stream()
+                .sorted((u1, u2) -> u2.getCreatedAt().compareTo(u1.getCreatedAt()))
+                .limit(limit)
+                .map(userMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<UserResponse> searchUsers(String keyword) {
+        String searchPattern = "%" + keyword.toLowerCase() + "%";
+        List<User> users = userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                keyword, keyword);
+        return userMapper.toResponseList(users);
+    }
 }
