@@ -4180,7 +4180,7 @@
       function viewStudentDetail(studentId) {
         const classSelect = document.getElementById("class-filter");
         const selectedClass = classSelect.value;
-        
+
         // 如果没有选择班级,从所有班级中查找学生
         let student = null;
         if (selectedClass && students[selectedClass]) {
@@ -4235,7 +4235,7 @@
       function editStudent(studentId) {
         const classSelect = document.getElementById("class-filter");
         const selectedClass = classSelect.value;
-        
+
         // 如果没有选择班级,从所有班级中查找学生
         let student = null;
         if (selectedClass && students[selectedClass]) {
@@ -4390,13 +4390,13 @@
         const maxScore = Math.max(...grades.map((g) => g.score));
         const minScore = Math.min(...grades.map((g) => g.score));
 
-        document.getElementById("avg-score").textContent = avgScore.toFixed(1);
-        document.getElementById("max-score").textContent = maxScore;
-        document.getElementById("min-score").textContent = minScore;
-        document.getElementById("course-count").textContent = grades.length;
+        document.getElementById("avgGrade").textContent = avgScore.toFixed(1);
+        document.getElementById("maxGrade").textContent = maxScore;
+        document.getElementById("minGrade").textContent = minScore;
+        document.getElementById("gradeCount").textContent = grades.length;
 
         // 渲染成绩表格
-        const tbody = document.getElementById("grades-table-body");
+        const tbody = document.getElementById("gradesTableBody");
         tbody.innerHTML = grades
           .map(
             (g) => `
@@ -4429,7 +4429,7 @@
           },
         ];
 
-        const container = document.getElementById("courses-list");
+        const container = document.getElementById("coursesListBody");
         container.innerHTML = courses
           .map(
             (c) => `
@@ -4445,8 +4445,8 @@
       // 加载学习活动
       function loadStudentActivities(studentId) {
         // 模拟数据
-        document.getElementById("study-time").textContent = "126";
-        document.getElementById("login-count").textContent = "42";
+        document.getElementById("totalStudyTime").textContent = "126";
+        document.getElementById("loginCount").textContent = "42";
 
         const activities = [
           { date: "2024-01-15", action: "完成作业：数据结构课后练习" },
@@ -4454,7 +4454,7 @@
           { date: "2024-01-13", action: "参加测验：C语言期中考试" },
         ];
 
-        const container = document.getElementById("activities-timeline");
+        const container = document.getElementById("activitiesTimelineBody");
         container.innerHTML = activities
           .map(
             (a) => `
@@ -5007,7 +5007,7 @@
             const token = localStorage.getItem("token");
             if (token) {
               // 解析 JWT token,提取 payload 中的 userId
-              const payload = JSON.parse(atob(token.split('.')[1]));
+              const payload = JSON.parse(atob(token.split(".")[1]));
               currentUserId = payload.userId;
               console.log("从 JWT token 中提取的教师 ID:", currentUserId);
             } else {
