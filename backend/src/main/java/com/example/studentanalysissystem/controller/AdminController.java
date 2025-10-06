@@ -40,17 +40,17 @@ public class AdminController {
     @Operation(summary = "获取系统统计数据", description = "获取用户、学生、教师、课程等统计信息")
     public ResponseEntity<Map<String, Object>> getStatistics() {
         Map<String, Object> stats = new HashMap<>();
-        
+
         // 获取学生和教师数量
         long studentCount = studentService.getAllStudents().size();
         long teacherCount = teacherService.getAllTeachers().size();
         long totalUsers = studentCount + teacherCount + 1; // +1 for admin
-        
+
         stats.put("totalUsers", totalUsers);
         stats.put("studentCount", studentCount);
         stats.put("teacherCount", teacherCount);
         stats.put("adminCount", 1);
-        
+
         return ResponseEntity.ok(stats);
     }
 
@@ -62,10 +62,10 @@ public class AdminController {
     @Operation(summary = "获取所有用户", description = "获取系统中所有用户的列表")
     public ResponseEntity<Map<String, Object>> getAllUsers() {
         Map<String, Object> result = new HashMap<>();
-        
+
         result.put("students", studentService.getAllStudents());
         result.put("teachers", teacherService.getAllTeachers());
-        
+
         return ResponseEntity.ok(result);
     }
 
@@ -89,11 +89,11 @@ public class AdminController {
     public ResponseEntity<Map<String, String>> resetPassword(@PathVariable Long id) {
         String newPassword = "password123"; // 默认密码
         userService.resetPassword(id, newPassword);
-        
+
         Map<String, String> response = new HashMap<>();
         response.put("message", "密码重置成功");
         response.put("newPassword", newPassword);
-        
+
         return ResponseEntity.ok(response);
     }
 
@@ -114,12 +114,12 @@ public class AdminController {
                 System.err.println("删除用户失败: " + id + ", 错误: " + e.getMessage());
             }
         }
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("totalRequested", userIds.size());
         response.put("deletedCount", deletedCount);
         response.put("failedCount", userIds.size() - deletedCount);
-        
+
         return ResponseEntity.ok(response);
     }
 
@@ -131,12 +131,12 @@ public class AdminController {
     @Operation(summary = "切换用户状态", description = "启用或禁用用户账户")
     public ResponseEntity<UserResponse> toggleUserStatus(@PathVariable Long id) {
         UserResponse user = userService.getUserById(id);
-        
+
         // 切换状态
         String newStatus = "ACTIVE".equals(user.getStatus()) ? "INACTIVE" : "ACTIVE";
-        UserResponse updatedUser = userService.updateUserStatus(id, 
-            com.example.studentanalysissystem.model.User.UserStatus.valueOf(newStatus));
-        
+        UserResponse updatedUser = userService.updateUserStatus(id,
+                com.example.studentanalysissystem.model.User.UserStatus.valueOf(newStatus));
+
         return ResponseEntity.ok(updatedUser);
     }
 
