@@ -3618,13 +3618,13 @@
       // 显示添加学生模态框
       function showAddStudentModal() {
         // 清空表单
-        document.getElementById("detail-name").value = "";
-        document.getElementById("detail-number").value = "";
-        document.getElementById("detail-grade").value = "";
-        document.getElementById("detail-class").value = "";
-        document.getElementById("detail-major").value = "";
-        document.getElementById("detail-phone").value = "";
-        document.getElementById("detail-remarks").value = "";
+        document.getElementById("studentName").value = "";
+        document.getElementById("studentNumber").value = "";
+        document.getElementById("studentGrade").value = "";
+        document.getElementById("studentClass").value = "";
+        document.getElementById("studentMajor").value = "";
+        document.getElementById("studentPhone").value = "";
+        document.getElementById("studentRemarks").value = "";
 
         // 设置为添加模式
         document
@@ -4199,13 +4199,13 @@
         }
 
         // 填充基本信息
-        document.getElementById("detail-name").value = student.name;
-        document.getElementById("detail-number").value = student.id;
-        document.getElementById("detail-grade").value = student.grade || "";
-        document.getElementById("detail-class").value = student.class || "";
-        document.getElementById("detail-major").value = student.major || "";
-        document.getElementById("detail-phone").value = student.phone || "";
-        document.getElementById("detail-remarks").value = student.remarks || "";
+        document.getElementById("studentName").value = student.name;
+        document.getElementById("studentNumber").value = student.id;
+        document.getElementById("studentGrade").value = student.grade || "";
+        document.getElementById("studentClass").value = student.class || "";
+        document.getElementById("studentMajor").value = student.major || "";
+        document.getElementById("studentPhone").value = student.phone || "";
+        document.getElementById("studentRemarks").value = student.remarks || "";
 
         // 设置为查看模式（禁用输入）
         document
@@ -4254,13 +4254,13 @@
         }
 
         // 填充表单
-        document.getElementById("detail-name").value = student.name;
-        document.getElementById("detail-number").value = student.id;
-        document.getElementById("detail-grade").value = student.grade || "";
-        document.getElementById("detail-class").value = student.class || "";
-        document.getElementById("detail-major").value = student.major || "";
-        document.getElementById("detail-phone").value = student.phone || "";
-        document.getElementById("detail-remarks").value = student.remarks || "";
+        document.getElementById("studentName").value = student.name;
+        document.getElementById("studentNumber").value = student.id;
+        document.getElementById("studentGrade").value = student.grade || "";
+        document.getElementById("studentClass").value = student.class || "";
+        document.getElementById("studentMajor").value = student.major || "";
+        document.getElementById("studentPhone").value = student.phone || "";
+        document.getElementById("studentRemarks").value = student.remarks || "";
 
         // 设置为编辑模式
         document
@@ -4270,7 +4270,7 @@
           .forEach((input) => {
             input.disabled = false;
           });
-        document.getElementById("detail-number").disabled = true; // 学号不可编辑
+        document.getElementById("studentNumber").disabled = true; // 学号不可编辑
         document.querySelector(".modal-footer").style.display = "flex";
 
         // 切换到基本信息标签
@@ -4291,13 +4291,13 @@
         const classSelect = document.getElementById("class-filter");
         const selectedClass = classSelect.value || "计算机科学与技术1班";
 
-        const name = document.getElementById("detail-name").value;
-        const studentNumber = document.getElementById("detail-number").value;
-        const grade = document.getElementById("detail-grade").value;
-        const className = document.getElementById("detail-class").value;
-        const major = document.getElementById("detail-major").value;
-        const phone = document.getElementById("detail-phone").value;
-        const remarks = document.getElementById("detail-remarks").value;
+        const name = document.getElementById("studentName").value;
+        const studentNumber = document.getElementById("studentNumber").value;
+        const grade = document.getElementById("studentGrade").value;
+        const className = document.getElementById("studentClass").value;
+        const major = document.getElementById("studentMajor").value;
+        const phone = document.getElementById("studentPhone").value;
+        const remarks = document.getElementById("studentRemarks").value;
 
         // 验证必填字段
         if (!name || !studentNumber) {
