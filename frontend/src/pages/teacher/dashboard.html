@@ -4958,11 +4958,24 @@
       let currentChatPartnerId = null; // 当前聊天对象ID
       let chatUpdateInterval = null; // 自动刷新定时器
 
-      // 获取当前用户ID (从localStorage获取)
+      // 获取当前用户ID (从JWT token中解析)
       function getCurrentUserId() {
         if (!currentUserId) {
-          const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-          currentUserId = userInfo.id || 1; // 默认ID为1
+          try {
+            const token = localStorage.getItem("token");
+            if (token) {
+              // 解析 JWT token,提取 payload 中的 userId
+              const payload = JSON.parse(atob(token.split('.')[1]));
+              currentUserId = payload.userId;
+              console.log("从 JWT token 中提取的教师 ID:", currentUserId);
+            } else {
+              console.error("未找到 token,使用默认 ID");
+              currentUserId = 1; // 默认ID为1
+            }
+          } catch (error) {
+            console.error("解析 token 失败:", error);
+            currentUserId = 1; // 默认ID为1
+          }
         }
         return currentUserId;
       }
