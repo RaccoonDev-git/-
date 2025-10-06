@@ -4638,6 +4638,16 @@
         document.getElementById(modalId).style.display = "none";
       }
 
+      // 关闭学生详情模态框 (包装函数)
+      function closeStudentModal() {
+        closeModal("studentDetailModal");
+      }
+
+      // 保存学生信息 (包装函数,用于向后兼容)
+      function saveStudent() {
+        saveStudentDetail();
+      }
+
       // 页面加载时初始化
       window.addEventListener("DOMContentLoaded", function () {
         // 初始化视图按钮事件
