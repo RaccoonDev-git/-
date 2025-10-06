@@ -4179,10 +4179,24 @@
       // 查看学生详情
       function viewStudentDetail(studentId) {
         const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value || "class1";
-        const student = students[selectedClass].find((s) => s.id === studentId);
+        const selectedClass = classSelect.value;
+        
+        // 如果没有选择班级,从所有班级中查找学生
+        let student = null;
+        if (selectedClass && students[selectedClass]) {
+          student = students[selectedClass].find((s) => s.id === studentId);
+        } else {
+          // 在所有班级中查找
+          for (const className in students) {
+            student = students[className].find((s) => s.id === studentId);
+            if (student) break;
+          }
+        }
 
-        if (!student) return;
+        if (!student) {
+          console.error("找不到学生:", studentId);
+          return;
+        }
 
         // 填充基本信息
         document.getElementById("detail-name").value = student.name;
@@ -4220,10 +4234,24 @@
       // 编辑学生
       function editStudent(studentId) {
         const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value || "class1";
-        const student = students[selectedClass].find((s) => s.id === studentId);
+        const selectedClass = classSelect.value;
+        
+        // 如果没有选择班级,从所有班级中查找学生
+        let student = null;
+        if (selectedClass && students[selectedClass]) {
+          student = students[selectedClass].find((s) => s.id === studentId);
+        } else {
+          // 在所有班级中查找
+          for (const className in students) {
+            student = students[className].find((s) => s.id === studentId);
+            if (student) break;
+          }
+        }
 
-        if (!student) return;
+        if (!student) {
+          console.error("找不到学生:", studentId);
+          return;
+        }
 
         // 填充表单
         document.getElementById("detail-name").value = student.name;
