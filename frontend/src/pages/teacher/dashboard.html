@@ -4527,11 +4527,23 @@
         resetImportForm();
       }
 
+      function closeImportModal() {
+        document.getElementById("importModal").style.display = "none";
+        resetImportForm();
+      }
+
       function resetImportForm() {
-        document.getElementById("import-file").value = "";
-        document.getElementById("selected-file-name").textContent = "";
-        document.getElementById("selected-file-info").style.display = "none";
-        document.getElementById("import-preview").style.display = "none";
+        const importFileInput = document.getElementById("importFile");
+        const fileNameSpan = document.getElementById("fileName");
+        const selectedFileDiv = document.getElementById("selectedFile");
+        const importPreviewDiv = document.getElementById("importPreview");
+        const importBtn = document.getElementById("importBtn");
+
+        if (importFileInput) importFileInput.value = "";
+        if (fileNameSpan) fileNameSpan.textContent = "";
+        if (selectedFileDiv) selectedFileDiv.style.display = "none";
+        if (importPreviewDiv) importPreviewDiv.style.display = "none";
+        if (importBtn) importBtn.disabled = true;
       }
 
       function downloadTemplate() {
@@ -4553,8 +4565,11 @@
         const file = event.target.files[0];
         if (!file) return;
 
-        document.getElementById("selected-file-name").textContent = file.name;
-        document.getElementById("selected-file-info").style.display = "flex";
+        const fileNameSpan = document.getElementById("fileName");
+        const selectedFileDiv = document.getElementById("selectedFile");
+
+        if (fileNameSpan) fileNameSpan.textContent = file.name;
+        if (selectedFileDiv) selectedFileDiv.style.display = "flex";
 
         // 读取并预览文件
         const reader = new FileReader();
@@ -4580,42 +4595,57 @@
         reader.readAsText(file);
       }
 
-      function removeSelectedFile() {
-        document.getElementById("import-file").value = "";
-        document.getElementById("selected-file-info").style.display = "none";
-        document.getElementById("import-preview").style.display = "none";
+      function clearFile() {
+        const importFileInput = document.getElementById("importFile");
+        const selectedFileDiv = document.getElementById("selectedFile");
+        const importPreviewDiv = document.getElementById("importPreview");
+        const importBtn = document.getElementById("importBtn");
+
+        if (importFileInput) importFileInput.value = "";
+        if (selectedFileDiv) selectedFileDiv.style.display = "none";
+        if (importPreviewDiv) importPreviewDiv.style.display = "none";
+        if (importBtn) importBtn.disabled = true;
       }
 
       function previewImportData(data) {
-        document.getElementById("preview-count").textContent = data.length;
+        const importCountSpan = document.getElementById("importCount");
+        const previewTableBody = document.getElementById("previewTableBody");
+        const importPreviewDiv = document.getElementById("importPreview");
+        const importBtn = document.getElementById("importBtn");
 
-        const tbody = document.getElementById("preview-table-body");
-        tbody.innerHTML = data
-          .slice(0, 10)
-          .map(
-            (student) => `
-            <tr>
-              <td>${student.name}</td>
-              <td>${student.id}</td>
-              <td>${student.grade || "-"}</td>
-              <td>${student.class || "-"}</td>
-              <td>${student.major || "-"}</td>
-            </tr>
-          `
-          )
-          .join("");
+        if (importCountSpan) importCountSpan.textContent = data.length;
 
-        if (data.length > 10) {
-          tbody.innerHTML += `<tr><td colspan="5" style="text-align: center; color: #ffc107;">... 还有 ${
-            data.length - 10
-          } 条数据未显示</td></tr>`;
+        if (previewTableBody) {
+          previewTableBody.innerHTML = data
+            .slice(0, 10)
+            .map(
+              (student) => `
+              <tr>
+                <td>${student.name || "-"}</td>
+                <td>${student.id || "-"}</td>
+                <td>${student.grade || "-"}</td>
+                <td>${student.class || "-"}</td>
+                <td>${student.major || "-"}</td>
+              </tr>
+            `
+            )
+            .join("");
+
+          if (data.length > 10) {
+            previewTableBody.innerHTML += `<tr><td colspan="5" style="text-align: center; color: #ffc107;">... 还有 ${
+              data.length - 10
+            } 条数据未显示</td></tr>`;
+          }
         }
 
-        document.getElementById("import-preview").style.display = "block";
+        if (importPreviewDiv) importPreviewDiv.style.display = "block";
+        if (importBtn) importBtn.disabled = false;
 
         // 保存数据以便导入
-        document.getElementById("importModal").dataset.importData =
-          JSON.stringify(data);
+        const modal = document.getElementById("importModal");
+        if (modal) {
+          modal.dataset.importData = JSON.stringify(data);
+        }
       }
 
       function confirmImport() {

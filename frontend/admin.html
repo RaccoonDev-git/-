@@ -706,7 +706,7 @@
           week: "显示本周的数据",
           month: "显示本月的数据",
           quarter: "显示本季度的数据",
-          year: "显示今年的数据"
+          year: "显示今年的数据",
         };
 
         // 可以在这里添加实际的数据重新加载逻辑
@@ -720,7 +720,7 @@
 
         // 根据选择的数据类型高亮显示对应的统计卡片
         const allCards = document.querySelectorAll(".stat-card");
-        allCards.forEach(card => {
+        allCards.forEach((card) => {
           card.style.opacity = "1";
           card.style.transform = "scale(1)";
         });
@@ -729,11 +729,11 @@
           const typeMap = {
             users: ["total-users", "total-teachers", "total-students"],
             courses: ["total-courses"],
-            grades: []
+            grades: [],
           };
 
           const relevantIds = typeMap[dataType] || [];
-          allCards.forEach(card => {
+          allCards.forEach((card) => {
             const valueElement = card.querySelector(".stat-value");
             if (valueElement && !relevantIds.includes(valueElement.id)) {
               card.style.opacity = "0.5";

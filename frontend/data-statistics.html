@@ -272,9 +272,9 @@
           <div class="filter-group">
             <label>时间范围</label>
             <div class="date-range">
-              <input type="date" id="start-date" class="filter-input">
-              <span style="margin: 0 5px;">至</span>
-              <input type="date" id="end-date" class="filter-input">
+              <input type="date" id="start-date" class="filter-input" />
+              <span style="margin: 0 5px">至</span>
+              <input type="date" id="end-date" class="filter-input" />
             </div>
           </div>
           <div class="filter-group">
@@ -523,8 +523,9 @@
 
         document.getElementById("avg-score").textContent = avgScore;
         document.getElementById("total-grades").textContent = grades.length;
-        document.getElementById("active-courses").textContent =
-          courses.filter((c) => c.status === "ACTIVE").length;
+        document.getElementById("active-courses").textContent = courses.filter(
+          (c) => c.status === "ACTIVE"
+        ).length;
         document.getElementById("enrollment-count").textContent =
           enrollments.length;
 
@@ -541,34 +542,28 @@
       }
 
       // 加载统计数据(旧版本,已替换)
-      async function loadStatisticsOld() {
-      // 加载统计数据(旧版本,已替换)
-      async function loadStatisticsOld() {
-        try {
-          const headers = getHeaders();
-
-          // 获取成绩数据
-          const gradesRes = await fetch(`${API_BASE_URL}/grades`, { headers });
-          const grades = await gradesRes.json();
-
-          // 获取课程数据
-          const coursesRes = await fetch(`${API_BASE_URL}/courses`, {
-            headers,
-          });
-          const courses = await coursesRes.json();
-
-          // 获取选课数据
-          const enrollmentsRes = await fetch(`${API_BASE_URL}/enrollments`, {
-            headers,
-          });
-          const enrollments = await enrollmentsRes.json();
-
-          // 这个函数已经被新的applyFilters()替代
-        } catch (error) {
-          console.error("加载统计数据失败:", error);
-          alert("加载数据失败: " + error.message);
-        }
-      }
+      // async function loadStatisticsOld() {
+      //   try {
+      //     const headers = getHeaders();
+      //     // 获取成绩数据
+      //     const gradesRes = await fetch(`${API_BASE_URL}/grades`, { headers });
+      //     const grades = await gradesRes.json();
+      //     // 获取课程数据
+      //     const coursesRes = await fetch(`${API_BASE_URL}/courses`, {
+      //       headers,
+      //     });
+      //     const courses = await coursesRes.json();
+      //     // 获取选课数据
+      //     const enrollmentsRes = await fetch(`${API_BASE_URL}/enrollments`, {
+      //       headers,
+      //     });
+      //     const enrollments = await enrollmentsRes.json();
+      //     // 这个函数已经被新的applyFilters()替代
+      //   } catch (error) {
+      //     console.error("加载统计数据失败:", error);
+      //     alert("加载数据失败: " + error.message);
+      //   }
+      // }
 
       // 绘制成绩分布图
       function drawGradeDistribution(grades) {

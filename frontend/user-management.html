@@ -1002,15 +1002,12 @@
       async function exportUsers() {
         try {
           const token = getToken();
-          const response = await fetch(
-            `${API_BASE_URL}/admin/users/export`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await fetch(`${API_BASE_URL}/admin/users/export`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (response.ok) {
             // 获取文件名(从响应头获取,或使用默认名称)
