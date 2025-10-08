@@ -16,13 +16,12 @@ import java.util.Map;
  * 记录学生的各种学习行为
  */
 @Entity
-@Table(name = "learning_activities",
-        indexes = {
-                @Index(name = "idx_student", columnList = "student_id"),
-                @Index(name = "idx_course", columnList = "course_id"),
-                @Index(name = "idx_type", columnList = "activity_type"),
-                @Index(name = "idx_created", columnList = "created_at")
-        })
+@Table(name = "learning_activities", indexes = {
+        @Index(name = "idx_student", columnList = "student_id"),
+        @Index(name = "idx_course", columnList = "course_id"),
+        @Index(name = "idx_type", columnList = "activity_type"),
+        @Index(name = "idx_created", columnList = "created_at")
+})
 @Data
 @Builder
 @NoArgsConstructor

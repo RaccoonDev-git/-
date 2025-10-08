@@ -7,6 +7,7 @@ import com.example.studentanalysissystem.model.User;
 import com.example.studentanalysissystem.service.StudentService;
 import com.example.studentanalysissystem.service.TeacherService;
 import com.example.studentanalysissystem.service.UserService;
+import com.example.studentanalysissystem.service.ExcelExportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,6 +40,7 @@ public class AdminController {
     private final UserService userService;
     private final StudentService studentService;
     private final TeacherService teacherService;
+    private final ExcelExportService excelExportService;
 
     /**
      * 获取系统统计数据
@@ -205,7 +207,8 @@ public class AdminController {
             // 跳过标题行,从第二行开始读取
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null) continue;
+                if (row == null)
+                    continue;
 
                 try {
                     // 读取单元格数据
@@ -217,8 +220,8 @@ public class AdminController {
 
                     // 验证必填字段
                     if (username == null || username.trim().isEmpty() ||
-                        password == null || password.trim().isEmpty() ||
-                        roleStr == null || roleStr.trim().isEmpty()) {
+                            password == null || password.trim().isEmpty() ||
+                            roleStr == null || roleStr.trim().isEmpty()) {
                         errors.add("第" + (i + 1) + "行: 用户名、密码、角色不能为空");
                         failCount++;
                         continue;
@@ -273,8 +276,9 @@ public class AdminController {
      * 辅助方法: 获取单元格值
      */
     private String getCellValue(Cell cell) {
-        if (cell == null) return null;
-        
+        if (cell == null)
+            return null;
+
         switch (cell.getCellType()) {
             case STRING:
                 return cell.getStringCellValue();
@@ -286,6 +290,62 @@ public class AdminController {
                 return cell.getCellFormula();
             default:
                 return null;
+        }
+    }
+
+    /**
+     * 导出用户列表
+     */
+    @GetMapping("/users/export")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "导出用户列表", description = "导出所有用户数据为Excel文件")
+    public ResponseEntity<byte[]> exportUsers() {
+        try {
+            List<User> users = userService.findAllUsers();
+
+            Workbook workbook = excelExportService.createWorkbook();
+            Sheet sheet = workbook.createSheet("用户列表");
+
+            // 创建样式
+            CellStyle headerStyle = excelExportService.createHeaderStyle(workbook);
+            CellStyle dataStyle = excelExportService.createDataStyle(workbook);
+
+            // 创建标题行
+            List<String> headers = java.util.Arrays.asList(
+                    "用户ID", "用户名", "角色", "邮箱", "手机", "状态", "注册时间");
+            excelExportService.createHeaderRow(sheet, headers, headerStyle);
+
+            // 填充数据
+            int rowNum = 1;
+            for (User user : users) {
+                Row row = sheet.createRow(rowNum++);
+                int colNum = 0;
+
+                excelExportService.setCellValue(row.createCell(colNum++), user.getId(), dataStyle);
+                excelExportService.setCellValue(row.createCell(colNum++), user.getUsername(), dataStyle);
+                excelExportService.setCellValue(row.createCell(colNum++), user.getRole().name(), dataStyle);
+                excelExportService.setCellValue(row.createCell(colNum++), user.getEmail(), dataStyle);
+                excelExportService.setCellValue(row.createCell(colNum++), user.getPhone(), dataStyle);
+                excelExportService.setCellValue(row.createCell(colNum++), user.getStatus().name(), dataStyle);
+                excelExportService.setCellValue(row.createCell(colNum++), user.getCreatedAt(), dataStyle);
+            }
+
+            // 自动调整列宽
+            for (int i = 0; i < headers.size(); i++) {
+                sheet.autoSizeColumn(i);
+                sheet.setColumnWidth(i, sheet.getColumnWidth(i) + 1024);
+            }
+
+            byte[] excelData = excelExportService.workbookToBytes(workbook);
+            String filename = excelExportService.generateFileName("用户列表");
+
+            return ResponseEntity.ok()
+                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + filename + "\"")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                    .body(excelData);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 

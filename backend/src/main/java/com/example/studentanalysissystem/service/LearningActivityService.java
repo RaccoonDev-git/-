@@ -36,9 +36,9 @@ public class LearningActivityService {
      */
     @Transactional
     public LearningActivity recordActivity(Long studentId, Long courseId,
-                                          ActivityType activityType,
-                                          Map<String, Object> activityData,
-                                          Integer duration) {
+            ActivityType activityType,
+            Map<String, Object> activityData,
+            Integer duration) {
         LearningActivity activity = LearningActivity.builder()
                 .studentId(studentId)
                 .courseId(courseId)
@@ -48,8 +48,8 @@ public class LearningActivityService {
                 .build();
 
         LearningActivity saved = activityRepository.save(activity);
-        log.info("记录学习活动: studentId={}, type={}, courseId={}", 
-                 studentId, activityType, courseId);
+        log.info("记录学习活动: studentId={}, type={}, courseId={}",
+                studentId, activityType, courseId);
         return saved;
     }
 
@@ -68,8 +68,8 @@ public class LearningActivityService {
         Long loginCount = activityRepository.countLoginsByStudentId(studentId);
 
         // 获取最近20条活动记录
-        List<LearningActivity> recentActivities = 
-                activityRepository.findTop20ByStudentIdOrderByCreatedAtDesc(studentId);
+        List<LearningActivity> recentActivities = activityRepository
+                .findTop20ByStudentIdOrderByCreatedAtDesc(studentId);
 
         List<LearningActivityResponse> recentActivityResponses = recentActivities.stream()
                 .map(this::convertToResponse)
@@ -122,8 +122,7 @@ public class LearningActivityService {
      * 获取课程活动列表
      */
     public List<LearningActivityResponse> getCourseActivities(Long courseId) {
-        List<LearningActivity> activities = 
-                activityRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
+        List<LearningActivity> activities = activityRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
 
         return activities.stream()
                 .map(this::convertToResponse)
@@ -137,7 +136,8 @@ public class LearningActivityService {
         String studentName = null;
         if (activity.getStudentId() != null) {
             studentRepository.findById(activity.getStudentId())
-                    .ifPresent(student -> {});
+                    .ifPresent(student -> {
+                    });
         }
 
         String courseName = null;

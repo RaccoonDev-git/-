@@ -59,16 +59,16 @@ public interface LearningActivityRepository extends JpaRepository<LearningActivi
      * 统计指定课程的学生活跃度
      */
     @Query("SELECT la.studentId, COUNT(la) as activityCount FROM LearningActivity la " +
-           "WHERE la.courseId = :courseId GROUP BY la.studentId ORDER BY activityCount DESC")
+            "WHERE la.courseId = :courseId GROUP BY la.studentId ORDER BY activityCount DESC")
     List<Object[]> findStudentActivityCountByCourseId(@Param("courseId") Long courseId);
 
     /**
      * 获取最近N天的活动统计
      */
     @Query("SELECT DATE(la.createdAt) as date, COUNT(la) as count " +
-           "FROM LearningActivity la " +
-           "WHERE la.studentId = :studentId AND la.createdAt >= :startDate " +
-           "GROUP BY DATE(la.createdAt) ORDER BY date DESC")
+            "FROM LearningActivity la " +
+            "WHERE la.studentId = :studentId AND la.createdAt >= :startDate " +
+            "GROUP BY DATE(la.createdAt) ORDER BY date DESC")
     List<Object[]> findDailyActivityCount(
             @Param("studentId") Long studentId,
             @Param("startDate") LocalDateTime startDate);

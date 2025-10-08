@@ -39,6 +39,12 @@ public interface UserService {
     List<UserResponse> getAllUsers();
 
     /**
+     * 查询所有用户(返回User实体)
+     * 用于导出等需要完整User对象的场景
+     */
+    List<User> findAllUsers();
+
+    /**
      * 根据角色查询用户
      */
     List<UserResponse> getUsersByRole(User.UserRole role);

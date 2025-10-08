@@ -6,14 +6,14 @@ import os
 # 读取文件
 file_path = r"backend\src\main\java\com\example\studentanalysissystem\controller\AdminController.java"
 
-with open(file_path, 'r', encoding='utf-8') as f:
+with open(file_path, "r", encoding="utf-8") as f:
     content = f.read()
 
 # 找到最后一个}的位置
-last_brace = content.rfind('}')
+last_brace = content.rfind("}")
 
 # 要插入的代码
-new_code = '''
+new_code = """
     /**
      * 批量导入用户(从Excel文件)
      */
@@ -117,13 +117,13 @@ new_code = '''
                 return null;
         }
     }
-'''
+"""
 
 # 插入新代码
-new_content = content[:last_brace] + new_code + '\n}'
+new_content = content[:last_brace] + new_code + "\n}"
 
 # 写回文件
-with open(file_path, 'w', encoding='utf-8') as f:
+with open(file_path, "w", encoding="utf-8") as f:
     f.write(new_content)
 
 print("批量导入功能已添加!")

@@ -35,11 +35,11 @@ public class LearningActivityResponse {
     public String getFormattedDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append(activityTypeDesc);
-        
+
         if (courseName != null) {
             sb.append("：").append(courseName);
         }
-        
+
         if (activityData != null && !activityData.isEmpty()) {
             if (activityData.containsKey("title")) {
                 sb.append(" - ").append(activityData.get("title"));
@@ -48,7 +48,7 @@ public class LearningActivityResponse {
                 sb.append(" (").append(activityData.get("description")).append(")");
             }
         }
-        
+
         return sb.toString();
     }
 }

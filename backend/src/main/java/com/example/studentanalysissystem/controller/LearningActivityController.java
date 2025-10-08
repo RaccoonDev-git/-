@@ -34,19 +34,21 @@ public class LearningActivityController {
     @Operation(summary = "记录学习活动", description = "记录学生的学习活动(登录、查看资料、提交作业等)")
     public ResponseEntity<LearningActivityResponse> recordActivity(
             @RequestBody Map<String, Object> request) {
-        
+
         Long studentId = ((Number) request.get("studentId")).longValue();
-        Long courseId = request.get("courseId") != null 
-                ? ((Number) request.get("courseId")).longValue() : null;
+        Long courseId = request.get("courseId") != null
+                ? ((Number) request.get("courseId")).longValue()
+                : null;
         String activityTypeStr = (String) request.get("activityType");
         ActivityType activityType = ActivityType.valueOf(activityTypeStr);
-        
+
         @SuppressWarnings("unchecked")
         Map<String, Object> activityData = (Map<String, Object>) request.get("activityData");
-        Integer duration = request.get("duration") != null 
-                ? ((Number) request.get("duration")).intValue() : 0;
+        Integer duration = request.get("duration") != null
+                ? ((Number) request.get("duration")).intValue()
+                : 0;
 
-        var activity = activityService.recordActivity(studentId, courseId, 
+        var activity = activityService.recordActivity(studentId, courseId,
                 activityType, activityData, duration);
 
         return ResponseEntity.ok(activityService.convertToResponse(activity));
