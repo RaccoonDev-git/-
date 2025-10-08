@@ -2,71 +2,8 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />      </div>
-
-      <!-- 筛选器面板 -->
-      <div class="filter-panel">
-        <div class="filter-title">
-          <i class="fas fa-filter"></i>
-          数据筛选
-        </div>
-        <div class="filter-controls">
-          <div class="filter-group">
-            <label>时间范围</label>
-            <div class="date-range">
-              <input type="date" id="start-date" class="filter-input">
-              <span style="margin: 0 5px;">至</span>
-              <input type="date" id="end-date" class="filter-input">
-            </div>
-          </div>
-          <div class="filter-group">
-            <label>课程</label>
-            <select id="course-filter" class="filter-select">
-              <option value="">全部课程</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label>学期</label>
-            <select id="semester-filter" class="filter-select">
-              <option value="">全部学期</option>
-              <option value="2024-1">2024春季</option>
-              <option value="2024-2">2024秋季</option>
-              <option value="2023-1">2023春季</option>
-              <option value="2023-2">2023秋季</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label>成绩等级</label>
-            <select id="grade-level-filter" class="filter-select">
-              <option value="">全部等级</option>
-              <option value="A">A(优秀)</option>
-              <option value="B">B(良好)</option>
-              <option value="C">C(中等)</option>
-              <option value="D">D(及格)</option>
-              <option value="F">F(不及格)</option>
-            </select>
-          </div>
-          <div class="filter-actions">
-            <button class="filter-btn apply-btn" onclick="applyFilters()">
-              <i class="fas fa-check"></i> 应用筛选
-            </button>
-            <button class="filter-btn reset-btn" onclick="resetFilters()">
-              <i class="fas fa-redo"></i> 重置
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 统计概览卡片 -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="avg-score">-</div>
-          <div class="stat-label">平均成绩</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="total-grades">-</div>
-          <div class="stat-label">成绩记录数</div>
-        </div>>数据统计 - 学情分析系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>数据统计 - 学情分析系统</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
       rel="stylesheet"
@@ -323,6 +260,59 @@
         <a href="admin.html" class="back-btn">
           <i class="fas fa-arrow-left"></i> 返回控制台
         </a>
+      </div>
+
+      <!-- 筛选器面板 -->
+      <div class="filter-panel">
+        <div class="filter-title">
+          <i class="fas fa-filter"></i>
+          数据筛选
+        </div>
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label>时间范围</label>
+            <div class="date-range">
+              <input type="date" id="start-date" class="filter-input">
+              <span style="margin: 0 5px;">至</span>
+              <input type="date" id="end-date" class="filter-input">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>课程</label>
+            <select id="course-filter" class="filter-select">
+              <option value="">全部课程</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>学期</label>
+            <select id="semester-filter" class="filter-select">
+              <option value="">全部学期</option>
+              <option value="2024-1">2024春季</option>
+              <option value="2024-2">2024秋季</option>
+              <option value="2023-1">2023春季</option>
+              <option value="2023-2">2023秋季</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>成绩等级</label>
+            <select id="grade-level-filter" class="filter-select">
+              <option value="">全部等级</option>
+              <option value="A">A(优秀)</option>
+              <option value="B">B(良好)</option>
+              <option value="C">C(中等)</option>
+              <option value="D">D(及格)</option>
+              <option value="F">F(不及格)</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="filter-btn apply-btn" onclick="applyFilters()">
+              <i class="fas fa-check"></i> 应用筛选
+            </button>
+            <button class="filter-btn reset-btn" onclick="resetFilters()">
+              <i class="fas fa-redo"></i> 重置
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 统计概览 -->
