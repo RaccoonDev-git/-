@@ -4443,28 +4443,66 @@
       }
 
       // 加载学习活动
-      function loadStudentActivities(studentId) {
-        // 模拟数据
-        document.getElementById("totalStudyTime").textContent = "126";
-        document.getElementById("loginCount").textContent = "42";
+      async function loadStudentActivities(studentId) {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${API_BASE_URL}/activities/student/${studentId}/stats`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
 
-        const activities = [
-          { date: "2024-01-15", action: "完成作业：数据结构课后练习" },
-          { date: "2024-01-14", action: "观看视频：操作系统原理" },
-          { date: "2024-01-13", action: "参加测验：C语言期中考试" },
-        ];
+          if (response.ok) {
+            const stats = await response.json();
+            
+            // 更新统计数据
+            document.getElementById("totalStudyTime").textContent = stats.totalStudyTime || 0;
+            document.getElementById("loginCount").textContent = stats.loginCount || 0;
 
-        const container = document.getElementById("activitiesTimelineBody");
-        container.innerHTML = activities
-          .map(
-            (a) => `
-            <div class="activity-item">
-              <strong>${a.date}</strong>
-              <p>${a.action}</p>
-            </div>
-          `
-          )
-          .join("");
+            // 更新活动时间线
+            const activities = stats.recentActivities || [];
+            const container = document.getElementById("activitiesTimelineBody");
+            
+            if (activities.length === 0) {
+              container.innerHTML = '<div class="activity-item"><p style="text-align:center; color:#999;">暂无学习活动记录</p></div>';
+            } else {
+              container.innerHTML = activities
+                .map(a => `
+                  <div class="activity-item">
+                    <strong>${formatDateTime(a.createdAt)}</strong>
+                    <p>${a.activityTypeDesc}${a.courseName ? '：' + a.courseName : ''}${a.activityData && a.activityData.title ? ' - ' + a.activityData.title : ''}</p>
+                  </div>
+                `)
+                .join("");
+            }
+          } else {
+            console.error('加载学习活动失败:', response.statusText);
+            // 失败时显示提示
+            document.getElementById("totalStudyTime").textContent = "0";
+            document.getElementById("loginCount").textContent = "0";
+            document.getElementById("activitiesTimelineBody").innerHTML = 
+              '<div class="activity-item"><p style="text-align:center; color:#ff6b6b;">加载失败,请稍后重试</p></div>';
+          }
+        } catch (error) {
+          console.error('加载学习活动异常:', error);
+          document.getElementById("totalStudyTime").textContent = "0";
+          document.getElementById("loginCount").textContent = "0";
+          document.getElementById("activitiesTimelineBody").innerHTML = 
+            '<div class="activity-item"><p style="text-align:center; color:#ff6b6b;">加载失败: ' + error.message + '</p></div>';
+        }
+      }
+
+      // 格式化日期时间
+      function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '';
+        const date = new Date(dateTimeStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
       }
 
       // 导入功能
