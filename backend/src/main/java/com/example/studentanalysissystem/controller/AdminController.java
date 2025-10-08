@@ -1,5 +1,6 @@
 package com.example.studentanalysissystem.controller;
 
+import com.example.studentanalysissystem.dto.request.UpdateUserRequest;
 import com.example.studentanalysissystem.dto.response.UserResponse;
 import com.example.studentanalysissystem.service.StudentService;
 import com.example.studentanalysissystem.service.TeacherService;
@@ -78,6 +79,19 @@ public class AdminController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 更新用户信息
+     */
+    @PutMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "更新用户信息", description = "更新指定用户的基本信息")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Long id,
+            @RequestBody UpdateUserRequest request) {
+        UserResponse updatedUser = userService.updateUser(id, request);
+        return ResponseEntity.ok(updatedUser);
     }
 
     /**

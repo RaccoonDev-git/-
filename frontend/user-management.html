@@ -674,47 +674,88 @@
         currentEditUserId = null;
         document.getElementById("modal-title").textContent = "添加用户";
         document.getElementById("user-form").reset();
-        document.getElementById("user-modal").classList.add("show");
+        document.getElementById("username").disabled = false;
+        document.getElementById("password").placeholder = "请输入密码";
+        document.getElementById("password").required = true;
+        document.getElementById("user-modal").style.display = "flex";
       }
 
       // 关闭模态框
       function closeModal() {
-        document.getElementById("user-modal").classList.remove("show");
+        document.getElementById("user-modal").style.display = "none";
+        currentEditUserId = null;
       }
 
       // 保存用户
       async function saveUser(event) {
         event.preventDefault();
 
-        const userData = {
-          username: document.getElementById("username").value,
-          password: document.getElementById("password").value,
-          role: document.getElementById("role").value,
-          email: document.getElementById("email").value || null,
-          phone: document.getElementById("phone").value || null,
-        };
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const role = document.getElementById("role").value;
+        const email = document.getElementById("email").value || null;
+        const phone = document.getElementById("phone").value || null;
 
         try {
           const token = getToken();
-          const response = await fetch(
-            `${API_BASE_URL}/authentication/register`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(userData),
+          let response;
+
+          if (currentEditUserId) {
+            // 编辑模式 - 使用PUT请求
+            const updateData = {
+              email: email,
+              phone: phone,
+              role: role
+            };
+            
+            // 如果输入了新密码,则包含密码字段
+            if (password) {
+              updateData.password = password;
             }
-          );
+
+            response = await fetch(
+              `${API_BASE_URL}/admin/users/${currentEditUserId}`,
+              {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updateData),
+              }
+            );
+          } else {
+            // 添加模式 - 使用POST请求
+            const userData = {
+              username: username,
+              password: password,
+              role: role,
+              email: email,
+              phone: phone,
+            };
+
+            response = await fetch(
+              `${API_BASE_URL}/authentication/register`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+              }
+            );
+          }
 
           if (response.ok) {
-            alert("用户添加成功!");
+            const successMessage = currentEditUserId ? "用户更新成功!" : "用户添加成功!";
+            alert(successMessage);
             closeModal();
             loadAllUsers();
           } else {
             const error = await response.text();
-            alert("添加失败: " + error);
+            const errorMessage = currentEditUserId ? "更新失败" : "添加失败";
+            alert(`${errorMessage}: ${error}`);
           }
         } catch (error) {
           console.error("保存用户失败:", error);
@@ -723,8 +764,35 @@
       }
 
       // 编辑用户
-      function editUser(userId) {
-        alert("编辑功能开发中...");
+      async function editUser(userId) {
+        try {
+          // 查找用户信息
+          const user = allUsers.find(u => u.id === userId);
+          if (!user) {
+            alert("未找到用户信息");
+            return;
+          }
+
+          // 填充表单
+          document.getElementById("modal-title").textContent = "编辑用户";
+          document.getElementById("username").value = user.username;
+          document.getElementById("username").disabled = true; // 用户名不可编辑
+          document.getElementById("password").value = "";
+          document.getElementById("password").placeholder = "留空则不修改密码";
+          document.getElementById("password").required = false;
+          document.getElementById("role").value = user.role;
+          document.getElementById("email").value = user.email || "";
+          document.getElementById("phone").value = user.phone || "";
+
+          // 设置当前编辑的用户ID
+          currentEditUserId = userId;
+
+          // 显示模态框
+          document.getElementById("user-modal").style.display = "flex";
+        } catch (error) {
+          console.error("加载用户信息失败:", error);
+          alert("加载用户信息失败: " + error.message);
+        }
       }
 
       // 重置密码
