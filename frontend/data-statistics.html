@@ -2,8 +2,71 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>数据统计 - 学情分析系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />      </div>
+
+      <!-- 筛选器面板 -->
+      <div class="filter-panel">
+        <div class="filter-title">
+          <i class="fas fa-filter"></i>
+          数据筛选
+        </div>
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label>时间范围</label>
+            <div class="date-range">
+              <input type="date" id="start-date" class="filter-input">
+              <span style="margin: 0 5px;">至</span>
+              <input type="date" id="end-date" class="filter-input">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>课程</label>
+            <select id="course-filter" class="filter-select">
+              <option value="">全部课程</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>学期</label>
+            <select id="semester-filter" class="filter-select">
+              <option value="">全部学期</option>
+              <option value="2024-1">2024春季</option>
+              <option value="2024-2">2024秋季</option>
+              <option value="2023-1">2023春季</option>
+              <option value="2023-2">2023秋季</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>成绩等级</label>
+            <select id="grade-level-filter" class="filter-select">
+              <option value="">全部等级</option>
+              <option value="A">A(优秀)</option>
+              <option value="B">B(良好)</option>
+              <option value="C">C(中等)</option>
+              <option value="D">D(及格)</option>
+              <option value="F">F(不及格)</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="filter-btn apply-btn" onclick="applyFilters()">
+              <i class="fas fa-check"></i> 应用筛选
+            </button>
+            <button class="filter-btn reset-btn" onclick="resetFilters()">
+              <i class="fas fa-redo"></i> 重置
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 统计概览卡片 -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="avg-score">-</div>
+          <div class="stat-label">平均成绩</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="total-grades">-</div>
+          <div class="stat-label">成绩记录数</div>
+        </div>>数据统计 - 学情分析系统</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
       rel="stylesheet"
@@ -58,6 +121,114 @@
 
       .back-btn:hover {
         background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* 筛选器面板 */
+      .filter-panel {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+      }
+
+      .filter-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .filter-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: end;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .filter-group label {
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+
+      .filter-input,
+      .filter-select {
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .filter-input:focus,
+      .filter-select:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .filter-select option {
+        background: #764ba2;
+        color: #fff;
+      }
+
+      .date-range {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .date-range input {
+        flex: 1;
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .filter-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .apply-btn {
+        background: rgba(67, 233, 123, 0.8);
+        color: #fff;
+        flex: 1;
+      }
+
+      .apply-btn:hover {
+        background: rgba(67, 233, 123, 1);
+        transform: translateY(-2px);
+      }
+
+      .reset-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        flex: 1;
+      }
+
+      .reset-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
       }
 
       /* 图表网格 */
@@ -256,8 +427,133 @@
         };
       }
 
+      // 全局变量存储原始数据
+      let allGrades = [];
+      let allCourses = [];
+      let allEnrollments = [];
+
       // 加载统计数据
       async function loadStatistics() {
+        try {
+          const headers = getHeaders();
+
+          // 获取成绩数据
+          const gradesRes = await fetch(`${API_BASE_URL}/grades`, { headers });
+          allGrades = await gradesRes.json();
+
+          // 获取课程数据
+          const coursesRes = await fetch(`${API_BASE_URL}/courses`, {
+            headers,
+          });
+          allCourses = await coursesRes.json();
+
+          // 获取选课数据
+          const enrollmentsRes = await fetch(`${API_BASE_URL}/enrollments`, {
+            headers,
+          });
+          allEnrollments = await enrollmentsRes.json();
+
+          // 填充课程下拉选择器
+          populateCourseFilter(allCourses);
+
+          // 应用筛选并显示数据
+          applyFilters();
+        } catch (error) {
+          console.error("加载统计数据失败:", error);
+          alert("加载数据失败: " + error.message);
+        }
+      }
+
+      // 填充课程筛选器
+      function populateCourseFilter(courses) {
+        const select = document.getElementById("course-filter");
+        select.innerHTML = '<option value="">全部课程</option>';
+        courses.forEach((course) => {
+          const option = document.createElement("option");
+          option.value = course.id;
+          option.textContent = course.name;
+          select.appendChild(option);
+        });
+      }
+
+      // 应用筛选器
+      function applyFilters() {
+        const startDate = document.getElementById("start-date").value;
+        const endDate = document.getElementById("end-date").value;
+        const courseId = document.getElementById("course-filter").value;
+        const semester = document.getElementById("semester-filter").value;
+        const gradeLevel = document.getElementById("grade-level-filter").value;
+
+        // 筛选成绩数据
+        let filteredGrades = allGrades.filter((g) => {
+          // 时间筛选
+          if (startDate && g.examDate < startDate) return false;
+          if (endDate && g.examDate > endDate) return false;
+          // 课程筛选
+          if (courseId && g.courseId != courseId) return false;
+          // 学期筛选
+          if (semester) {
+            const course = allCourses.find((c) => c.id === g.courseId);
+            if (!course || course.semester !== semester) return false;
+          }
+          // 等级筛选
+          if (gradeLevel && g.gradeLevel !== gradeLevel) return false;
+          return true;
+        });
+
+        // 筛选课程数据
+        let filteredCourses = allCourses;
+        if (semester) {
+          filteredCourses = allCourses.filter((c) => c.semester === semester);
+        }
+
+        // 更新统计数据和图表
+        updateStatistics(filteredGrades, filteredCourses, allEnrollments);
+      }
+
+      // 重置筛选器
+      function resetFilters() {
+        document.getElementById("start-date").value = "";
+        document.getElementById("end-date").value = "";
+        document.getElementById("course-filter").value = "";
+        document.getElementById("semester-filter").value = "";
+        document.getElementById("grade-level-filter").value = "";
+        applyFilters();
+      }
+
+      // 更新统计数据和图表
+      function updateStatistics(grades, courses, enrollments) {
+        // 计算统计数据
+        const avgScore =
+          grades.length > 0
+            ? (
+                grades.reduce((sum, g) => sum + g.score, 0) / grades.length
+              ).toFixed(2)
+            : 0;
+
+        document.getElementById("avg-score").textContent = avgScore;
+        document.getElementById("total-grades").textContent = grades.length;
+        document.getElementById("active-courses").textContent =
+          courses.filter((c) => c.status === "ACTIVE").length;
+        document.getElementById("enrollment-count").textContent =
+          enrollments.length;
+
+        // 清除旧图表
+        Chart.helpers.each(Chart.instances, function (instance) {
+          instance.destroy();
+        });
+
+        // 绘制图表
+        drawGradeDistribution(grades);
+        drawCourseAverage(grades, courses);
+        drawSemesterTrend(courses, grades);
+        drawTeacherCourses(courses);
+      }
+
+      // 加载统计数据(旧版本,已替换)
+      async function loadStatisticsOld() {
+      // 加载统计数据(旧版本,已替换)
+      async function loadStatisticsOld() {
         try {
           const headers = getHeaders();
 
@@ -277,26 +573,7 @@
           });
           const enrollments = await enrollmentsRes.json();
 
-          // 计算统计数据
-          const avgScore =
-            grades.length > 0
-              ? (
-                  grades.reduce((sum, g) => sum + g.score, 0) / grades.length
-                ).toFixed(2)
-              : 0;
-
-          document.getElementById("avg-score").textContent = avgScore;
-          document.getElementById("total-grades").textContent = grades.length;
-          document.getElementById("active-courses").textContent =
-            courses.filter((c) => c.status === "ACTIVE").length;
-          document.getElementById("enrollment-count").textContent =
-            enrollments.length;
-
-          // 绘制图表
-          drawGradeDistribution(grades);
-          drawCourseAverage(grades, courses);
-          drawSemesterTrend(courses, grades);
-          drawTeacherCourses(courses);
+          // 这个函数已经被新的applyFilters()替代
         } catch (error) {
           console.error("加载统计数据失败:", error);
           alert("加载数据失败: " + error.message);

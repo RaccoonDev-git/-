@@ -20,7 +20,61 @@
       body {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
-        color: #fff;
+        color: #        }
+      }
+
+      // 应用时间筛选
+      function applyTimeFilter() {
+        const timeRange = document.getElementById("time-range-filter").value;
+        console.log("应用时间筛选:", timeRange);
+        
+        // 这里可以实现根据时间范围重新加载数据的逻辑
+        // 暂时只显示提示
+        const messages = {
+          all: "显示全部时间数据",
+          today: "显示今天的数据",
+          week: "显示本周的数据",
+          month: "显示本月的数据",
+          quarter: "显示本季度的数据",
+          year: "显示今年的数据"
+        };
+        
+        // 可以在这里添加实际的数据重新加载逻辑
+        // loadStatistics(timeRange);
+      }
+
+      // 应用数据类型筛选
+      function applyDataFilter() {
+        const dataType = document.getElementById("data-type-filter").value;
+        console.log("应用数据筛选:", dataType);
+        
+        // 根据选择的数据类型高亮显示对应的统计卡片
+        const allCards = document.querySelectorAll(".stat-card");
+        allCards.forEach(card => {
+          card.style.opacity = "1";
+          card.style.transform = "scale(1)";
+        });
+
+        if (dataType !== "all") {
+          const typeMap = {
+            users: ["total-users", "total-teachers", "total-students"],
+            courses: ["total-courses"],
+            grades: []
+          };
+          
+          const relevantIds = typeMap[dataType] || [];
+          allCards.forEach(card => {
+            const valueElement = card.querySelector(".stat-value");
+            if (valueElement && !relevantIds.includes(valueElement.id)) {
+              card.style.opacity = "0.5";
+              card.style.transform = "scale(0.95)";
+            }
+          });
+        }
+      }
+
+      // 加载最近活动
+      async function loadRecentActivities() {
       }
 
       .container {
@@ -77,6 +131,69 @@
       .logout-btn:hover {
         background: rgba(255, 255, 255, 0.3);
         transform: translateY(-2px);
+      }
+
+      /* 筛选器面板 */
+      .filter-panel {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .filter-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0.9;
+      }
+
+      .filter-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .filter-group label {
+        font-size: 13px;
+        font-weight: 500;
+        opacity: 0.85;
+      }
+
+      .filter-select {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .filter-select:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .filter-select:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .filter-select option {
+        background: #764ba2;
+        color: #fff;
       }
 
       /* 统计卡片 */
@@ -293,6 +410,36 @@
           <button class="logout-btn" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i> 退出登录
           </button>
+        </div>
+      </div>
+
+      <!-- 数据筛选面板 -->
+      <div class="filter-panel">
+        <div class="filter-title">
+          <i class="fas fa-sliders-h"></i>
+          快速筛选
+        </div>
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label>统计时间范围</label>
+            <select id="time-range-filter" class="filter-select" onchange="applyTimeFilter()">
+              <option value="all">全部时间</option>
+              <option value="today">今天</option>
+              <option value="week">本周</option>
+              <option value="month" selected>本月</option>
+              <option value="quarter">本季度</option>
+              <option value="year">今年</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>数据类型</label>
+            <select id="data-type-filter" class="filter-select" onchange="applyDataFilter()">
+              <option value="all" selected>全部数据</option>
+              <option value="users">用户数据</option>
+              <option value="courses">课程数据</option>
+              <option value="grades">成绩数据</option>
+            </select>
+          </div>
         </div>
       </div>
 
