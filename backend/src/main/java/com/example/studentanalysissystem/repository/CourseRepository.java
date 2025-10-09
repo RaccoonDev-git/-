@@ -21,6 +21,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Optional<Course> findByCode(String code);
 
     /**
+     * 根据课程名称查找课程
+     */
+    Optional<Course> findByName(String name);
+
+    /**
      * 检查课程代码是否存在
      */
     boolean existsByCode(String code);

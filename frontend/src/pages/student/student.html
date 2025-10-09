@@ -3211,7 +3211,6 @@
         const teacherExams = JSON.parse(
           localStorage.getItem("teacherExams") || "[]"
         );
-        console.log("教师发布的考试:", teacherExams); // 调试信息
 
         if (teacherExams.length === 0) {
           examGrid.innerHTML = `

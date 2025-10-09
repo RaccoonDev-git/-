@@ -4,8 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>老师页面 - 学情分析系统</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
@@ -2229,6 +2236,220 @@
         margin-top: 15px;
       }
 
+      /* 导入进度样式 */
+      .import-progress {
+        margin-top: 15px;
+        padding: 20px;
+        background: rgba(76, 175, 80, 0.1);
+        border-radius: 8px;
+      }
+
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        color: #81c784;
+        font-weight: 500;
+      }
+
+      .progress-bar-container {
+        height: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #81c784);
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border-radius: 15px;
+      }
+
+      .progress-detail {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: #9e9e9e;
+      }
+
+      .progress-detail strong {
+        color: #81c784;
+      }
+
+      /* 导出模态框样式 */
+      .export-options {
+        padding: 10px 0;
+      }
+
+      .export-section {
+        margin-bottom: 25px;
+      }
+
+      .export-section h4 {
+        color: #39f7ff;
+        font-size: 16px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .radio-label {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: rgba(15, 23, 42, 0.3);
+        border: 2px solid rgba(57, 247, 255, 0.2);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .radio-label:hover {
+        background: rgba(57, 247, 255, 0.05);
+        border-color: rgba(57, 247, 255, 0.4);
+      }
+
+      .radio-label input[type="radio"] {
+        margin-right: 10px;
+        cursor: pointer;
+      }
+
+      .radio-label input[type="radio"]:checked + span {
+        color: #39f7ff;
+        font-weight: 600;
+      }
+
+      .format-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+      }
+
+      .format-card {
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.3);
+        border: 2px solid rgba(57, 247, 255, 0.2);
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .format-card:hover {
+        background: rgba(57, 247, 255, 0.05);
+        border-color: rgba(57, 247, 255, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .format-card.active {
+        background: rgba(57, 247, 255, 0.1);
+        border-color: #39f7ff;
+        box-shadow: 0 0 20px rgba(57, 247, 255, 0.3);
+      }
+
+      .format-card i {
+        font-size: 36px;
+        margin-bottom: 10px;
+        color: #39f7ff;
+      }
+
+      .format-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #39f7ff;
+        margin-bottom: 5px;
+      }
+
+      .format-desc {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .field-selection {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: rgba(15, 23, 42, 0.3);
+        border: 1px solid rgba(57, 247, 255, 0.2);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .checkbox-label:hover {
+        background: rgba(57, 247, 255, 0.05);
+        border-color: rgba(57, 247, 255, 0.4);
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        margin-right: 8px;
+        cursor: pointer;
+      }
+
+      .checkbox-label input[type="checkbox"]:checked + span {
+        color: #39f7ff;
+        font-weight: 600;
+      }
+
+      .field-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 15px;
+      }
+
+      .btn-link {
+        background: none;
+        border: none;
+        color: #39f7ff;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: underline;
+        padding: 5px 10px;
+      }
+
+      .btn-link:hover {
+        color: #5dffff;
+      }
+
+      .export-preview {
+        padding: 15px;
+        background: rgba(57, 247, 255, 0.05);
+        border: 1px solid rgba(57, 247, 255, 0.2);
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+
+      .preview-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #39f7ff;
+      }
+
+      .preview-info i {
+        font-size: 18px;
+      }
+
       .preview-stats {
         padding: 12px;
         background: rgba(76, 175, 80, 0.1);
@@ -2507,7 +2728,7 @@
               <button class="btn-secondary" onclick="showImportModal()">
                 <i class="fas fa-file-import"></i> 批量导入
               </button>
-              <button class="btn-secondary" onclick="exportStudents()">
+              <button class="btn-secondary" onclick="showExportModal()">
                 <i class="fas fa-file-export"></i> 导出数据
               </button>
               <button
@@ -2703,14 +2924,33 @@
               <option value="class3">信息安全3班</option>
             </select>
             <select id="subject-select" onchange="loadAnalysisData()">
-              <option value="cLanguage">C语言</option>
+              <option value="cLanguage">数据结构</option>
               <option value="math">高等数学</option>
-              <option value="english">大学英语</option>
-              <option value="physics">大学物理</option>
+              <option value="english">英语</option>
+              <option value="physics">计算机基础</option>
             </select>
           </div>
           <div class="chart-container">
             <canvas id="analysisScoreChart"></canvas>
+          </div>
+
+          <!-- 新增分析图表区域 -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+              margin: 20px 0;
+            "
+          >
+            <div class="chart-container" style="height: 300px">
+              <h4>班级成绩对比</h4>
+              <canvas id="classComparisonChart"></canvas>
+            </div>
+            <div class="chart-container" style="height: 300px">
+              <h4>课程相关性分析</h4>
+              <canvas id="courseCorrelationChart"></canvas>
+            </div>
           </div>
           <table>
             <thead>
@@ -3016,19 +3256,21 @@
               <div class="step-number">2</div>
               <div class="step-content">
                 <h4>选择文件</h4>
-                <p>选择填写好的Excel文件(.xlsx, .xls)或CSV文件</p>
+                <p>选择填写好的文件(.xlsx, .xls, .csv 或 .json)</p>
                 <div class="file-upload-area" id="fileUploadArea">
                   <input
                     type="file"
                     id="importFile"
-                    accept=".xlsx,.xls,.csv"
+                    accept=".xlsx,.xls,.csv,.json"
                     onchange="handleFileSelect(event)"
                     style="display: none"
                   />
                   <label for="importFile" class="upload-label">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <div>点击或拖拽文件到此处</div>
-                    <div class="file-hint">支持 .xlsx, .xls, .csv 格式</div>
+                    <div class="file-hint">
+                      支持 .xlsx, .xls, .csv, .json 格式
+                    </div>
                   </label>
                   <div
                     class="selected-file"
@@ -3049,6 +3291,32 @@
               <div class="step-content">
                 <h4>预览与导入</h4>
                 <p>预览导入数据,确认无误后点击导入</p>
+
+                <!-- 导入进度显示 -->
+                <div
+                  class="import-progress"
+                  id="importProgress"
+                  style="display: none"
+                >
+                  <div class="progress-info">
+                    <span>正在导入...</span>
+                    <span id="progressText">0%</span>
+                  </div>
+                  <div class="progress-bar-container">
+                    <div
+                      class="progress-bar"
+                      id="progressBar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <div class="progress-detail">
+                    <span
+                      >已处理：<strong id="processedCount">0</strong> 条</span
+                    >
+                    <span>总计：<strong id="totalCount">0</strong> 条</span>
+                  </div>
+                </div>
+
                 <div
                   class="import-preview"
                   id="importPreview"
@@ -3076,11 +3344,166 @@
           </button>
           <button
             class="btn-primary"
-            onclick="executeImport()"
+            onclick="confirmImport()"
             id="importBtn"
             disabled
           >
             <i class="fas fa-upload"></i> 开始导入
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 导出数据模态框 -->
+    <div class="modal" id="exportModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-file-export"></i> 导出学生数据</h3>
+          <button class="close-btn" onclick="closeExportModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="export-options">
+            <div class="export-section">
+              <h4><i class="fas fa-filter"></i> 导出范围</h4>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="exportRange" value="all" checked />
+                  <span>全部学生</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="exportRange" value="current" />
+                  <span>当前筛选结果</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="exportRange" value="selected" />
+                  <span>选中的学生</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="export-section">
+              <h4><i class="fas fa-file-alt"></i> 导出格式</h4>
+              <div class="format-options">
+                <div
+                  class="format-card active"
+                  onclick="selectExportFormat('csv')"
+                  data-format="csv"
+                >
+                  <i class="fas fa-file-csv"></i>
+                  <div class="format-name">CSV</div>
+                  <div class="format-desc">通用表格格式</div>
+                </div>
+                <div
+                  class="format-card"
+                  onclick="selectExportFormat('excel')"
+                  data-format="excel"
+                >
+                  <i class="fas fa-file-excel"></i>
+                  <div class="format-name">Excel</div>
+                  <div class="format-desc">Microsoft Excel</div>
+                </div>
+                <div
+                  class="format-card"
+                  onclick="selectExportFormat('json')"
+                  data-format="json"
+                >
+                  <i class="fas fa-file-code"></i>
+                  <div class="format-name">JSON</div>
+                  <div class="format-desc">数据交换格式</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="export-section">
+              <h4><i class="fas fa-columns"></i> 导出字段</h4>
+              <div class="field-selection">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="exportField"
+                    value="name"
+                    checked
+                  />
+                  <span>姓名</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="exportField"
+                    value="studentNumber"
+                    checked
+                  />
+                  <span>学号</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="exportField"
+                    value="gradeLevel"
+                    checked
+                  />
+                  <span>年级</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="exportField"
+                    value="className"
+                    checked
+                  />
+                  <span>班级</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="exportField"
+                    value="major"
+                    checked
+                  />
+                  <span>专业</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="exportField"
+                    value="phone"
+                    checked
+                  />
+                  <span>联系方式</span>
+                </label>
+              </div>
+              <div class="field-actions">
+                <button
+                  class="btn-link"
+                  onclick="selectAllFields(true)"
+                  type="button"
+                >
+                  全选
+                </button>
+                <button
+                  class="btn-link"
+                  onclick="selectAllFields(false)"
+                  type="button"
+                >
+                  取消全选
+                </button>
+              </div>
+            </div>
+
+            <div class="export-preview">
+              <div class="preview-info">
+                <i class="fas fa-info-circle"></i>
+                <span id="exportPreviewText">将导出 0 条记录</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeExportModal()">
+            取消
+          </button>
+          <button class="btn-primary" onclick="confirmExport()">
+            <i class="fas fa-download"></i> 导出
           </button>
         </div>
       </div>
@@ -3124,7 +3547,7 @@
 
     <script>
       // 确保API_URL已定义
-      window.API_URL = window.API_URL || "/api";
+      window.API_URL = window.API_URL || "http://localhost:8080/api";
 
       // 通用API请求函数
       async function apiRequest(
@@ -3159,12 +3582,11 @@
         }
 
         try {
-          // 模拟API请求响应，因为用户要求忽略后端
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve({ success: true, data: [] });
-            }, 500);
-          });
+          const response = await fetch(url, requestOptions);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return await response.json();
         } catch (error) {
           console.error("API请求失败:", error);
           alert("请求失败: " + error.message);
@@ -3659,15 +4081,91 @@
       function prevPage() {
         if (currentPage > 1) {
           currentPage--;
-          loadStudents();
+          refreshStudentList(); // 使用新的刷新函数
         }
       }
 
       function nextPage() {
-        const classSelect = document.getElementById("class-select");
-        if (currentPage * pageSize < students[classSelect.value].length) {
+        // 使用新的分页逻辑
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect ? classSelect.value || "" : "";
+
+        // 计算总学生数
+        let totalStudents = 0;
+        if (selectedClass) {
+          totalStudents = students[selectedClass]
+            ? students[selectedClass].length
+            : 0;
+        } else {
+          // 全部班级
+          for (let className in students) {
+            if (students[className]) {
+              totalStudents += students[className].length;
+            }
+          }
+        }
+
+        const totalPages = Math.ceil(totalStudents / currentPageSize);
+        if (currentPage < totalPages) {
           currentPage++;
-          loadStudents();
+          refreshStudentList();
+        }
+      }
+
+      function firstPage() {
+        currentPage = 1;
+        refreshStudentList();
+      }
+
+      function lastPage() {
+        // 计算总学生数
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect ? classSelect.value || "" : "";
+
+        let totalStudents = 0;
+        if (selectedClass) {
+          totalStudents = students[selectedClass]
+            ? students[selectedClass].length
+            : 0;
+        } else {
+          // 全部班级
+          for (let className in students) {
+            if (students[className]) {
+              totalStudents += students[className].length;
+            }
+          }
+        }
+
+        const totalPages = Math.ceil(totalStudents / currentPageSize);
+        currentPage = totalPages;
+        refreshStudentList();
+      }
+
+      function goToPage(page) {
+        const pageNum = parseInt(page);
+        if (isNaN(pageNum) || pageNum < 1) return;
+
+        // 计算总学生数
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect ? classSelect.value || "" : "";
+
+        let totalStudents = 0;
+        if (selectedClass) {
+          totalStudents = students[selectedClass]
+            ? students[selectedClass].length
+            : 0;
+        } else {
+          for (let className in students) {
+            if (students[className]) {
+              totalStudents += students[className].length;
+            }
+          }
+        }
+
+        const totalPages = Math.ceil(totalStudents / currentPageSize);
+        if (pageNum <= totalPages) {
+          currentPage = pageNum;
+          refreshStudentList();
         }
       }
 
@@ -3898,6 +4396,94 @@
         }
 
         refreshStudentList();
+      }
+
+      // 从API加载学生数据
+      async function loadStudentsFromAPI() {
+        try {
+          const token = localStorage.getItem("token");
+          console.log("正在从API加载学生数据...");
+
+          const response = await fetch(
+            "http://localhost:8080/api/admin/students",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const studentsData = await response.json();
+          console.log(`成功加载 ${studentsData.length} 条学生数据`);
+
+          // 重组数据结构 - 按班级分组
+          students = {}; // 清空现有数据
+
+          studentsData.forEach((student) => {
+            const className = student.className || "未分配班级";
+
+            if (!students[className]) {
+              students[className] = [];
+            }
+
+            // 转换为前端使用的格式
+            students[className].push({
+              name: student.name,
+              id: student.studentNumber,
+              grade: student.gradeLevel ? student.gradeLevel.toString() : "",
+              class: className,
+              major: student.major || "",
+              phone: student.phone || "",
+              remarks: student.remarks || "",
+              userId: student.userId,
+            });
+          });
+
+          // 保存到localStorage
+          localStorage.setItem("studentsData", JSON.stringify(students));
+
+          // 更新班级下拉框
+          updateClassFilter();
+
+          console.log("学生数据加载完成");
+          return true;
+        } catch (error) {
+          console.error("加载学生数据失败:", error);
+          alert("加载学生数据失败: " + error.message);
+          return false;
+        }
+      }
+
+      // 更新班级筛选下拉框
+      function updateClassFilter() {
+        const classSelect = document.getElementById("class-filter");
+        if (!classSelect) return;
+
+        // 保存当前选择
+        const currentSelection = classSelect.value;
+
+        // 清空现有选项（保留"全部班级"）
+        classSelect.innerHTML = '<option value="">全部班级</option>';
+
+        // 添加所有班级选项
+        const classList = Object.keys(students).sort();
+        classList.forEach((className) => {
+          const option = document.createElement("option");
+          option.value = className;
+          option.textContent = className;
+          classSelect.appendChild(option);
+        });
+
+        // 恢复之前的选择（如果还存在）
+        if (currentSelection && classList.includes(currentSelection)) {
+          classSelect.value = currentSelection;
+        }
       }
 
       // 刷新学生列表
@@ -4152,26 +4738,49 @@
         refreshStudentList();
       }
 
-      function goToPage() {
-        const input = document.getElementById("page-input");
-        const page = parseInt(input.value);
-        const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value || "class1";
-        const totalPages = Math.ceil(
-          students[selectedClass].length / currentPageSize
-        );
+      function goToPage(page) {
+        const pageNum = parseInt(page);
+        if (isNaN(pageNum) || pageNum < 1) return;
 
-        if (page >= 1 && page <= totalPages) {
-          currentPage = page;
-          refreshStudentList();
+        // 计算总页数
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect ? classSelect.value || "" : "";
+
+        let totalStudents = 0;
+        if (selectedClass) {
+          totalStudents = students[selectedClass]
+            ? students[selectedClass].length
+            : 0;
         } else {
-          input.value = currentPage;
+          // 全部班级
+          for (let className in students) {
+            if (students[className]) {
+              totalStudents += students[className].length;
+            }
+          }
+        }
+
+        const totalPages = Math.ceil(totalStudents / currentPageSize);
+        if (pageNum <= totalPages) {
+          currentPage = pageNum;
+          refreshStudentList();
         }
       }
 
-      function changePageSize() {
-        const select = document.getElementById("page-size");
-        currentPageSize = parseInt(select.value);
+      function changePageSize(newSize) {
+        // 如果传入了参数，使用参数；否则从select获取
+        if (newSize) {
+          currentPageSize = parseInt(newSize);
+        } else {
+          const select =
+            document.getElementById("page-size") ||
+            document.getElementById("pageSizeSelect");
+          if (!select) {
+            console.warn("page-size element not found");
+            return;
+          }
+          currentPageSize = parseInt(select.value);
+        }
         currentPage = 1;
         refreshStudentList();
       }
@@ -4374,7 +4983,7 @@
         // 这里应该从后端API加载真实数据
         // 模拟数据
         const grades = [
-          { course: "C语言", score: 85, credit: 4, semester: "2023-2024-1" },
+          { course: "数据结构", score: 85, credit: 4, semester: "2023-2024-1" },
           { course: "数据结构", score: 92, credit: 4, semester: "2023-2024-1" },
           {
             course: "计算机网络",
@@ -4547,18 +5156,99 @@
       }
 
       function downloadTemplate() {
-        const template = [
+        // 显示格式选择提示
+        const format = prompt(
+          "请选择模板格式:\n1 - CSV\n2 - Excel\n3 - JSON",
+          "1"
+        );
+
+        if (!format) return;
+
+        const templateData = [
           {
-            name: "示例姓名",
-            id: "2024001",
-            grade: "2024级",
-            class: "计算机1班",
-            major: "计算机科学",
-            phone: "13800138000",
-            remarks: "",
+            姓名: "张三",
+            学号: "20191001",
+            年级: "2019",
+            班级: "19软工A1",
+            专业: "软件工程",
+            手机号: "13800138001",
+            备注: "示例学生1",
+          },
+          {
+            姓名: "李四",
+            学号: "20191002",
+            年级: "2019",
+            班级: "19软工A2",
+            专业: "软件工程",
+            手机号: "13800138002",
+            备注: "示例学生2",
           },
         ];
-        exportToCSV(template, "学生信息导入模板.csv");
+
+        switch (format) {
+          case "1": // CSV
+            downloadCSVTemplate(templateData);
+            break;
+          case "2": // Excel
+            downloadExcelTemplate(templateData);
+            break;
+          case "3": // JSON
+            downloadJSONTemplate(templateData);
+            break;
+          default:
+            alert("无效的格式选择");
+        }
+      }
+
+      function downloadCSVTemplate(data) {
+        const csvContent =
+          "\ufeff姓名,学号,年级,班级,专业,手机号,备注\n" +
+          data
+            .map(
+              (row) =>
+                `${row.姓名},${row.学号},${row.年级},${row.班级},${row.专业},${row.手机号},${row.备注}`
+            )
+            .join("\n");
+
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "学生导入模板.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function downloadExcelTemplate(data) {
+        // 创建工作簿
+        const wb = XLSX.utils.book_new();
+
+        // 转换数据为工作表
+        const ws = XLSX.utils.json_to_sheet(data, {
+          header: ["姓名", "学号", "年级", "班级", "专业", "手机号", "备注"],
+        });
+
+        // 添加工作表到工作簿
+        XLSX.utils.book_append_sheet(wb, ws, "学生数据");
+
+        // 生成Excel文件
+        XLSX.writeFile(wb, "学生导入模板.xlsx");
+      }
+
+      function downloadJSONTemplate(data) {
+        const jsonContent = JSON.stringify(data, null, 2);
+
+        const blob = new Blob([jsonContent], {
+          type: "application/json;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "学生导入模板.json";
+        a.click();
+        URL.revokeObjectURL(url);
       }
 
       function handleFileSelect(event) {
@@ -4580,10 +5270,15 @@
 
             if (file.name.endsWith(".csv")) {
               data = parseCSV(content);
+            } else if (
+              file.name.endsWith(".xlsx") ||
+              file.name.endsWith(".xls")
+            ) {
+              data = parseExcel(content);
             } else if (file.name.endsWith(".json")) {
               data = JSON.parse(content);
             } else {
-              alert("不支持的文件格式");
+              alert("不支持的文件格式，仅支持 .csv、.xlsx、.xls 和 .json 格式");
               return;
             }
 
@@ -4592,7 +5287,13 @@
             alert("文件解析失败：" + error.message);
           }
         };
-        reader.readAsText(file);
+
+        // Excel文件需要以二进制方式读取
+        if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
+          reader.readAsArrayBuffer(file);
+        } else {
+          reader.readAsText(file);
+        }
       }
 
       function clearFile() {
@@ -4609,11 +5310,27 @@
 
       function previewImportData(data) {
         const importCountSpan = document.getElementById("importCount");
+        const previewTableHead = document.getElementById("previewTableHead");
         const previewTableBody = document.getElementById("previewTableBody");
         const importPreviewDiv = document.getElementById("importPreview");
         const importBtn = document.getElementById("importBtn");
 
         if (importCountSpan) importCountSpan.textContent = data.length;
+
+        // 设置表头 - 匹配CSV模板格式
+        if (previewTableHead) {
+          previewTableHead.innerHTML = `
+            <tr>
+              <th>姓名</th>
+              <th>学号</th>
+              <th>年级</th>
+              <th>班级</th>
+              <th>专业</th>
+              <th>手机号</th>
+              <th>备注</th>
+            </tr>
+          `;
+        }
 
         if (previewTableBody) {
           previewTableBody.innerHTML = data
@@ -4621,18 +5338,20 @@
             .map(
               (student) => `
               <tr>
-                <td>${student.name || "-"}</td>
-                <td>${student.id || "-"}</td>
-                <td>${student.grade || "-"}</td>
-                <td>${student.class || "-"}</td>
-                <td>${student.major || "-"}</td>
+                <td>${student["姓名"] || student.name || "-"}</td>
+                <td>${student["学号"] || student.id || "-"}</td>
+                <td>${student["年级"] || student.grade || "-"}</td>
+                <td>${student["班级"] || student.class || "-"}</td>
+                <td>${student["专业"] || student.major || "-"}</td>
+                <td>${student["手机号"] || student.phone || "-"}</td>
+                <td>${student["备注"] || student.remarks || "-"}</td>
               </tr>
             `
             )
             .join("");
 
           if (data.length > 10) {
-            previewTableBody.innerHTML += `<tr><td colspan="5" style="text-align: center; color: #ffc107;">... 还有 ${
+            previewTableBody.innerHTML += `<tr><td colspan="7" style="text-align: center; color: #ffc107;">... 还有 ${
               data.length - 10
             } 条数据未显示</td></tr>`;
           }
@@ -4648,25 +5367,123 @@
         }
       }
 
-      function confirmImport() {
-        const dataStr =
-          document.getElementById("importModal").dataset.importData;
-        if (!dataStr) {
+      async function confirmImport() {
+        const fileInput = document.getElementById("importFile");
+        const file = fileInput?.files[0];
+
+        if (!file) {
           alert("请先选择文件");
           return;
         }
 
-        const data = JSON.parse(dataStr);
-        const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value || "class1";
+        // 显示进度条，隐藏预览
+        const importProgress = document.getElementById("importProgress");
+        const importPreview = document.getElementById("importPreview");
+        const importBtn = document.getElementById("importBtn");
+        const progressBar = document.getElementById("progressBar");
+        const progressText = document.getElementById("progressText");
+        const processedCount = document.getElementById("processedCount");
+        const totalCount = document.getElementById("totalCount");
 
-        // 合并数据
-        students[selectedClass] = [...students[selectedClass], ...data];
+        if (importPreview) importPreview.style.display = "none";
+        if (importProgress) importProgress.style.display = "block";
+        if (importBtn) importBtn.disabled = true;
 
-        saveStudentsData();
-        refreshStudentList();
-        closeModal("importModal");
-        alert(`成功导入 ${data.length} 条学生数据`);
+        // 模拟进度更新（因为我们使用的是同步上传，所以这里做模拟）
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += 10;
+          if (progress <= 90) {
+            if (progressBar) {
+              progressBar.style.width = progress + "%";
+            }
+            if (progressText) progressText.textContent = progress + "%";
+          }
+        }, 200);
+
+        // 创建FormData上传文件
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const token = localStorage.getItem("token");
+
+          // 获取预览数据的总数
+          const importCountSpan = document.getElementById("importCount");
+          const total = importCountSpan
+            ? parseInt(importCountSpan.textContent)
+            : 0;
+          if (totalCount) totalCount.textContent = total;
+
+          const response = await fetch(
+            "http://localhost:8080/api/admin/students/import",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            }
+          );
+
+          // 清除进度模拟
+          clearInterval(progressInterval);
+
+          const result = await response.json();
+
+          // 更新到100%
+          if (progressBar) progressBar.style.width = "100%";
+          if (progressText) progressText.textContent = "100%";
+          if (processedCount)
+            processedCount.textContent = result.successCount || 0;
+
+          // 等待一会儿让用户看到100%
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          if (result.success) {
+            let message = `导入完成！\n成功：${result.successCount} 条\n失败：${result.failCount} 条\n总行数：${result.totalRows} 行`;
+
+            if (result.warnings && result.warnings.length > 0) {
+              message +=
+                "\n\n警告信息：\n" + result.warnings.slice(0, 5).join("\n");
+              if (result.warnings.length > 5) {
+                message += `\n... 还有 ${result.warnings.length - 5} 条警告`;
+              }
+            }
+
+            if (result.errors && result.errors.length > 0) {
+              message +=
+                "\n\n错误信息：\n" + result.errors.slice(0, 5).join("\n");
+              if (result.errors.length > 5) {
+                message += `\n... 还有 ${result.errors.length - 5} 条错误`;
+              }
+            }
+
+            alert(message);
+
+            // 导入成功后重新从API加载学生列表
+            if (result.successCount > 0) {
+              await loadStudentsFromAPI();
+              refreshStudentList();
+            }
+
+            closeImportModal();
+          } else {
+            alert("导入失败：" + (result.message || "未知错误"));
+          }
+        } catch (error) {
+          clearInterval(progressInterval);
+          console.error("导入失败:", error);
+          alert("导入失败：" + error.message);
+        } finally {
+          // 重置进度显示
+          if (importProgress) importProgress.style.display = "none";
+          if (importPreview) importPreview.style.display = "block";
+          if (importBtn) importBtn.disabled = false;
+          if (progressBar) progressBar.style.width = "0%";
+          if (progressText) progressText.textContent = "0%";
+          if (processedCount) processedCount.textContent = "0";
+        }
       }
 
       // CSV解析
@@ -4682,6 +5499,42 @@
           });
           return obj;
         });
+      }
+
+      // Excel解析（使用SheetJS库）
+      function parseExcel(arrayBuffer) {
+        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        // 将工作表转换为JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        if (jsonData.length === 0) {
+          throw new Error("Excel文件为空");
+        }
+
+        // 第一行是表头
+        const headers = jsonData[0].map((h) => String(h).trim());
+        const result = [];
+
+        // 处理数据行
+        for (let i = 1; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          // 跳过空行
+          if (!row || row.every((cell) => !cell && cell !== 0)) {
+            continue;
+          }
+
+          const obj = {};
+          headers.forEach((header, index) => {
+            obj[header] =
+              row[index] !== undefined ? String(row[index]).trim() : "";
+          });
+          result.push(obj);
+        }
+
+        return result;
       }
 
       // CSV导出
@@ -4705,16 +5558,263 @@
         URL.revokeObjectURL(url);
       }
 
-      // 导出功能增强
-      function exportAllStudents() {
-        const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value || "class1";
-        const data = students[selectedClass];
+      // 导出功能增强 - 从后端API获取真实数据
+      async function exportAllStudents() {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            "http://localhost:8080/api/admin/students",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-        exportToCSV(
-          data,
-          `学生数据_${selectedClass}_${new Date().toLocaleDateString()}.csv`
-        );
+          if (!response.ok) {
+            throw new Error("获取学生数据失败");
+          }
+
+          const students = await response.json();
+
+          if (!students || students.length === 0) {
+            alert("没有学生数据可导出");
+            return;
+          }
+
+          // 转换为CSV格式 - 匹配导入模板格式
+          const csvData = students.map((student) => ({
+            姓名: student.name || "",
+            学号: student.studentNumber || "",
+            年级: student.gradeLevel || "",
+            班级: student.className || "",
+            专业: student.major || "",
+            手机号: student.phone || "",
+            备注: student.remarks || "",
+          }));
+
+          exportToCSV(
+            csvData,
+            `学生数据_${new Date().toLocaleDateString()}.csv`
+          );
+        } catch (error) {
+          console.error("导出失败:", error);
+          alert("导出失败：" + error.message);
+        }
+      }
+
+      // 全局变量存储导出设置
+      let selectedExportFormat = "csv";
+
+      // 显示导出模态框
+      function showExportModal() {
+        document.getElementById("exportModal").style.display = "flex";
+        updateExportPreview();
+      }
+
+      // 关闭导出模态框
+      function closeExportModal() {
+        document.getElementById("exportModal").style.display = "none";
+      }
+
+      // 选择导出格式
+      function selectExportFormat(format) {
+        selectedExportFormat = format;
+        // 更新UI
+        document.querySelectorAll(".format-card").forEach((card) => {
+          card.classList.remove("active");
+          if (card.dataset.format === format) {
+            card.classList.add("active");
+          }
+        });
+      }
+
+      // 全选/取消全选字段
+      function selectAllFields(checked) {
+        document
+          .querySelectorAll('input[name="exportField"]')
+          .forEach((checkbox) => {
+            checkbox.checked = checked;
+          });
+      }
+
+      // 更新导出预览
+      function updateExportPreview() {
+        const range = document.querySelector(
+          'input[name="exportRange"]:checked'
+        )?.value;
+        let count = 0;
+
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect ? classSelect.value || "" : "";
+
+        if (range === "all") {
+          // 全部学生
+          for (let className in students) {
+            if (students[className]) {
+              count += students[className].length;
+            }
+          }
+        } else if (range === "current") {
+          // 当前筛选结果
+          if (selectedClass) {
+            count = students[selectedClass]
+              ? students[selectedClass].length
+              : 0;
+          } else {
+            for (let className in students) {
+              if (students[className]) {
+                count += students[className].length;
+              }
+            }
+          }
+        } else if (range === "selected") {
+          // 选中的学生
+          count = selectedStudents.size;
+        }
+
+        document.getElementById(
+          "exportPreviewText"
+        ).textContent = `将导出 ${count} 条记录`;
+      }
+
+      // 确认导出
+      async function confirmExport() {
+        const range = document.querySelector(
+          'input[name="exportRange"]:checked'
+        )?.value;
+        const selectedFields = Array.from(
+          document.querySelectorAll('input[name="exportField"]:checked')
+        ).map((cb) => cb.value);
+
+        if (selectedFields.length === 0) {
+          alert("请至少选择一个导出字段");
+          return;
+        }
+
+        // 获取要导出的数据
+        let dataToExport = [];
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect ? classSelect.value || "" : "";
+
+        if (range === "all") {
+          // 全部学生
+          for (let className in students) {
+            if (students[className]) {
+              dataToExport = dataToExport.concat(students[className]);
+            }
+          }
+        } else if (range === "current") {
+          // 当前筛选结果
+          if (selectedClass) {
+            dataToExport = students[selectedClass]
+              ? [...students[selectedClass]]
+              : [];
+          } else {
+            for (let className in students) {
+              if (students[className]) {
+                dataToExport = dataToExport.concat(students[className]);
+              }
+            }
+          }
+        } else if (range === "selected") {
+          // 选中的学生
+          for (let className in students) {
+            if (students[className]) {
+              dataToExport = dataToExport.concat(
+                students[className].filter((s) => selectedStudents.has(s.id))
+              );
+            }
+          }
+        }
+
+        if (dataToExport.length === 0) {
+          alert("没有数据可导出");
+          return;
+        }
+
+        // 字段映射
+        const fieldMapping = {
+          name: "姓名",
+          studentNumber: "学号",
+          gradeLevel: "年级",
+          className: "班级",
+          major: "专业",
+          phone: "联系方式",
+        };
+
+        // 过滤字段
+        const filteredData = dataToExport.map((student) => {
+          const filtered = {};
+          selectedFields.forEach((field) => {
+            const displayName = fieldMapping[field] || field;
+            filtered[displayName] = student[field] || "";
+          });
+          return filtered;
+        });
+
+        // 根据格式导出
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")
+          .slice(0, -5);
+        const filename = `学生数据_${timestamp}`;
+
+        try {
+          if (selectedExportFormat === "csv") {
+            exportToCSV(filteredData, `${filename}.csv`);
+          } else if (selectedExportFormat === "excel") {
+            exportToExcel(filteredData, `${filename}.xlsx`);
+          } else if (selectedExportFormat === "json") {
+            exportToJSON(filteredData, `${filename}.json`);
+          }
+
+          closeExportModal();
+          alert(`成功导出 ${filteredData.length} 条记录`);
+        } catch (error) {
+          console.error("导出失败:", error);
+          alert("导出失败：" + error.message);
+        }
+      }
+
+      // 导出为Excel (使用SheetJS)
+      function exportToExcel(data, filename) {
+        if (data.length === 0) return;
+
+        // 使用SheetJS导出Excel
+        if (typeof XLSX === "undefined") {
+          console.error("SheetJS库未加载");
+          alert("Excel导出功能需要加载SheetJS库");
+          return;
+        }
+
+        // 创建工作簿
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // 设置列宽
+        const cols = Object.keys(data[0]).map(() => ({ wch: 15 }));
+        ws["!cols"] = cols;
+
+        // 添加工作表
+        XLSX.utils.book_append_sheet(wb, ws, "学生数据");
+
+        // 导出文件
+        XLSX.writeFile(wb, filename);
+      }
+
+      // 导出为JSON
+      function exportToJSON(data, filename) {
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
       }
 
       // 关闭模态框
@@ -4730,6 +5830,381 @@
       // 保存学生信息 (包装函数,用于向后兼容)
       function saveStudent() {
         saveStudentDetail();
+      }
+
+      // 班级对比分析
+      async function loadClassComparison() {
+        try {
+          // 获取当前选择的班级
+          const classSelect = document.getElementById("analysis-class-select");
+          const selectedClass = classSelect ? classSelect.value : "class1";
+
+          // 根据选择的班级获取对应的班级名称
+          const classNames = {
+            class1: "计算机科学与技术1班",
+            class2: "软件工程2班",
+            class3: "信息安全3班",
+          };
+
+          const currentClassName = classNames[selectedClass];
+          const allClassNames = Object.values(classNames).join(",");
+
+          const response = await fetch(
+            `http://localhost:8080/api/analysis/class-comparison?classNames=${encodeURIComponent(
+              allClassNames
+            )}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            renderClassComparisonChart(data);
+          } else {
+            // 如果API调用失败，使用本地数据
+            renderClassComparisonChartFromLocalData(selectedClass);
+          }
+        } catch (error) {
+          console.error("加载班级对比数据失败:", error);
+          // 使用本地数据作为备选
+          const classSelect = document.getElementById("analysis-class-select");
+          const selectedClass = classSelect ? classSelect.value : "class1";
+          renderClassComparisonChartFromLocalData(selectedClass);
+        }
+      }
+
+      // 使用本地数据渲染班级对比图表
+      function renderClassComparisonChartFromLocalData(selectedClass) {
+        const ctx = document.getElementById("classComparisonChart");
+        if (!ctx) return;
+
+        // 销毁现有图表
+        if (globalCharts.classComparisonChart) {
+          globalCharts.classComparisonChart.destroy();
+        }
+
+        // 计算各班级的平均分
+        const classNames = {
+          class1: "计算机科学与技术1班",
+          class2: "软件工程2班",
+          class3: "信息安全3班",
+        };
+
+        const classStats = Object.keys(classNames).map((classKey) => {
+          const className = classNames[classKey];
+          const subjects = ["cLanguage", "math", "english", "physics"];
+          let totalScore = 0;
+          let totalCount = 0;
+
+          subjects.forEach((subject) => {
+            if (analysisData[classKey] && analysisData[classKey][subject]) {
+              analysisData[classKey][subject].forEach((student) => {
+                totalScore += student.score;
+                totalCount++;
+              });
+            }
+          });
+
+          const averageScore = totalCount > 0 ? totalScore / totalCount : 0;
+          return { className, averageScore };
+        });
+
+        globalCharts.classComparisonChart = new Chart(ctx.getContext("2d"), {
+          type: "bar",
+          data: {
+            labels: classStats.map((c) => c.className),
+            datasets: [
+              {
+                label: "平均分",
+                data: classStats.map((c) => c.averageScore),
+                backgroundColor: "rgba(75, 192, 192, 0.7)",
+                borderColor: "rgb(75, 192, 192)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "班级成绩对比",
+              },
+            },
+          },
+        });
+      }
+
+      // 渲染班级对比图表
+      function renderClassComparisonChart(data) {
+        const ctx = document.getElementById("classComparisonChart");
+        if (!ctx) return;
+
+        // 销毁现有图表
+        if (globalCharts.classComparisonChart) {
+          globalCharts.classComparisonChart.destroy();
+        }
+
+        globalCharts.classComparisonChart = new Chart(ctx.getContext("2d"), {
+          type: "bar",
+          data: {
+            labels: data.classStatsList.map((c) => c.className),
+            datasets: [
+              {
+                label: "平均分",
+                data: data.classStatsList.map((c) => c.averageScore),
+                backgroundColor: "rgba(75, 192, 192, 0.7)",
+                borderColor: "rgb(75, 192, 192)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "班级成绩对比",
+              },
+            },
+          },
+        });
+      }
+
+      // 课程相关性分析
+      async function loadCourseCorrelation() {
+        try {
+          const courses = await fetch("http://localhost:8080/api/courses", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }).then((r) => r.json());
+
+          if (courses.length >= 2) {
+            const course1 = courses[0];
+            const course2 = courses[1];
+
+            const response = await fetch(
+              `http://localhost:8080/api/analysis/course-correlation?courseId1=${course1.id}&courseId2=${course2.id}`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              renderCourseCorrelationChart(data);
+            } else {
+              // 如果API调用失败，使用本地数据
+              renderCourseCorrelationChartFromLocalData();
+            }
+          } else {
+            // 如果没有课程数据，使用本地数据
+            renderCourseCorrelationChartFromLocalData();
+          }
+        } catch (error) {
+          console.error("加载课程相关性数据失败:", error);
+          // 使用本地数据作为备选
+          renderCourseCorrelationChartFromLocalData();
+        }
+      }
+
+      // 使用本地数据渲染课程相关性图表
+      function renderCourseCorrelationChartFromLocalData() {
+        const ctx = document.getElementById("courseCorrelationChart");
+        if (!ctx) return;
+
+        // 销毁现有图表
+        if (globalCharts.courseCorrelationChart) {
+          globalCharts.courseCorrelationChart.destroy();
+        }
+
+        // 获取当前选择的班级和科目
+        const classSelect = document.getElementById("analysis-class-select");
+        const subjectSelect = document.getElementById("subject-select");
+        const selectedClass = classSelect ? classSelect.value : "class1";
+        const selectedSubject = subjectSelect
+          ? subjectSelect.value
+          : "cLanguage";
+
+        // 选择两门不同的课程进行相关性分析
+        const subjects = ["cLanguage", "math", "english", "physics"];
+        const course1Subject = selectedSubject;
+        const course2Subject =
+          subjects.find((s) => s !== selectedSubject) || "math";
+
+        const course1Name = {
+          cLanguage: "数据结构",
+          math: "高等数学",
+          english: "英语",
+          physics: "计算机基础",
+        }[course1Subject];
+
+        const course2Name = {
+          cLanguage: "数据结构",
+          math: "高等数学",
+          english: "英语",
+          physics: "计算机基础",
+        }[course2Subject];
+
+        // 获取两门课程的成绩数据
+        const course1Scores = analysisData[selectedClass][course1Subject] || [];
+        const course2Scores = analysisData[selectedClass][course2Subject] || [];
+
+        // 创建散点图数据
+        const scatterData = [];
+        const minLength = Math.min(course1Scores.length, course2Scores.length);
+
+        for (let i = 0; i < minLength; i++) {
+          scatterData.push({
+            x: course1Scores[i].score,
+            y: course2Scores[i].score,
+          });
+        }
+
+        // 计算相关系数
+        const correlation = calculateCorrelation(
+          scatterData.map((d) => d.x),
+          scatterData.map((d) => d.y)
+        );
+
+        globalCharts.courseCorrelationChart = new Chart(ctx.getContext("2d"), {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: `${course1Name} vs ${course2Name}`,
+                data: scatterData,
+                backgroundColor: "rgba(54, 162, 235, 0.7)",
+                borderColor: "rgb(54, 162, 235)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: course1Name,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: course2Name,
+                },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: `课程相关性分析 (r=${correlation.toFixed(3)})`,
+              },
+            },
+          },
+        });
+      }
+
+      // 计算相关系数
+      function calculateCorrelation(x, y) {
+        if (x.length !== y.length || x.length === 0) return 0;
+
+        const n = x.length;
+        const sumX = x.reduce((a, b) => a + b, 0);
+        const sumY = y.reduce((a, b) => a + b, 0);
+        const sumXY = x.reduce((acc, xi, i) => acc + xi * y[i], 0);
+        const sumX2 = x.reduce((acc, xi) => acc + xi * xi, 0);
+        const sumY2 = y.reduce((acc, yi) => acc + yi * yi, 0);
+
+        const numerator = n * sumXY - sumX * sumY;
+        const denominator = Math.sqrt(
+          (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY)
+        );
+
+        return denominator === 0 ? 0 : numerator / denominator;
+      }
+
+      // 渲染课程相关性图表
+      function renderCourseCorrelationChart(data) {
+        const ctx = document.getElementById("courseCorrelationChart");
+        if (!ctx) return;
+
+        // 销毁现有图表
+        if (globalCharts.courseCorrelationChart) {
+          globalCharts.courseCorrelationChart.destroy();
+        }
+
+        globalCharts.courseCorrelationChart = new Chart(ctx.getContext("2d"), {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: `${data.course1.name} vs ${data.course2.name}`,
+                data: data.scatterData.map((point) => ({
+                  x: point.course1Score,
+                  y: point.course2Score,
+                })),
+                backgroundColor: "rgba(54, 162, 235, 0.7)",
+                borderColor: "rgb(54, 162, 235)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: data.course1.name,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: data.course2.name,
+                },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: `课程相关性分析 (r=${data.correlationCoefficient.toFixed(
+                  3
+                )})`,
+              },
+            },
+          },
+        });
       }
 
       // 页面加载时初始化
@@ -4770,12 +6245,186 @@
           });
         });
 
+        // 分析数据将在切换到学情分析模块时加载
+
+        // 初始化导出范围选项变化事件
+        document
+          .querySelectorAll('input[name="exportRange"]')
+          .forEach((radio) => {
+            radio.addEventListener("change", updateExportPreview);
+          });
+
         // 加载初始数据
         refreshStudentList();
+
+        // 加载分析选项
+        loadAnalysisOptions();
       });
 
+      // 全局图表实例管理
+      let globalCharts = {
+        analysisChart: null,
+        classComparisonChart: null,
+        courseCorrelationChart: null,
+      };
+
+      // 销毁所有图表
+      function destroyAllCharts() {
+        Object.values(globalCharts).forEach((chart) => {
+          if (chart) {
+            chart.destroy();
+          }
+        });
+        globalCharts = {
+          analysisChart: null,
+          classComparisonChart: null,
+          courseCorrelationChart: null,
+        };
+      }
+
+      // 动态加载班级和科目选项
+      async function loadAnalysisOptions() {
+        try {
+          // 从后端API获取班级和课程数据
+          const students = await apiRequest("/students");
+          const courses = await apiRequest("/courses");
+
+          // 获取所有班级
+          const classNames = [...new Set(students.map((s) => s.className))];
+          const classSelect = document.getElementById("analysis-class-select");
+
+          // 更新班级选项
+          classSelect.innerHTML = classNames
+            .map((className) => {
+              const classKey =
+                className === "计算机科学与技术1班"
+                  ? "class1"
+                  : className === "软件工程2班"
+                  ? "class2"
+                  : className === "信息安全3班"
+                  ? "class3"
+                  : "class1";
+              return `<option value="${classKey}">${className}</option>`;
+            })
+            .join("");
+
+          // 更新科目选项
+          const subjectSelect = document.getElementById("subject-select");
+          subjectSelect.innerHTML = courses
+            .map((course) => {
+              const subjectKey =
+                course.name === "数据结构"
+                  ? "cLanguage"
+                  : course.name === "高等数学"
+                  ? "math"
+                  : course.name === "英语"
+                  ? "english"
+                  : course.name === "计算机基础"
+                  ? "physics"
+                  : "cLanguage";
+              return `<option value="${subjectKey}">${course.name}</option>`;
+            })
+            .join("");
+        } catch (error) {
+          console.error("加载选项失败:", error);
+          // 如果API调用失败，保持默认选项
+        }
+      }
+
       // 学情分析功能
-      function loadAnalysisData() {
+      async function loadAnalysisData() {
+        const classSelect = document.getElementById("analysis-class-select");
+        const subjectSelect = document.getElementById("subject-select");
+        const selectedClass = classSelect.value;
+        const selectedSubject = subjectSelect.value;
+        const analysisTableBody = document.getElementById(
+          "analysis-table-body"
+        );
+
+        try {
+          // 从后端API获取学生数据
+          const students = await apiRequest("/students");
+          const grades = await apiRequest("/grades");
+          const courses = await apiRequest("/courses");
+
+          // 根据选择的班级和科目筛选数据
+          const filteredStudents = students.filter((student) => {
+            const classMapping = {
+              class1: "计算机科学与技术1班",
+              class2: "软件工程2班",
+              class3: "信息安全3班",
+            };
+            return student.className === classMapping[selectedClass];
+          });
+
+          const subjectMapping = {
+            cLanguage: "数据结构",
+            math: "高等数学",
+            english: "英语",
+            physics: "计算机基础",
+          };
+
+          // 获取对应科目的课程ID
+          const targetCourse = courses.find(
+            (course) => course.name === subjectMapping[selectedSubject]
+          );
+
+          if (!targetCourse) {
+            console.error("未找到对应课程:", subjectMapping[selectedSubject]);
+            return;
+          }
+
+          // 获取该课程的成绩数据
+          const courseGrades = grades.filter(
+            (grade) => grade.courseId === targetCourse.id
+          );
+
+          // 构建学生成绩数据
+          const studentGradeData = filteredStudents.map((student) => {
+            const studentGrade = courseGrades.find(
+              (grade) => grade.studentId === student.id
+            );
+            return {
+              name: student.name,
+              id: student.studentNumber,
+              score: studentGrade ? studentGrade.score : 0,
+              studentId: student.id,
+            };
+          });
+
+          // 更新表格
+          analysisTableBody.innerHTML = studentGradeData
+            .map(
+              (s) => `
+                <tr>
+                    <td>${s.name}</td>
+                    <td>${s.id}</td>
+                    <td>${classMapping[selectedClass]}</td>
+                    <td>${s.score}</td>
+                    <td><button onclick="analyzeStudent('${s.studentId}')">分析</button></td>
+                </tr>
+            `
+            )
+            .join("");
+
+          // 更新饼图
+          updateScoreChartFromData(
+            studentGradeData,
+            subjectMapping[selectedSubject]
+          );
+
+          // 重新加载分析图表，确保数据更新
+          await loadClassComparison();
+          await loadCourseCorrelation();
+        } catch (error) {
+          console.error("加载分析数据失败:", error);
+          // 如果API调用失败，使用本地数据作为备选
+          loadAnalysisDataFromLocal();
+        }
+      }
+
+      // 使用本地数据作为备选
+      function loadAnalysisDataFromLocal() {
         const classSelect = document.getElementById("analysis-class-select");
         const subjectSelect = document.getElementById("subject-select");
         const selectedClass = classSelect.value;
@@ -4809,6 +6458,80 @@
 
         // 更新饼图
         updateScoreChart(selectedClass, selectedSubject);
+
+        // 重新加载分析图表，确保数据更新
+        loadClassComparison();
+        loadCourseCorrelation();
+      }
+
+      // 使用API数据更新饼图
+      function updateScoreChartFromData(data, subjectName) {
+        const scoreRanges = {
+          "<60": data.filter((s) => s.score < 60).length,
+          "60-69": data.filter((s) => s.score >= 60 && s.score < 70).length,
+          "70-79": data.filter((s) => s.score >= 70 && s.score < 80).length,
+          "80-89": data.filter((s) => s.score >= 80 && s.score < 90).length,
+          "90-100": data.filter((s) => s.score >= 90).length,
+        };
+
+        // 过滤掉数量为0的分数段
+        const filteredLabels = Object.keys(scoreRanges).filter(
+          (key) => scoreRanges[key] > 0
+        );
+        const filteredData = filteredLabels.map((key) => scoreRanges[key]);
+
+        const total = data.length;
+        const percentages = filteredLabels.map((key) => {
+          return ((scoreRanges[key] / total) * 100).toFixed(1);
+        });
+
+        const ctx = document
+          .getElementById("analysisScoreChart")
+          .getContext("2d");
+        if (globalCharts.analysisChart) globalCharts.analysisChart.destroy();
+
+        globalCharts.analysisChart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: filteredLabels,
+            datasets: [
+              {
+                data: filteredData,
+                backgroundColor: [
+                  "rgba(255, 99, 132, 0.7)",
+                  "rgba(255, 159, 64, 0.7)",
+                  "rgba(255, 205, 86, 0.7)",
+                  "rgba(75, 192, 192, 0.7)",
+                  "rgba(54, 162, 235, 0.7)",
+                ].slice(0, filteredData.length),
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: "top",
+              },
+              title: {
+                display: true,
+                text: `${subjectName}成绩分布`,
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const label = context.label || "";
+                    const value = context.raw;
+                    const percentage = percentages[context.dataIndex];
+                    return `${label}: ${value}人 (${percentage}%)`;
+                  },
+                },
+              },
+            },
+          },
+          plugins: [ChartDataLabels],
+        });
       }
 
       function updateScoreChart(selectedClass, selectedSubject) {
@@ -4835,16 +6558,16 @@
         const ctx = document
           .getElementById("analysisScoreChart")
           .getContext("2d");
-        if (window.analysisChart) window.analysisChart.destroy();
+        if (globalCharts.analysisChart) globalCharts.analysisChart.destroy();
 
         const subjectNames = {
-          cLanguage: "C语言",
+          cLanguage: "数据结构",
           math: "高等数学",
-          english: "大学英语",
-          physics: "大学物理",
+          english: "英语",
+          physics: "计算机基础",
         };
 
-        window.analysisChart = new Chart(ctx, {
+        globalCharts.analysisChart = new Chart(ctx, {
           type: "pie",
           data: {
             labels: filteredLabels,
@@ -5011,8 +6734,11 @@
             .forEach((div) => (div.style.display = "none"));
           document.querySelector(this.getAttribute("href")).style.display =
             "block";
-          if (this.getAttribute("href") === "#learning-analysis")
+          if (this.getAttribute("href") === "#learning-analysis") {
+            // 销毁现有图表，重新加载分析数据
+            destroyAllCharts();
             loadAnalysisData();
+          }
         });
       });
 
@@ -5065,7 +6791,7 @@
       });
 
       // 页面加载时强制设置为白天模式
-      document.addEventListener("DOMContentLoaded", () => {
+      function initializeTheme() {
         const body = document.body;
         const navbar = document.querySelector(".navbar");
         const sidebar = document.querySelector(".sidebar");
@@ -5076,10 +6802,10 @@
         navbar.className = "navbar day-mode";
         sidebar.className = "sidebar";
         content.className = "content";
-      });
+      }
 
       // 聊天功能 - 集成真实 API
-      const API_BASE_URL = "http://localhost:8082/api";
+      const API_BASE_URL = "http://localhost:8080/api";
       let currentUserId = null; // 当前登录的教师ID
       let currentChatPartnerId = null; // 当前聊天对象ID
       let chatUpdateInterval = null; // 自动刷新定时器
@@ -5450,7 +7176,7 @@
       }
 
       // 初始化聊天功能
-      document.addEventListener("DOMContentLoaded", () => {
+      function initializeChat() {
         initializeChatList();
 
         const chatInput = document.querySelector(".chat-input");
@@ -5508,7 +7234,7 @@
             clearInterval(chatUpdateInterval);
           }
         });
-      });
+      }
 
       // 初始化资源数据
       let resources = [];
@@ -5771,7 +7497,7 @@
       }
 
       // 初始化教学资源管理功能
-      document.addEventListener("DOMContentLoaded", () => {
+      function initializeResources() {
         // 加载资源列表
         loadResources();
 
@@ -5796,7 +7522,7 @@
         setInterval(() => {
           displayResources();
         }, 1000);
-      });
+      }
 
       // 模拟学生历史成绩数据
       const studentHistoryData = {
@@ -5844,22 +7570,24 @@
       };
 
       // 在页面加载时初始化数据
-      document.addEventListener("DOMContentLoaded", () => {
-        // 从localStorage加载学生数据
+      async function initializeStudentData() {
+        // 先从localStorage加载学生数据（快速显示）
         const savedStudents = localStorage.getItem("studentsData");
         if (savedStudents) {
           students = JSON.parse(savedStudents);
+          refreshStudentList(); // 立即显示缓存的数据
         }
+
+        // 然后从API加载最新数据（确保数据最新）
+        await loadStudentsFromAPI();
+        refreshStudentList(); // 使用最新数据刷新显示
 
         // 从localStorage加载分析数据
         const savedAnalysis = localStorage.getItem("analysisData");
         if (savedAnalysis) {
           Object.assign(analysisData, JSON.parse(savedAnalysis));
         }
-
-        // 初始化学生列表 - 使用 refreshStudentList 而不是 loadStudents
-        refreshStudentList();
-      });
+      }
 
       // 考试与练习管理相关的JavaScript代码
       let exams = JSON.parse(localStorage.getItem("teacherExams")) || [];
@@ -6063,10 +7791,10 @@
 
       function getSubjectName(subject) {
         const subjects = {
-          cLanguage: "C语言",
+          cLanguage: "数据结构",
           math: "高等数学",
-          english: "大学英语",
-          physics: "大学物理",
+          english: "英语",
+          physics: "计算机基础",
         };
         return subjects[subject] || subject;
       }
@@ -6193,8 +7921,26 @@
       }
 
       // 在页面加载时初始化考试列表
-      document.addEventListener("DOMContentLoaded", () => {
+      function initializeExams() {
         displayExams();
+      }
+
+      // 统一的页面初始化函数
+      document.addEventListener("DOMContentLoaded", async function () {
+        // 初始化主题
+        initializeTheme();
+
+        // 初始化学生数据
+        await initializeStudentData();
+
+        // 初始化考试列表
+        initializeExams();
+
+        // 初始化聊天功能
+        initializeChat();
+
+        // 初始化资源管理
+        initializeResources();
       });
     </script>
   </body>

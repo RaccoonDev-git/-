@@ -78,6 +78,7 @@ public class LearningActivity {
         SUBMIT_ASSIGNMENT("提交作业"),
         VIEW_GRADE("查看成绩"),
         TAKE_EXAM("参加考试"),
+        TAKE_QUIZ("参加测验"),
         WATCH_VIDEO("观看视频"),
         POST_MESSAGE("发送消息"),
         VIEW_ANNOUNCEMENT("查看公告");

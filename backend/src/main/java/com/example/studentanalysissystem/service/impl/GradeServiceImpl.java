@@ -144,6 +144,12 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
+    public List<GradeResponse> getAllGrades() {
+        List<Grade> grades = gradeRepository.findAll();
+        return gradeMapper.toResponseList(grades);
+    }
+
+    @Override
     public List<GradeResponse> getFailingGrades() {
         List<Grade> grades = gradeRepository.findFailingGrades();
         return gradeMapper.toResponseList(grades);

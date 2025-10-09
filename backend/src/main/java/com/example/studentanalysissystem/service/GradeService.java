@@ -68,6 +68,11 @@ public interface GradeService {
     Map<String, Long> getCourseGradeDistribution(Long courseId);
 
     /**
+     * 获取所有成绩
+     */
+    List<GradeResponse> getAllGrades();
+
+    /**
      * 查询不及格成绩
      */
     List<GradeResponse> getFailingGrades();

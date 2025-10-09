@@ -178,4 +178,10 @@ public class StudentServiceImpl implements StudentService {
 
         return studentMapper.toResponseList(students);
     }
+
+    @Override
+    public Student getStudentEntityById(Long id) {
+        return studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("学生不存在，ID: " + id));
+    }
 }

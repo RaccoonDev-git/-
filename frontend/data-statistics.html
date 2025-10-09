@@ -384,7 +384,7 @@
     </div>
 
     <script>
-      const API_BASE_URL = "http://localhost:8082/api";
+      const API_BASE_URL = "http://localhost:8080/api";
 
       // 检查管理员权限
       function checkAdmin() {
@@ -467,7 +467,7 @@
       }
 
       // 应用筛选器
-      function applyFilters() {
+      async function applyFilters() {
         const startDate = document.getElementById("start-date").value;
         const endDate = document.getElementById("end-date").value;
         const courseId = document.getElementById("course-filter").value;
@@ -497,8 +497,23 @@
           filteredCourses = allCourses.filter((c) => c.semester === semester);
         }
 
-        // 更新统计数据和图表
-        updateStatistics(filteredGrades, filteredCourses, allEnrollments);
+        // 优先从后端分析接口获取统计（当选择了学期或年级时），否则本地计算
+        let backendStats = null;
+        try {
+          if (semester || gradeLevel) {
+            backendStats = await fetchGradeStatistics({ semester, gradeLevel });
+          }
+        } catch (e) {
+          console.warn("加载分析统计失败，回退至前端计算:", e);
+        }
+
+        // 更新统计数据和图表（优先使用后端统计的分布数据）
+        updateStatisticsWithBackend(
+          filteredGrades,
+          filteredCourses,
+          allEnrollments,
+          backendStats
+        );
       }
 
       // 重置筛选器
@@ -539,6 +554,112 @@
         drawCourseAverage(grades, courses);
         drawSemesterTrend(courses, grades);
         drawTeacherCourses(courses);
+      }
+
+      // 使用后端统计（若可用）更新统计与图表
+      function updateStatisticsWithBackend(
+        grades,
+        courses,
+        enrollments,
+        stats
+      ) {
+        // 计算统计数据（仍基于前端数据）
+        const avgScore =
+          grades.length > 0
+            ? (
+                grades.reduce((sum, g) => sum + g.score, 0) / grades.length
+              ).toFixed(2)
+            : 0;
+
+        document.getElementById("avg-score").textContent = avgScore;
+        document.getElementById("total-grades").textContent = grades.length;
+        document.getElementById("active-courses").textContent = courses.filter(
+          (c) => c.status === "ACTIVE"
+        ).length;
+        document.getElementById("enrollment-count").textContent =
+          enrollments.length;
+
+        // 清除旧图表
+        Chart.helpers.each(Chart.instances, function (instance) {
+          instance.destroy();
+        });
+
+        // 分布图优先使用后端统计
+        if (stats && stats.scoreDistribution) {
+          drawGradeDistributionFromStats(stats.scoreDistribution);
+        } else {
+          drawGradeDistribution(grades);
+        }
+
+        // 其余图表沿用前端数据
+        drawCourseAverage(grades, courses);
+        drawSemesterTrend(courses, grades);
+        drawTeacherCourses(courses);
+      }
+
+      // 从后端统计分布绘制成绩分布图
+      function drawGradeDistributionFromStats(scoreDistribution) {
+        const labels = ["90-100", "80-89", "70-79", "60-69", "0-59"];
+        const data = labels.map((k) => scoreDistribution[k] || 0);
+
+        const ctx = document
+          .getElementById("gradeDistributionChart")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels,
+            datasets: [
+              {
+                data,
+                backgroundColor: [
+                  "rgba(67, 233, 123, 0.8)",
+                  "rgba(79, 172, 254, 0.8)",
+                  "rgba(240, 147, 251, 0.8)",
+                  "rgba(255, 165, 0, 0.8)",
+                  "rgba(255, 100, 100, 0.8)",
+                ],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: "#fff" },
+              },
+            },
+          },
+        });
+      }
+
+      // 调用后端分析服务
+      async function fetchGradeStatistics({
+        courseId,
+        className,
+        major,
+        semester,
+        gradeLevel,
+      }) {
+        const token = localStorage.getItem("token");
+        const headers = {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+
+        const url = new URL(
+          `${API_BASE_URL.replace("/api", "")}/api/analysis/grade-statistics`
+        );
+        if (courseId) url.searchParams.append("courseId", courseId);
+        if (className) url.searchParams.append("className", className);
+        if (major) url.searchParams.append("major", major);
+        if (semester) url.searchParams.append("semester", semester);
+        if (gradeLevel) url.searchParams.append("gradeLevel", gradeLevel);
+
+        const res = await fetch(url.toString(), { headers });
+        if (!res.ok) throw new Error(`分析接口错误: ${res.status}`);
+        return await res.json();
       }
 
       // 加载统计数据(旧版本,已替换)

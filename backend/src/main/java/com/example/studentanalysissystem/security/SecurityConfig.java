@@ -55,7 +55,7 @@ public class SecurityConfig {
                                 "/api/users/register",
                                 "/api/users/login",
                                 "/api/authentication/**",
-                                "/api/student/**") // 临时开放用于测试
+                                "/api/debug/**") // 调试端点
                         .permitAll()
 
                         // Swagger文档端点
@@ -87,6 +87,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/grades/**").hasAnyRole("ADMIN", "TEACHER")
                         .requestMatchers("/api/messages/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/resources/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+
+                        // 管理员端点 - 允许教师访问学生管理相关功能
+                        .requestMatchers("/api/admin/students/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // 其他所有请求都需要认证
                         .anyRequest().authenticated())

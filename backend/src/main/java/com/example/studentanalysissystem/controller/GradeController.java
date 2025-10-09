@@ -110,6 +110,14 @@ public class GradeController {
         return ResponseEntity.ok(distribution);
     }
 
+    @GetMapping
+    @Operation(summary = "获取所有成绩", description = "获取所有成绩记录列表")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<GradeResponse>> getAllGrades() {
+        List<GradeResponse> grades = gradeService.getAllGrades();
+        return ResponseEntity.ok(grades);
+    }
+
     @GetMapping("/failing")
     @Operation(summary = "查询不及格成绩", description = "获取所有不及格成绩列表")
     @ApiResponse(responseCode = "200", description = "查询成功")

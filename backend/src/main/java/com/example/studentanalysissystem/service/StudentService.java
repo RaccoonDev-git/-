@@ -74,4 +74,9 @@ public interface StudentService {
      * 高级筛选学生
      */
     List<StudentResponse> filterStudents(Integer gradeLevel, String className, String major, String keyword);
+
+    /**
+     * 根据ID获取学生实体对象（用于内部操作）
+     */
+    com.example.studentanalysissystem.model.Student getStudentEntityById(Long id);
 }

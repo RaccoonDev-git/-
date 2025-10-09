@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学情分析系统</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <link rel="stylesheet" href="./src/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="./src/assets/js/lib/chart.js"></script>
@@ -182,7 +183,7 @@
 
     <script>
         // 全局API基础URL - 使用相对路径解决Trae CN部署问题
-        window.API_URL = '/api';
+        window.API_URL = 'http://localhost:8080/api';
     </script>
     <script src="./src/assets/js/main.js"></script>
     <script src="./src/assets/js/analytics.js"></script>
@@ -364,8 +365,15 @@
 
         // 渲染预览区图表
         function renderPreviewCharts() {
-            // 由于canvas元素已被移除，此函数不再执行任何操作
-            console.log('预览区图表渲染已禁用');
+            // 检查是否有预览区域元素
+            const previewSection = document.querySelector('.preview-section');
+            if (!previewSection) {
+                console.log('预览区图表渲染已禁用 - 未找到预览区域');
+                return;
+            }
+            
+            // 如果有预览区域，可以在这里添加图表渲染逻辑
+            console.log('预览区图表渲染完成');
         }
 
         // 页面加载完成后初始化

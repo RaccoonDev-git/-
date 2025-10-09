@@ -1,13 +1,19 @@
 package com.example.studentanalysissystem.controller;
 
+import com.example.studentanalysissystem.dto.request.CreateStudentRequest;
 import com.example.studentanalysissystem.dto.request.RegisterRequest;
 import com.example.studentanalysissystem.dto.request.UpdateUserRequest;
+import com.example.studentanalysissystem.dto.response.StudentResponse;
 import com.example.studentanalysissystem.dto.response.UserResponse;
+import com.example.studentanalysissystem.exception.ResourceNotFoundException;
 import com.example.studentanalysissystem.model.User;
 import com.example.studentanalysissystem.service.StudentService;
 import com.example.studentanalysissystem.service.TeacherService;
 import com.example.studentanalysissystem.service.UserService;
 import com.example.studentanalysissystem.service.ExcelExportService;
+import com.example.studentanalysissystem.util.StudentImportUtil;
+import com.example.studentanalysissystem.util.GradeImportUtil;
+import com.example.studentanalysissystem.util.DataNormalizationUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +47,8 @@ public class AdminController {
     private final StudentService studentService;
     private final TeacherService teacherService;
     private final ExcelExportService excelExportService;
+    private final GradeImportUtil gradeImportUtil;
+    private final DataNormalizationUtil dataNormalizationUtil;
 
     /**
      * 获取系统统计数据
@@ -346,6 +354,223 @@ public class AdminController {
                     .body(excelData);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 获取所有学生列表
+     */
+    @GetMapping("/students")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
+    @Operation(summary = "获取所有学生", description = "获取系统中所有学生的列表")
+    public ResponseEntity<List<StudentResponse>> getAllStudents() {
+        try {
+            List<StudentResponse> students = studentService.getAllStudents();
+            return ResponseEntity.ok(students);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 批量导入学生(支持CSV、Excel、JSON格式)
+     */
+    @PostMapping("/students/import")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
+    @Operation(summary = "批量导入学生", description = "从CSV、Excel或JSON文件批量导入学生数据和成绩")
+    public ResponseEntity<Map<String, Object>> importStudents(@RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
+        List<String> errors = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+        int successCount = 0;
+        int failCount = 0;
+        int totalGrades = 0;
+        List<com.example.studentanalysissystem.model.Student> importedStudents = new ArrayList<>();
+        List<Map<String, String>> allRowData = new ArrayList<>();
+
+        try {
+            String filename = file.getOriginalFilename();
+            if (filename == null) {
+                response.put("success", false);
+                response.put("message", "文件名不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 根据文件扩展名选择解析方式
+            String fileType = StudentImportUtil.getFileType(filename);
+            List<Map<String, String>> studentDataList;
+
+            switch (fileType) {
+                case "csv":
+                    studentDataList = StudentImportUtil.parseCSV(file.getInputStream());
+                    break;
+                case "excel":
+                    studentDataList = StudentImportUtil.parseExcel(file.getInputStream());
+                    break;
+                case "json":
+                    studentDataList = StudentImportUtil.parseJSON(file.getInputStream());
+                    break;
+                default:
+                    response.put("success", false);
+                    response.put("message", "不支持的文件格式，仅支持 .csv、.xlsx、.xls 和 .json 格式");
+                    return ResponseEntity.badRequest().body(response);
+            }
+
+            // 处理解析后的数据
+            int lineNumber = 1; // 从1开始，表示数据行（不含表头）
+            int normalizedCount = 0; // 统计被标准化的数据数量
+
+            for (Map<String, String> studentData : studentDataList) {
+                lineNumber++;
+                try {
+                    // ===== 🔧 自动数据标准化 =====
+                    Map<String, String> originalData = new HashMap<>(studentData);
+                    Map<String, String> normalizedData = dataNormalizationUtil.normalizeRowData(studentData);
+
+                    // 统计标准化效果
+                    if (!originalData.equals(normalizedData)) {
+                        normalizedCount++;
+                        System.out.println("DEBUG - Line " + lineNumber + " 数据已标准化");
+                        System.out.println("  原始数据: " + originalData);
+                        System.out.println("  标准化后: " + normalizedData);
+                    }
+
+                    // 验证标准化后的数据
+                    if (!dataNormalizationUtil.validateNormalizedData(normalizedData)) {
+                        String errorMsg = "第" + lineNumber + "行: 数据验证失败，缺少必填字段";
+                        errors.add(errorMsg);
+                        failCount++;
+                        continue;
+                    }
+
+                    // 使用标准化后的数据
+                    studentData = normalizedData;
+                    // ===== ✅ 标准化完成 =====
+
+                    // 调试：打印所有键
+                    System.out.println("DEBUG - Line " + lineNumber + " keys: " + studentData.keySet());
+
+                    // 解析数据
+                    String name = studentData.getOrDefault("姓名", "").trim();
+                    String studentNumber = studentData.getOrDefault("学号", "").trim();
+                    String gradeStr = studentData.getOrDefault("年级", "").trim();
+                    String className = studentData.getOrDefault("班级", "").trim();
+                    String major = studentData.getOrDefault("专业", "").trim();
+                    String phone = studentData.getOrDefault("手机号", "").trim();
+                    String remarks = studentData.getOrDefault("备注", "").trim();
+
+                    // 调试：打印提取的值
+                    System.out.println("DEBUG - Line " + lineNumber + ": name=[" + name + "], studentNumber=["
+                            + studentNumber + "]");
+
+                    // 验证必填字段（二次验证）
+                    if (name.isEmpty() || studentNumber.isEmpty()) {
+                        String errorMsg = "第" + lineNumber + "行: 姓名和学号不能为空 (name='" + name + "', studentNumber='"
+                                + studentNumber + "')";
+                        errors.add(errorMsg);
+                        System.err.println("ERROR - " + errorMsg);
+                        failCount++;
+                        continue;
+                    }
+
+                    // 检查学号是否已存在
+                    com.example.studentanalysissystem.model.Student student = null;
+                    try {
+                        StudentResponse existingStudent = studentService.getStudentByStudentNumber(studentNumber);
+                        student = studentService.getStudentEntityById(existingStudent.getId());
+                        warnings.add("第" + lineNumber + "行: 学号 " + studentNumber + " 已存在，将更新成绩信息");
+                    } catch (ResourceNotFoundException e) {
+                        // 学生不存在，创建新学生
+
+                        // 解析年级
+                        Integer gradeLevel = null;
+                        if (!gradeStr.isEmpty()) {
+                            try {
+                                gradeLevel = Integer.parseInt(gradeStr);
+                            } catch (NumberFormatException ex) {
+                                warnings.add("第" + lineNumber + "行: 年级格式错误，使用null");
+                            }
+                        }
+
+                        // 创建用户账号
+                        RegisterRequest registerRequest = new RegisterRequest();
+                        registerRequest.setUsername(studentNumber);
+                        registerRequest.setPassword("123456");
+                        registerRequest.setRole(User.UserRole.STUDENT);
+                        registerRequest.setPhone(!phone.isEmpty() ? phone : null);
+
+                        UserResponse userResponse = userService.register(registerRequest);
+
+                        // 创建学生信息
+                        CreateStudentRequest studentRequest = CreateStudentRequest.builder()
+                                .userId(userResponse.getId())
+                                .name(name)
+                                .studentNumber(studentNumber)
+                                .gradeLevel(gradeLevel)
+                                .className(className.isEmpty() ? null : className)
+                                .major(major.isEmpty() ? null : major)
+                                .remarks(remarks.isEmpty() ? null : remarks)
+                                .build();
+
+                        StudentResponse studentResponse = studentService.createStudent(studentRequest);
+                        student = studentService.getStudentEntityById(studentResponse.getId());
+                        successCount++;
+                    }
+
+                    // 保存学生对象和行数据，用于后续批量导入成绩
+                    if (student != null) {
+                        importedStudents.add(student);
+                        allRowData.add(studentData);
+                    }
+
+                } catch (Exception e) {
+                    errors.add("第" + lineNumber + "行: " + e.getMessage());
+                    failCount++;
+                }
+            }
+
+            // 批量导入成绩
+            if (!importedStudents.isEmpty()) {
+                try {
+                    Map<String, Object> gradeResult = gradeImportUtil.batchImportGrades(importedStudents, allRowData);
+                    totalGrades = (int) gradeResult.get("totalGrades");
+                    int totalCourses = (int) gradeResult.get("totalCourses");
+                    @SuppressWarnings("unchecked")
+                    java.util.Set<String> coursesCreated = (java.util.Set<String>) gradeResult.get("coursesCreated");
+
+                    response.put("gradesImported", totalGrades);
+                    response.put("coursesCreated", totalCourses);
+                    response.put("courseNames", coursesCreated);
+                } catch (Exception e) {
+                    warnings.add("成绩导入过程中出现错误: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            response.put("success", true);
+            response.put("successCount", successCount);
+            response.put("failCount", failCount);
+            response.put("totalRows", studentDataList.size());
+            response.put("normalizedCount", normalizedCount); // 标准化的数据数量
+            response.put("errors", errors);
+            response.put("warnings", warnings);
+
+            String message = String.format("成功导入 %d 条学生记录，失败 %d 条", successCount, failCount);
+            if (normalizedCount > 0) {
+                message += String.format("，其中 %d 条数据经过自动格式转换", normalizedCount);
+            }
+            if (totalGrades > 0) {
+                message += String.format("，导入 %d 条成绩记录", totalGrades);
+            }
+            response.put("message", message);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "文件解析失败: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(response);
         }
     }
 
