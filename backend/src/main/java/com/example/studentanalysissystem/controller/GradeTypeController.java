@@ -3,6 +3,7 @@ package com.example.studentanalysissystem.controller;
 import com.example.studentanalysissystem.model.GradeType;
 import com.example.studentanalysissystem.repository.GradeTypeRepository;
 import com.example.studentanalysissystem.service.GradeRecalculationService;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -57,20 +58,28 @@ public class GradeTypeController {
     @PostMapping("/batch")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @Operation(summary = "批量创建成绩类型", description = "批量创建成绩类型")
-    public ResponseEntity<List<GradeType>> batchCreate(@RequestBody List<CreateGradeTypeRequest> requests) {
-        List<GradeType> gradeTypes = requests.stream()
-                .map(request -> GradeType.builder()
-                        .typeCode(request.getTypeCode())
-                        .typeName(request.getTypeName())
-                        .isRegular(request.getIsRegular())
-                        .isFinal(request.getIsFinal())
-                        .isMakeup(request.getIsMakeup())
-                        .defaultWeight(request.getDefaultWeight())
-                        .fullScore(request.getFullScore())
-                        .sortOrder(request.getSortOrder())
-                        .description(request.getDescription())
-                        .isActive(true)
-                        .build())
+    public ResponseEntity<List<GradeType>> batchCreate(@RequestBody FrontendGradeTypeRequest frontendRequest) {
+        List<GradeType> gradeTypes = frontendRequest.getGradeTypes().stream()
+                .map(request -> {
+                    // 确保typeCode不为null，如果为null则使用typeName
+                    String typeCode = request.getType();
+                    if (typeCode == null || typeCode.trim().isEmpty()) {
+                        typeCode = request.getName().toUpperCase().replace(" ", "_");
+                    }
+
+                    return GradeType.builder()
+                            .typeCode(typeCode)
+                            .typeName(request.getName())
+                            .isRegular(true) // 默认都是平时分类型
+                            .isFinal(false)
+                            .isMakeup(false)
+                            .defaultWeight(request.getDefaultWeight())
+                            .fullScore(java.math.BigDecimal.valueOf(100.00))
+                            .sortOrder(1)
+                            .description(request.getDescription())
+                            .isActive(true)
+                            .build();
+                })
                 .toList();
 
         List<GradeType> savedTypes = gradeTypeRepository.saveAll(gradeTypes);
@@ -236,6 +245,103 @@ public class GradeTypeController {
 
         public void setSortOrder(Integer sortOrder) {
             this.sortOrder = sortOrder;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+    }
+
+    // 批量创建请求DTO
+    public static class BatchCreateGradeTypeRequest {
+        @JsonProperty("courseId")
+        private Long courseId;
+
+        @JsonProperty("gradeTypes")
+        private List<CreateGradeTypeRequest> gradeTypes;
+
+        public Long getCourseId() {
+            return courseId;
+        }
+
+        public void setCourseId(Long courseId) {
+            this.courseId = courseId;
+        }
+
+        public List<CreateGradeTypeRequest> getGradeTypes() {
+            return gradeTypes;
+        }
+
+        public void setGradeTypes(List<CreateGradeTypeRequest> gradeTypes) {
+            this.gradeTypes = gradeTypes;
+        }
+    }
+
+    // 前端发送的成绩类型请求DTO
+    public static class FrontendGradeTypeRequest {
+        @JsonProperty("courseId")
+        private Long courseId;
+
+        @JsonProperty("gradeTypes")
+        private List<FrontendGradeType> gradeTypes;
+
+        public Long getCourseId() {
+            return courseId;
+        }
+
+        public void setCourseId(Long courseId) {
+            this.courseId = courseId;
+        }
+
+        public List<FrontendGradeType> getGradeTypes() {
+            return gradeTypes;
+        }
+
+        public void setGradeTypes(List<FrontendGradeType> gradeTypes) {
+            this.gradeTypes = gradeTypes;
+        }
+    }
+
+    // 前端发送的单个成绩类型DTO
+    public static class FrontendGradeType {
+        @JsonProperty("name")
+        private String name;
+
+        @JsonProperty("type")
+        private String type;
+
+        @JsonProperty("defaultWeight")
+        private java.math.BigDecimal defaultWeight;
+
+        @JsonProperty("description")
+        private String description;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public java.math.BigDecimal getDefaultWeight() {
+            return defaultWeight;
+        }
+
+        public void setDefaultWeight(java.math.BigDecimal defaultWeight) {
+            this.defaultWeight = defaultWeight;
         }
 
         public String getDescription() {
