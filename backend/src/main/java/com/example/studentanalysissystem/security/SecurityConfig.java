@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/users/register",
                                 "/api/users/login",
+                                "/api/auth/**",
                                 "/api/authentication/**",
                                 "/api/debug/**") // 调试端点
                         .permitAll()

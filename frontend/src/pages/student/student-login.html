@@ -124,10 +124,10 @@
               };
 
               // 发送登录请求到后端
-              console.log("发送登录请求到:", `${API_URL}/authentication/login`);
+              console.log("发送登录请求到:", `${API_URL}/auth/login`);
               console.log("请求数据:", loginData);
 
-              fetch(`${API_URL}/authentication/login`, {
+              fetch(`${API_URL}/auth/login`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

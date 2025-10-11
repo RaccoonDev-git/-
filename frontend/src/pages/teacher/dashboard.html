@@ -2684,6 +2684,327 @@
         color: #333;
         border-color: rgba(0, 172, 193, 0.3);
       }
+
+      /* 权重配置样式 */
+      .config-section {
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+      }
+
+      .config-header {
+        margin-bottom: 20px;
+      }
+
+      .config-header h3 {
+        margin-bottom: 10px;
+        color: #39f7ff;
+      }
+
+      .weight-config-card {
+        background: rgba(57, 247, 255, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+      }
+
+      .weight-inputs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .weight-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .weight-item label {
+        min-width: 100px;
+        font-weight: 500;
+        color: #39f7ff;
+      }
+
+      .weight-item input {
+        width: 80px;
+        padding: 8px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(57, 247, 255, 0.3);
+        border-radius: 4px;
+        color: white;
+      }
+
+      .weight-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .grade-type-config {
+        background: rgba(57, 247, 255, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+      }
+
+      .grade-type-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 4px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+      }
+
+      .grade-type-item input[type="text"] {
+        flex: 1;
+        padding: 8px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(57, 247, 255, 0.3);
+        border-radius: 4px;
+        color: white;
+      }
+
+      .grade-type-item input[type="number"] {
+        width: 80px;
+        padding: 8px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(57, 247, 255, 0.3);
+        border-radius: 4px;
+        color: white;
+      }
+
+      .grade-type-actions {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+      }
+
+      /* 综合成绩管理样式 */
+      .grades-controls {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .control-group label {
+        font-weight: 500;
+        min-width: 80px;
+        color: #39f7ff;
+      }
+
+      .control-group select {
+        padding: 8px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(57, 247, 255, 0.3);
+        border-radius: 4px;
+        min-width: 150px;
+        color: white;
+      }
+
+      .grades-table-container {
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+      }
+
+      #comprehensive-grades-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #comprehensive-grades-table th,
+      #comprehensive-grades-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(57, 247, 255, 0.2);
+        color: white;
+      }
+
+      #comprehensive-grades-table th {
+        background: rgba(57, 247, 255, 0.1);
+        font-weight: 600;
+        color: #39f7ff;
+      }
+
+      .grade-passed {
+        color: #28a745;
+        font-weight: 600;
+      }
+
+      .grade-failed {
+        color: #dc3545;
+        font-weight: 600;
+      }
+
+      /* 学生预警样式 */
+      .warnings-controls {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .warnings-list {
+        display: grid;
+        gap: 15px;
+      }
+
+      .warning-card {
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+        border-left: 4px solid #ffc107;
+      }
+
+      .warning-card.high {
+        border-left-color: #dc3545;
+      }
+
+      .warning-card.medium {
+        border-left-color: #fd7e14;
+      }
+
+      .warning-card.low {
+        border-left-color: #ffc107;
+      }
+
+      .warning-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .warning-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #39f7ff;
+      }
+
+      .warning-level {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .warning-level.high {
+        background: #dc3545;
+        color: white;
+      }
+
+      .warning-level.medium {
+        background: #fd7e14;
+        color: white;
+      }
+
+      .warning-level.low {
+        background: #ffc107;
+        color: #333;
+      }
+
+      .warning-content {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 15px;
+      }
+
+      .warning-meta {
+        display: flex;
+        gap: 20px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .warning-actions {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .warning-handled {
+        opacity: 0.6;
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 16px;
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 8px;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+      }
+
+      /* 导入类型选择器样式 */
+      .import-type-selector {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .import-type-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 2px solid rgba(57, 247, 255, 0.3);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+      }
+
+      .import-type-option:hover {
+        border-color: rgba(57, 247, 255, 0.6);
+        background: rgba(57, 247, 255, 0.1);
+      }
+
+      .import-type-option input[type="radio"] {
+        margin: 0;
+        accent-color: #39f7ff;
+      }
+
+      .import-type-option input[type="radio"]:checked + span {
+        color: #39f7ff;
+        font-weight: 600;
+      }
+
+      .template-download {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(57, 247, 255, 0.1);
+        border-radius: 8px;
+        border: 1px solid rgba(57, 247, 255, 0.2);
+      }
+
+      .template-download h5 {
+        color: #39f7ff;
+        margin-bottom: 8px;
+      }
+
+      .template-download p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 15px;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body class="day-mode">
@@ -2711,6 +3032,9 @@
       <div class="sidebar">
         <a href="#student-management">学生管理</a>
         <a href="#learning-analysis">学情分析</a>
+        <a href="#weight-config">权重配置</a>
+        <a href="#comprehensive-grades">综合成绩</a>
+        <a href="#student-warnings">学生预警</a>
         <a href="#resource-management">教学资源管理</a>
         <a href="#communication">沟通与互动</a>
       </div>
@@ -2918,16 +3242,19 @@
         <div id="learning-analysis" style="display: none">
           <h2>学情分析</h2>
           <div class="analysis-controls">
-            <select id="analysis-class-select" onchange="loadAnalysisData()">
-              <option value="class1">计算机科学与技术1班</option>
-              <option value="class2">软件工程2班</option>
-              <option value="class3">信息安全3班</option>
+            <select
+              id="analysis-class-select"
+              onchange="updateCourseOptionsAndLoadData()"
+            >
+              <option value="class1">18CS-A1</option>
+              <option value="class2">18CS-A2</option>
+              <option value="class3">18CS-A3</option>
             </select>
             <select id="subject-select" onchange="loadAnalysisData()">
-              <option value="cLanguage">数据结构</option>
-              <option value="math">高等数学</option>
-              <option value="english">英语</option>
-              <option value="physics">计算机基础</option>
+              <option value="Data Structure">Data Structure</option>
+              <option value="Compiler Principles">Compiler Principles</option>
+              <option value="Computer Basics">Computer Basics</option>
+              <option value="English">English</option>
             </select>
           </div>
           <div class="chart-container">
@@ -2964,6 +3291,181 @@
             </thead>
             <tbody id="analysis-table-body"></tbody>
           </table>
+        </div>
+
+        <!-- 权重配置模块 -->
+        <div id="weight-config" style="display: none">
+          <h2>课程权重配置</h2>
+          <div class="config-section">
+            <div class="config-header">
+              <h3>选择课程</h3>
+              <select id="course-select" onchange="loadCourseWeightConfig()">
+                <option value="">请选择课程</option>
+              </select>
+            </div>
+
+            <div id="weight-config-form" style="display: none">
+              <div class="weight-config-card">
+                <h4>权重配置</h4>
+                <div class="weight-inputs">
+                  <div class="weight-item">
+                    <label>平时分权重:</label>
+                    <input
+                      type="number"
+                      id="regular-weight"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value="30"
+                    />
+                    <span>%</span>
+                  </div>
+                  <div class="weight-item">
+                    <label>期末分权重:</label>
+                    <input
+                      type="number"
+                      id="final-weight"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value="70"
+                    />
+                    <span>%</span>
+                  </div>
+                  <div class="weight-item">
+                    <label>补考权重:</label>
+                    <input
+                      type="number"
+                      id="makeup-weight"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value="100"
+                    />
+                    <span>%</span>
+                  </div>
+                </div>
+                <div class="weight-actions">
+                  <button onclick="saveWeightConfig()" class="btn-primary">
+                    保存配置
+                  </button>
+                  <button onclick="resetWeightConfig()" class="btn-secondary">
+                    重置
+                  </button>
+                </div>
+              </div>
+
+              <div class="grade-type-config">
+                <h4>平时分类型权重配置</h4>
+                <div id="grade-types-list">
+                  <!-- 动态生成平时分类型配置 -->
+                </div>
+                <div class="grade-type-actions">
+                  <button onclick="addGradeType()" class="btn-primary">
+                    添加类型
+                  </button>
+                  <button onclick="saveGradeTypes()" class="btn-primary">
+                    保存类型配置
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 综合成绩管理模块 -->
+        <div id="comprehensive-grades" style="display: none">
+          <h2>综合成绩管理</h2>
+          <div class="grades-controls">
+            <div class="control-group">
+              <label>选择课程:</label>
+              <select
+                id="comprehensive-course-select"
+                onchange="loadComprehensiveGrades()"
+              >
+                <option value="">请选择课程</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>选择班级:</label>
+              <select
+                id="comprehensive-class-select"
+                onchange="loadComprehensiveGrades()"
+              >
+                <option value="">全部班级</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <button onclick="batchCalculateGrades()" class="btn-primary">
+                批量计算成绩
+              </button>
+              <button
+                onclick="exportComprehensiveGrades()"
+                class="btn-secondary"
+              >
+                导出成绩
+              </button>
+            </div>
+          </div>
+
+          <div class="grades-table-container">
+            <table id="comprehensive-grades-table">
+              <thead>
+                <tr>
+                  <th>学号</th>
+                  <th>姓名</th>
+                  <th>班级</th>
+                  <th>平时分</th>
+                  <th>期末分</th>
+                  <th>补考分</th>
+                  <th>综合成绩</th>
+                  <th>最终成绩</th>
+                  <th>等级</th>
+                  <th>是否通过</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="comprehensive-grades-tbody">
+                <!-- 动态生成成绩数据 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 学生预警模块 -->
+        <div id="student-warnings" style="display: none">
+          <h2>学生预警管理</h2>
+          <div class="warnings-controls">
+            <div class="control-group">
+              <label>预警级别:</label>
+              <select id="warning-level-filter" onchange="loadWarnings()">
+                <option value="">全部级别</option>
+                <option value="HIGH">高级预警</option>
+                <option value="MEDIUM">中级预警</option>
+                <option value="LOW">低级预警</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>处理状态:</label>
+              <select id="warning-status-filter" onchange="loadWarnings()">
+                <option value="">全部状态</option>
+                <option value="false">未处理</option>
+                <option value="true">已处理</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <button onclick="checkAllWarnings()" class="btn-primary">
+                检查所有预警
+              </button>
+              <button onclick="batchHandleWarnings()" class="btn-secondary">
+                批量处理
+              </button>
+            </div>
+          </div>
+
+          <div class="warnings-list" id="warnings-list">
+            <!-- 动态生成预警列表 -->
+          </div>
         </div>
 
         <!-- 教学资源管理模块 -->
@@ -3237,7 +3739,7 @@
     <div class="modal" id="importModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>批量导入学生</h3>
+          <h3>批量导入数据</h3>
           <button class="close-btn" onclick="closeImportModal()">×</button>
         </div>
         <div class="modal-body">
@@ -3245,11 +3747,53 @@
             <div class="import-step">
               <div class="step-number">1</div>
               <div class="step-content">
-                <h4>下载模板</h4>
-                <p>下载Excel模板文件,按照模板格式填写学生信息</p>
-                <button class="btn-secondary" onclick="downloadTemplate()">
-                  <i class="fas fa-download"></i> 下载模板
-                </button>
+                <h4>选择导入类型</h4>
+                <p>选择要导入的数据类型</p>
+                <div class="import-type-selector">
+                  <label class="import-type-option">
+                    <input
+                      type="radio"
+                      name="importType"
+                      value="students"
+                      checked
+                      onchange="updateImportType()"
+                    />
+                    <span>学生信息</span>
+                  </label>
+                  <label class="import-type-option">
+                    <input
+                      type="radio"
+                      name="importType"
+                      value="grades"
+                      onchange="updateImportType()"
+                    />
+                    <span>综合成绩</span>
+                  </label>
+                </div>
+                <div class="template-download">
+                  <h5>下载模板</h5>
+                  <p id="template-description">
+                    下载Excel模板文件,按照模板格式填写学生信息
+                  </p>
+
+                  <!-- 课程类型选择 -->
+                  <div
+                    id="course-type-selector"
+                    style="margin-bottom: 15px; display: none"
+                  >
+                    <label for="course-type-select">选择课程类型：</label>
+                    <select
+                      id="course-type-select"
+                      onchange="updateTemplateDescription()"
+                    >
+                      <option value="">请选择课程类型</option>
+                    </select>
+                  </div>
+
+                  <button class="btn-secondary" onclick="downloadTemplate()">
+                    <i class="fas fa-download"></i> 下载模板
+                  </button>
+                </div>
               </div>
             </div>
             <div class="import-step">
@@ -5839,15 +6383,25 @@
           const classSelect = document.getElementById("analysis-class-select");
           const selectedClass = classSelect ? classSelect.value : "class1";
 
-          // 根据选择的班级获取对应的班级名称
-          const classNames = {
-            class1: "计算机科学与技术1班",
-            class2: "软件工程2班",
-            class3: "信息安全3班",
-          };
+          // 动态获取班级名称（从学生数据中获取）
+          const students = await apiRequest("/students");
+          const classNames = [...new Set(students.map((s) => s.className))];
 
-          const currentClassName = classNames[selectedClass];
-          const allClassNames = Object.values(classNames).join(",");
+          // 动态创建班级映射
+          const classMapping = {};
+          classNames.forEach((className, index) => {
+            classMapping[`class${index + 1}`] = className;
+          });
+
+          const currentClassName = classMapping[selectedClass];
+          const allClassNames = classNames.join(",");
+
+          console.log(
+            "班级对比API请求URL:",
+            `http://localhost:8080/api/analysis/class-comparison?classNames=${encodeURIComponent(
+              allClassNames
+            )}`
+          );
 
           const response = await fetch(
             `http://localhost:8080/api/analysis/class-comparison?classNames=${encodeURIComponent(
@@ -5861,10 +6415,14 @@
             }
           );
 
+          console.log("班级对比API响应状态:", response.status);
+
           if (response.ok) {
             const data = await response.json();
+            console.log("班级对比API数据:", data);
             renderClassComparisonChart(data);
           } else {
+            console.error("班级对比API调用失败，状态码:", response.status);
             // 如果API调用失败，使用本地数据
             renderClassComparisonChartFromLocalData(selectedClass);
           }
@@ -5949,13 +6507,19 @@
 
       // 渲染班级对比图表
       function renderClassComparisonChart(data) {
+        console.log("renderClassComparisonChart 被调用，数据:", data);
         const ctx = document.getElementById("classComparisonChart");
-        if (!ctx) return;
+        if (!ctx) {
+          console.error("找不到 classComparisonChart 元素");
+          return;
+        }
 
         // 销毁现有图表
         if (globalCharts.classComparisonChart) {
           globalCharts.classComparisonChart.destroy();
         }
+
+        console.log("班级统计数据:", data.classStatsList);
 
         globalCharts.classComparisonChart = new Chart(ctx.getContext("2d"), {
           type: "bar",
@@ -6048,27 +6612,21 @@
         const selectedClass = classSelect ? classSelect.value : "class1";
         const selectedSubject = subjectSelect
           ? subjectSelect.value
-          : "cLanguage";
+          : "Data Structure";
 
         // 选择两门不同的课程进行相关性分析
-        const subjects = ["cLanguage", "math", "english", "physics"];
+        const subjects = [
+          "Data Structure",
+          "Compiler Principles",
+          "Computer Basics",
+          "English",
+        ];
         const course1Subject = selectedSubject;
         const course2Subject =
-          subjects.find((s) => s !== selectedSubject) || "math";
+          subjects.find((s) => s !== selectedSubject) || "Compiler Principles";
 
-        const course1Name = {
-          cLanguage: "数据结构",
-          math: "高等数学",
-          english: "英语",
-          physics: "计算机基础",
-        }[course1Subject];
-
-        const course2Name = {
-          cLanguage: "数据结构",
-          math: "高等数学",
-          english: "英语",
-          physics: "计算机基础",
-        }[course2Subject];
+        const course1Name = course1Subject;
+        const course2Name = course2Subject;
 
         // 获取两门课程的成绩数据
         const course1Scores = analysisData[selectedClass][course1Subject] || [];
@@ -6293,42 +6851,82 @@
           const classNames = [...new Set(students.map((s) => s.className))];
           const classSelect = document.getElementById("analysis-class-select");
 
-          // 更新班级选项
+          // 动态生成班级选项（使用数据库中的实际班级名称）
           classSelect.innerHTML = classNames
-            .map((className) => {
-              const classKey =
-                className === "计算机科学与技术1班"
-                  ? "class1"
-                  : className === "软件工程2班"
-                  ? "class2"
-                  : className === "信息安全3班"
-                  ? "class3"
-                  : "class1";
+            .map((className, index) => {
+              const classKey = `class${index + 1}`;
               return `<option value="${classKey}">${className}</option>`;
             })
             .join("");
 
-          // 更新科目选项
-          const subjectSelect = document.getElementById("subject-select");
-          subjectSelect.innerHTML = courses
-            .map((course) => {
-              const subjectKey =
-                course.name === "数据结构"
-                  ? "cLanguage"
-                  : course.name === "高等数学"
-                  ? "math"
-                  : course.name === "英语"
-                  ? "english"
-                  : course.name === "计算机基础"
-                  ? "physics"
-                  : "cLanguage";
-              return `<option value="${subjectKey}">${course.name}</option>`;
-            })
-            .join("");
+          // 初始加载时显示所有课程
+          await updateCourseOptions();
         } catch (error) {
           console.error("加载选项失败:", error);
           // 如果API调用失败，保持默认选项
         }
+      }
+
+      // 根据选中的班级更新课程选项
+      async function updateCourseOptions() {
+        try {
+          const classSelect = document.getElementById("analysis-class-select");
+          const subjectSelect = document.getElementById("subject-select");
+          const selectedClass = classSelect.value;
+
+          // 获取班级映射
+          const students = await apiRequest("/students");
+          const grades = await apiRequest("/grades");
+          const courses = await apiRequest("/courses");
+
+          const classNames = [...new Set(students.map((s) => s.className))];
+          const classMapping = {};
+          classNames.forEach((className, index) => {
+            classMapping[`class${index + 1}`] = className;
+          });
+
+          const selectedClassName = classMapping[selectedClass];
+
+          // 获取该班级的学生ID
+          const classStudents = students.filter(
+            (s) => s.className === selectedClassName
+          );
+          const classStudentIds = classStudents.map((s) => s.id);
+
+          // 获取该班级学生有成绩的课程ID
+          const classCourseIds = [
+            ...new Set(
+              grades
+                .filter((g) => classStudentIds.includes(g.studentId))
+                .map((g) => g.courseId)
+            ),
+          ];
+
+          // 过滤出该班级有成绩的课程
+          const availableCourses = courses.filter((c) =>
+            classCourseIds.includes(c.id)
+          );
+
+          // 更新课程选择器
+          subjectSelect.innerHTML = availableCourses
+            .map((course) => {
+              return `<option value="${course.name}">${course.name}</option>`;
+            })
+            .join("");
+
+          console.log(
+            `班级 ${selectedClassName} 可用的课程:`,
+            availableCourses.map((c) => c.name)
+          );
+        } catch (error) {
+          console.error("更新课程选项失败:", error);
+        }
+      }
+
+      // 更新课程选项并加载数据
+      async function updateCourseOptionsAndLoadData() {
+        await updateCourseOptions();
+        await loadAnalysisData();
       }
 
       // 学情分析功能
@@ -6348,21 +6946,41 @@
           const courses = await apiRequest("/courses");
 
           // 根据选择的班级和科目筛选数据
+          console.log("选中的班级:", selectedClass);
+          console.log(
+            "所有学生班级:",
+            students.map((s) => s.className)
+          );
+
+          // 动态获取所有班级名称
+          const classNames = [...new Set(students.map((s) => s.className))];
+          console.log("数据库中的班级名称:", classNames);
+
+          // 动态创建班级映射
+          const classMapping = {};
+          classNames.forEach((className, index) => {
+            classMapping[`class${index + 1}`] = className;
+          });
+          console.log("动态班级映射:", classMapping);
+
           const filteredStudents = students.filter((student) => {
-            const classMapping = {
-              class1: "计算机科学与技术1班",
-              class2: "软件工程2班",
-              class3: "信息安全3班",
-            };
             return student.className === classMapping[selectedClass];
           });
 
-          const subjectMapping = {
-            cLanguage: "数据结构",
-            math: "高等数学",
-            english: "英语",
-            physics: "计算机基础",
-          };
+          console.log("过滤后的学生数量:", filteredStudents.length);
+
+          // 直接使用课程名称，不需要映射
+          const subjectMapping = {};
+          courses.forEach((course) => {
+            subjectMapping[course.name] = course.name;
+          });
+
+          console.log("选中的课程:", selectedSubject);
+          console.log("课程映射结果:", subjectMapping[selectedSubject]);
+          console.log(
+            "所有课程:",
+            courses.map((c) => c.name)
+          );
 
           // 获取对应科目的课程ID
           const targetCourse = courses.find(
@@ -6371,13 +6989,23 @@
 
           if (!targetCourse) {
             console.error("未找到对应课程:", subjectMapping[selectedSubject]);
+            console.error(
+              "可用的课程名称:",
+              courses.map((c) => c.name)
+            );
             return;
           }
+
+          console.log("找到目标课程:", targetCourse);
 
           // 获取该课程的成绩数据
           const courseGrades = grades.filter(
             (grade) => grade.courseId === targetCourse.id
           );
+
+          console.log("目标课程ID:", targetCourse.id);
+          console.log("该课程的成绩数量:", courseGrades.length);
+          console.log("课程成绩数据:", courseGrades);
 
           // 构建学生成绩数据
           const studentGradeData = filteredStudents.map((student) => {
@@ -6386,11 +7014,14 @@
             );
             return {
               name: student.name,
-              id: student.studentNumber,
+              studentNumber: student.studentNumber,
+              className: student.className,
               score: studentGrade ? studentGrade.score : 0,
               studentId: student.id,
             };
           });
+
+          console.log("构建的学生成绩数据:", studentGradeData);
 
           // 更新表格
           analysisTableBody.innerHTML = studentGradeData
@@ -6398,12 +7029,12 @@
               (s) => `
                 <tr>
                     <td>${s.name}</td>
-                    <td>${s.id}</td>
-                    <td>${classMapping[selectedClass]}</td>
+                    <td>${s.studentNumber}</td>
+                    <td>${s.className}</td>
                     <td>${s.score}</td>
-                    <td><button onclick="analyzeStudent('${s.studentId}')">分析</button></td>
+                    <td><button onclick="analyzeStudent('${s.studentNumber}')">分析</button></td>
                 </tr>
-            `
+              `
             )
             .join("");
 
@@ -6466,6 +7097,9 @@
 
       // 使用API数据更新饼图
       function updateScoreChartFromData(data, subjectName) {
+        console.log("updateScoreChartFromData 被调用，数据:", data);
+        console.log("科目名称:", subjectName);
+
         const scoreRanges = {
           "<60": data.filter((s) => s.score < 60).length,
           "60-69": data.filter((s) => s.score >= 60 && s.score < 70).length,
@@ -6473,6 +7107,8 @@
           "80-89": data.filter((s) => s.score >= 80 && s.score < 90).length,
           "90-100": data.filter((s) => s.score >= 90).length,
         };
+
+        console.log("分数段统计:", scoreRanges);
 
         // 过滤掉数量为0的分数段
         const filteredLabels = Object.keys(scoreRanges).filter(
@@ -7791,10 +8427,10 @@
 
       function getSubjectName(subject) {
         const subjects = {
-          cLanguage: "数据结构",
-          math: "高等数学",
-          english: "英语",
-          physics: "计算机基础",
+          "Data Structure": "Data Structure",
+          "Compiler Principles": "Compiler Principles",
+          "Computer Basics": "Computer Basics",
+          English: "English",
         };
         return subjects[subject] || subject;
       }
@@ -7925,6 +8561,753 @@
         displayExams();
       }
 
+      // ==================== 权重配置功能 ====================
+
+      // 加载课程权重配置
+      async function loadCourseWeightConfig() {
+        const courseId = document.getElementById("course-select").value;
+        if (!courseId) {
+          document.getElementById("weight-config-form").style.display = "none";
+          return;
+        }
+
+        try {
+          // 加载课程权重配置
+          const weightConfig = await apiRequest(
+            `/course-weight-configs/course/${courseId}`
+          );
+          if (weightConfig && weightConfig.regularWeight) {
+            document.getElementById("regular-weight").value =
+              weightConfig.regularWeight;
+            document.getElementById("final-weight").value =
+              weightConfig.finalWeight;
+            document.getElementById("makeup-weight").value =
+              weightConfig.makeupWeight || 100;
+          } else {
+            // 如果没有配置，使用默认值
+            document.getElementById("regular-weight").value = 30;
+            document.getElementById("final-weight").value = 70;
+            document.getElementById("makeup-weight").value = 100;
+          }
+
+          // 加载平时分类型配置
+          await loadGradeTypes(courseId);
+
+          document.getElementById("weight-config-form").style.display = "block";
+        } catch (error) {
+          console.error("加载权重配置失败:", error);
+          // 不显示错误，直接使用默认值
+          document.getElementById("regular-weight").value = 30;
+          document.getElementById("final-weight").value = 70;
+          document.getElementById("makeup-weight").value = 100;
+          await loadGradeTypes(courseId);
+          document.getElementById("weight-config-form").style.display = "block";
+        }
+      }
+
+      // 加载平时分类型
+      async function loadGradeTypes(courseId) {
+        try {
+          const gradeTypes = await apiRequest("/grade-types");
+          const gradeTypesList = document.getElementById("grade-types-list");
+          gradeTypesList.innerHTML = "";
+
+          gradeTypes.forEach((type) => {
+            if (type.isRegular) {
+              const item = document.createElement("div");
+              item.className = "grade-type-item";
+              item.innerHTML = `
+                <input type="text" value="${
+                  type.typeName
+                }" placeholder="类型名称">
+                <input type="number" value="${
+                  type.defaultWeight || 0
+                }" placeholder="权重" min="0" max="100" step="0.01">
+                <span>%</span>
+                <button onclick="removeGradeType(this)" class="btn-danger">删除</button>
+              `;
+              gradeTypesList.appendChild(item);
+            }
+          });
+        } catch (error) {
+          console.error("加载平时分类型失败:", error);
+        }
+      }
+
+      // 保存权重配置
+      async function saveWeightConfig() {
+        const courseId = document.getElementById("course-select").value;
+        const regularWeight = parseFloat(
+          document.getElementById("regular-weight").value
+        );
+        const finalWeight = parseFloat(
+          document.getElementById("final-weight").value
+        );
+        const makeupWeight = parseFloat(
+          document.getElementById("makeup-weight").value
+        );
+
+        if (Math.abs(regularWeight + finalWeight - 100) > 0.01) {
+          alert("平时分权重和期末分权重之和必须等于100%");
+          return;
+        }
+
+        try {
+          const config = {
+            courseId: parseInt(courseId),
+            regularWeight: regularWeight,
+            finalWeight: finalWeight,
+            makeupWeight: makeupWeight,
+          };
+
+          await apiRequest("/course-weight-configs", "POST", config);
+
+          alert(
+            "权重配置保存成功！系统正在重新计算相关课程的综合成绩，请稍后查看更新结果。"
+          );
+        } catch (error) {
+          console.error("保存权重配置失败:", error);
+          alert("保存权重配置失败，请稍后重试");
+        }
+      }
+
+      // 重置权重配置
+      function resetWeightConfig() {
+        document.getElementById("regular-weight").value = 30;
+        document.getElementById("final-weight").value = 70;
+        document.getElementById("makeup-weight").value = 100;
+      }
+
+      // 添加平时分类型
+      function addGradeType() {
+        const gradeTypesList = document.getElementById("grade-types-list");
+        const item = document.createElement("div");
+        item.className = "grade-type-item";
+        item.innerHTML = `
+          <input type="text" placeholder="类型名称">
+          <input type="number" placeholder="权重" min="0" max="100" step="0.01">
+          <span>%</span>
+          <button onclick="removeGradeType(this)" class="btn-danger">删除</button>
+        `;
+        gradeTypesList.appendChild(item);
+      }
+
+      // 删除平时分类型
+      function removeGradeType(button) {
+        button.parentElement.remove();
+      }
+
+      // 保存平时分类型配置
+      async function saveGradeTypes() {
+        const gradeTypesList = document.getElementById("grade-types-list");
+        const items = gradeTypesList.querySelectorAll(".grade-type-item");
+
+        const gradeTypes = Array.from(items).map((item, index) => {
+          const inputs = item.querySelectorAll("input");
+          const typeName = inputs[0].value;
+          return {
+            typeCode: typeName.toUpperCase().replace(/\s+/g, "_"),
+            typeName: typeName,
+            isRegular: true,
+            isFinal: false,
+            isMakeup: false,
+            defaultWeight: parseFloat(inputs[1].value) || 0,
+            fullScore: 100.0,
+            sortOrder: index + 1,
+            description: `${typeName} Grade Type`,
+          };
+        });
+
+        try {
+          await apiRequest("/grade-types/batch", "POST", gradeTypes);
+
+          alert(
+            "平时分类型配置保存成功！系统正在重新计算所有相关课程的综合成绩，请稍后查看更新结果。"
+          );
+        } catch (error) {
+          console.error("保存平时分类型配置失败:", error);
+          alert("保存平时分类型配置失败，请稍后重试");
+        }
+      }
+
+      // ==================== 综合成绩管理功能 ====================
+
+      // 加载综合成绩
+      async function loadComprehensiveGrades() {
+        const courseId = document.getElementById(
+          "comprehensive-course-select"
+        ).value;
+        const classId = document.getElementById(
+          "comprehensive-class-select"
+        ).value;
+
+        if (!courseId) return;
+
+        try {
+          const grades = await apiRequest(
+            `/comprehensive-grades/course/${courseId}`
+          );
+          const tbody = document.getElementById("comprehensive-grades-tbody");
+          tbody.innerHTML = "";
+
+          grades.forEach((grade) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${grade.studentNumber}</td>
+              <td>${grade.studentName}</td>
+              <td>${grade.studentClass || "未知"}</td>
+              <td>${grade.regularScore || "--"}</td>
+              <td>${grade.finalScore || "--"}</td>
+              <td>${grade.makeupScore || "--"}</td>
+              <td>${grade.comprehensiveScore || "--"}</td>
+              <td>${grade.finalGrade || "--"}</td>
+              <td>${grade.gradeLevel || "--"}</td>
+              <td class="${grade.isPassed ? "grade-passed" : "grade-failed"}">
+                ${grade.isPassed ? "通过" : "未通过"}
+              </td>
+              <td>
+                <button onclick="editComprehensiveGrade(${
+                  grade.id
+                })" class="btn-primary">编辑</button>
+                <button onclick="updateMakeupScore(${grade.studentId}, ${
+              grade.courseId
+            })" class="btn-secondary">补考</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (error) {
+          console.error("加载综合成绩失败:", error);
+          alert("加载综合成绩失败，请稍后重试");
+        }
+      }
+
+      // 批量计算成绩
+      async function batchCalculateGrades() {
+        const courseId = document.getElementById(
+          "comprehensive-course-select"
+        ).value;
+        if (!courseId) {
+          alert("请先选择课程");
+          return;
+        }
+
+        try {
+          await apiRequest(
+            `/comprehensive-grades/batch-calculate/${courseId}`,
+            "POST"
+          );
+          alert("批量计算完成");
+          loadComprehensiveGrades();
+        } catch (error) {
+          console.error("批量计算失败:", error);
+          alert("批量计算失败，请稍后重试");
+        }
+      }
+
+      // 更新补考成绩
+      async function updateMakeupScore(studentId, courseId) {
+        const makeupScore = prompt("请输入补考成绩:");
+        if (makeupScore === null) return;
+
+        const score = parseFloat(makeupScore);
+        if (isNaN(score) || score < 0 || score > 100) {
+          alert("请输入有效的成绩（0-100）");
+          return;
+        }
+
+        try {
+          await apiRequest(
+            `/comprehensive-grades/makeup/${studentId}/${courseId}?makeupScore=${score}`,
+            {
+              method: "PUT",
+            }
+          );
+          alert("补考成绩更新成功");
+          loadComprehensiveGrades();
+        } catch (error) {
+          console.error("更新补考成绩失败:", error);
+          alert("更新补考成绩失败，请稍后重试");
+        }
+      }
+
+      // 导出综合成绩
+      function exportComprehensiveGrades() {
+        const courseId = document.getElementById(
+          "comprehensive-course-select"
+        ).value;
+        if (!courseId) {
+          alert("请先选择课程");
+          return;
+        }
+
+        // 创建下载链接
+        const url = `${window.API_URL}/comprehensive-grades/course/${courseId}/export`;
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "综合成绩.csv";
+        link.click();
+      }
+
+      // ==================== 导入导出功能增强 ====================
+
+      // 更新导入类型
+      function updateImportType() {
+        const importType = document.querySelector(
+          'input[name="importType"]:checked'
+        ).value;
+        const description = document.getElementById("template-description");
+        const courseTypeSelector = document.getElementById(
+          "course-type-selector"
+        );
+
+        if (importType === "students") {
+          description.textContent = "下载CSV模板文件,按照模板格式填写学生信息";
+          courseTypeSelector.style.display = "none";
+        } else if (importType === "grades") {
+          description.textContent =
+            "下载CSV模板文件,按照模板格式填写综合成绩信息";
+          courseTypeSelector.style.display = "block";
+          loadCourseTypes();
+        }
+      }
+
+      // 加载课程类型
+      async function loadCourseTypes() {
+        try {
+          const response = await apiRequest("/templates/course-types", "GET");
+          const courseTypeSelect =
+            document.getElementById("course-type-select");
+
+          // 清空现有选项
+          courseTypeSelect.innerHTML =
+            '<option value="">请选择课程类型</option>';
+
+          // 添加课程类型选项
+          response.forEach((courseType) => {
+            const option = document.createElement("option");
+            option.value = courseType;
+            option.textContent = courseType;
+            courseTypeSelect.appendChild(option);
+          });
+        } catch (error) {
+          console.error("加载课程类型失败:", error);
+        }
+      }
+
+      // 更新模板描述
+      function updateTemplateDescription() {
+        const courseType = document.getElementById("course-type-select").value;
+        const description = document.getElementById("template-description");
+
+        if (courseType) {
+          description.textContent = `下载${courseType}课程的专用模板文件，包含该课程特有的平时分类型`;
+        } else {
+          description.textContent =
+            "下载CSV模板文件,按照模板格式填写综合成绩信息";
+        }
+      }
+
+      // 下载模板（增强版）
+      async function downloadTemplate() {
+        const importType = document.querySelector(
+          'input[name="importType"]:checked'
+        ).value;
+
+        try {
+          let url;
+          let filename;
+
+          if (importType === "students") {
+            // 下载学生信息模板
+            url = `${window.API_URL}/students/template`;
+            filename = "student_import_template.csv";
+          } else if (importType === "grades") {
+            const courseType =
+              document.getElementById("course-type-select").value;
+
+            if (courseType) {
+              // 下载课程专用模板
+              url = `${window.API_URL}/templates/preset/${encodeURIComponent(
+                courseType
+              )}`;
+              filename = `${courseType}_template.csv`;
+            } else {
+              // 下载通用模板
+              url = `${window.API_URL}/templates/generic`;
+              filename = "generic_template.csv";
+            }
+          }
+
+          // 使用fetch下载文件，包含认证头
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // 获取文件内容
+          const blob = await response.blob();
+
+          // 创建下载链接
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = downloadUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(downloadUrl);
+        } catch (error) {
+          console.error("下载模板失败:", error);
+          alert("下载模板失败，请稍后重试");
+        }
+      }
+
+      // 处理文件选择（增强版）
+      function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const importType = document.querySelector(
+          'input[name="importType"]:checked'
+        ).value;
+
+        // 显示选中的文件
+        document.getElementById("selectedFile").style.display = "flex";
+        document.getElementById("fileName").textContent = file.name;
+
+        // 根据导入类型处理文件
+        if (importType === "students") {
+          handleStudentFileImport(file);
+        } else if (importType === "grades") {
+          handleGradeFileImport(file);
+        }
+      }
+
+      // 处理学生文件导入
+      function handleStudentFileImport(file) {
+        // 原有的学生导入逻辑
+        console.log("处理学生文件导入:", file.name);
+        // 这里可以调用原有的学生导入函数
+      }
+
+      // 处理成绩文件导入
+      async function handleGradeFileImport(file) {
+        try {
+          // 显示预览
+          document.getElementById("importPreview").style.display = "block";
+
+          // 读取CSV文件
+          const text = await file.text();
+          const lines = text.split("\n");
+          const headers = lines[0].split(",");
+
+          // 验证表头
+          if (!validateGradeHeaders(headers)) {
+            alert("文件格式不正确，请使用提供的成绩导入模板");
+            return;
+          }
+
+          // 显示预览数据
+          displayGradePreview(lines.slice(1), headers);
+        } catch (error) {
+          console.error("处理成绩文件失败:", error);
+          alert("文件处理失败，请检查文件格式");
+        }
+      }
+
+      // 验证成绩表头
+      function validateGradeHeaders(headers) {
+        const expectedHeaders = [
+          "姓名",
+          "学号",
+          "年级",
+          "班级",
+          "专业",
+          "课程名称",
+          "学期",
+          "学年",
+          "签到成绩",
+          "平时作业成绩",
+          "实验成绩",
+          "随堂测试成绩",
+          "期末考试成绩",
+          "补考成绩",
+          "备注",
+        ];
+
+        return headers.length === expectedHeaders.length;
+      }
+
+      // 显示成绩预览
+      function displayGradePreview(lines, headers) {
+        const tableHead = document.getElementById("previewTableHead");
+        const tableBody = document.getElementById("previewTableBody");
+        const importCount = document.getElementById("importCount");
+
+        // 清空现有内容
+        tableHead.innerHTML = "";
+        tableBody.innerHTML = "";
+
+        // 创建表头
+        const headerRow = document.createElement("tr");
+        headers.forEach((header) => {
+          const th = document.createElement("th");
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        tableHead.appendChild(headerRow);
+
+        // 显示前10行数据作为预览
+        const previewLines = lines.slice(0, 10).filter((line) => line.trim());
+        previewLines.forEach((line) => {
+          const row = document.createElement("tr");
+          const cells = line.split(",");
+          cells.forEach((cell) => {
+            const td = document.createElement("td");
+            td.textContent = cell;
+            row.appendChild(td);
+          });
+          tableBody.appendChild(row);
+        });
+
+        // 显示总数量
+        const totalLines = lines.filter((line) => line.trim()).length;
+        importCount.textContent = totalLines;
+      }
+
+      // 执行导入（增强版）
+      async function executeImport() {
+        const fileInput = document.getElementById("importFile");
+        const file = fileInput.files[0];
+
+        if (!file) {
+          alert("请先选择要导入的文件");
+          return;
+        }
+
+        const importType = document.querySelector(
+          'input[name="importType"]:checked'
+        ).value;
+
+        if (importType === "grades") {
+          await executeGradeImport(file);
+        } else {
+          // 执行原有的学生导入逻辑
+          await executeStudentImport(file);
+        }
+      }
+
+      // 执行成绩导入
+      async function executeGradeImport(file) {
+        try {
+          // 显示进度
+          document.getElementById("importProgress").style.display = "block";
+          document.getElementById("importPreview").style.display = "none";
+
+          // 创建FormData
+          const formData = new FormData();
+          formData.append("file", file);
+
+          // 发送导入请求
+          const response = await fetch(
+            `${window.API_URL}/comprehensive-grades/import`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+              body: formData,
+            }
+          );
+
+          const result = await response.json();
+
+          // 隐藏进度
+          document.getElementById("importProgress").style.display = "none";
+
+          // 显示结果
+          if (result.success) {
+            alert(
+              `导入完成！\n成功：${result.successCount} 条\n失败：${result.errorCount} 条`
+            );
+
+            // 如果有错误，显示错误详情
+            if (result.errors && result.errors.length > 0) {
+              console.log("导入错误详情:", result.errors);
+            }
+
+            // 关闭模态框
+            closeImportModal();
+
+            // 刷新相关数据
+            if (
+              document.getElementById("comprehensive-grades").style.display !==
+              "none"
+            ) {
+              loadComprehensiveGrades();
+            }
+          } else {
+            alert("导入失败：" + result.message);
+          }
+        } catch (error) {
+          console.error("成绩导入失败:", error);
+          alert("导入失败，请稍后重试");
+          document.getElementById("importProgress").style.display = "none";
+        }
+      }
+
+      // ==================== 学生预警功能 ====================
+
+      // 加载预警列表
+      async function loadWarnings() {
+        const levelFilter = document.getElementById(
+          "warning-level-filter"
+        ).value;
+        const statusFilter = document.getElementById(
+          "warning-status-filter"
+        ).value;
+
+        try {
+          let url = "/student-warnings";
+          const params = [];
+          if (levelFilter) params.push(`level=${levelFilter}`);
+          if (statusFilter) params.push(`handled=${statusFilter}`);
+          if (params.length > 0) url += "?" + params.join("&");
+
+          const warnings = await apiRequest(url);
+          const warningsList = document.getElementById("warnings-list");
+          warningsList.innerHTML = "";
+
+          if (warnings && warnings.length > 0) {
+            warnings.forEach((warning) => {
+              const card = document.createElement("div");
+              card.className = `warning-card ${warning.warningLevel.toLowerCase()} ${
+                warning.isHandled ? "warning-handled" : ""
+              }`;
+              card.innerHTML = `
+                <div class="warning-header">
+                  <div class="warning-title">${warning.title}</div>
+                  <div class="warning-level ${warning.warningLevel.toLowerCase()}">${
+                warning.warningLevel
+              }</div>
+                </div>
+                <div class="warning-content">${warning.content}</div>
+                <div class="warning-meta">
+                  <span>学生: ${warning.studentName} (${
+                warning.studentNumber
+              })</span>
+                  <span>课程: ${warning.courseName}</span>
+                  <span>时间: ${new Date(
+                    warning.createdAt
+                  ).toLocaleString()}</span>
+                </div>
+                ${
+                  !warning.isHandled
+                    ? `
+                  <div class="warning-actions">
+                    <button onclick="handleWarning(${warning.id})" class="btn-primary">处理</button>
+                    <button onclick="deleteWarning(${warning.id})" class="btn-danger">删除</button>
+                  </div>
+                `
+                    : `
+                  <div class="warning-actions">
+                    <span>已处理 - ${warning.handledByName || "未知"}</span>
+                  </div>
+                `
+                }
+              `;
+              warningsList.appendChild(card);
+            });
+          } else {
+            warningsList.innerHTML = '<div class="no-data">暂无预警信息</div>';
+          }
+        } catch (error) {
+          console.error("加载预警列表失败:", error);
+          const warningsList = document.getElementById("warnings-list");
+          warningsList.innerHTML =
+            '<div class="no-data">预警系统暂不可用</div>';
+        }
+      }
+
+      // 检查所有预警
+      async function checkAllWarnings() {
+        try {
+          await apiRequest("/student-warnings/check-all", "POST");
+          alert("预警检查完成");
+          loadWarnings();
+        } catch (error) {
+          console.error("检查预警失败:", error);
+          alert("检查预警失败，请稍后重试");
+        }
+      }
+
+      // 处理预警
+      async function handleWarning(warningId) {
+        const remarks = prompt("请输入处理备注:");
+        if (remarks === null) return;
+
+        try {
+          // 获取当前用户ID（这里假设从JWT token中获取）
+          const token = localStorage.getItem("token");
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const userId = payload.userId;
+
+          await apiRequest(
+            `/student-warnings/handle/${warningId}?handledBy=${userId}&handleRemarks=${encodeURIComponent(
+              remarks
+            )}`,
+            {
+              method: "PUT",
+            }
+          );
+          alert("预警处理成功");
+          loadWarnings();
+        } catch (error) {
+          console.error("处理预警失败:", error);
+          alert("处理预警失败，请稍后重试");
+        }
+      }
+
+      // 删除预警
+      async function deleteWarning(warningId) {
+        if (!confirm("确定要删除这个预警吗？")) return;
+
+        try {
+          await apiRequest(`/student-warnings/${warningId}`, "DELETE");
+          alert("预警删除成功");
+          loadWarnings();
+        } catch (error) {
+          console.error("删除预警失败:", error);
+          alert("删除预警失败，请稍后重试");
+        }
+      }
+
+      // 批量处理预警
+      function batchHandleWarnings() {
+        const selectedWarnings = document.querySelectorAll(
+          '.warning-card input[type="checkbox"]:checked'
+        );
+        if (selectedWarnings.length === 0) {
+          alert("请先选择要处理的预警");
+          return;
+        }
+
+        const warningIds = Array.from(selectedWarnings).map((cb) => cb.value);
+        const remarks = prompt("请输入处理备注:");
+        if (remarks === null) return;
+
+        // 实现批量处理逻辑
+        console.log("批量处理预警:", warningIds, remarks);
+      }
+
       // 统一的页面初始化函数
       document.addEventListener("DOMContentLoaded", async function () {
         // 初始化主题
@@ -7941,7 +9324,53 @@
 
         // 初始化资源管理
         initializeResources();
+
+        // 初始化新模块的选项
+        await initializeNewModules();
       });
+
+      // 初始化新模块
+      async function initializeNewModules() {
+        try {
+          // 加载课程选项
+          const courses = await apiRequest("/courses");
+          const courseSelects = [
+            "course-select",
+            "comprehensive-course-select",
+          ];
+
+          courseSelects.forEach((selectId) => {
+            const select = document.getElementById(selectId);
+            if (select) {
+              select.innerHTML = '<option value="">请选择课程</option>';
+              courses.forEach((course) => {
+                const option = document.createElement("option");
+                option.value = course.id;
+                option.textContent = course.name;
+                select.appendChild(option);
+              });
+            }
+          });
+
+          // 加载班级选项
+          const students = await apiRequest("/students");
+          const classes = [...new Set(students.map((s) => s.className))];
+          const classSelect = document.getElementById(
+            "comprehensive-class-select"
+          );
+          if (classSelect) {
+            classSelect.innerHTML = '<option value="">全部班级</option>';
+            classes.forEach((className) => {
+              const option = document.createElement("option");
+              option.value = className;
+              option.textContent = className;
+              classSelect.appendChild(option);
+            });
+          }
+        } catch (error) {
+          console.error("初始化新模块失败:", error);
+        }
+      }
     </script>
   </body>
 </html>

@@ -169,4 +169,27 @@ public class StudentController {
         // 这里返回学生选课信息
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/template")
+    @Operation(summary = "下载学生导入模板", description = "下载学生信息导入模板文件")
+    @ApiResponse(responseCode = "200", description = "下载成功")
+    public ResponseEntity<byte[]> downloadTemplate() {
+        try {
+            // 创建CSV模板内容
+            String csvContent = "姓名,学号,年级,班级,专业,邮箱,电话,入学日期\n" +
+                    "张三,20191001,2019,19软工A1,软件工程,zhangsan@example.com,13800138001,2019-09-01\n" +
+                    "李四,20191002,2019,19软工A1,软件工程,lisi@example.com,13800138002,2019-09-01\n" +
+                    "王五,20191003,2019,19软工A1,软件工程,wangwu@example.com,13800138003,2019-09-01";
+
+            byte[] csvBytes = csvContent.getBytes("UTF-8");
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/csv; charset=UTF-8")
+                    .header("Content-Disposition", "attachment; filename=\"student_import_template.csv\"")
+                    .body(csvBytes);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

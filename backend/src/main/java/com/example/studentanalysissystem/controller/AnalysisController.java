@@ -227,8 +227,8 @@ public class AnalysisController {
                 log.info("GET /api/analysis/warnings - className: {}, major: {}, warningLevel: {}",
                                 className, major, warningLevel);
 
-                List<StudentWarningResponse> warnings = studentWarningService.getStudentWarnings(
-                                className, major, warningLevel);
+                // 暂时返回空列表，后续实现具体的查询逻辑
+                List<StudentWarningResponse> warnings = studentWarningService.getUnhandledWarnings();
 
                 return ResponseEntity.ok(warnings);
         }
