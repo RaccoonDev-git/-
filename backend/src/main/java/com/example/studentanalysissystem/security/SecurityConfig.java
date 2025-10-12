@@ -56,7 +56,10 @@ public class SecurityConfig {
                                 "/api/users/login",
                                 "/api/auth/**",
                                 "/api/authentication/**",
-                                "/api/debug/**") // 调试端点
+                                "/api/debug/**", // 调试端点
+                                "/api/static/**", // 静态资源端点
+                                "/api/ai/health", // AI健康检查端点
+                                "/api/ai/models") // AI模型列表端点
                         .permitAll()
 
                         // Swagger文档端点
@@ -82,10 +85,14 @@ public class SecurityConfig {
                         // 需要认证的端点
                         .requestMatchers("/api/student/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/students/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/teachers/user/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/teachers/**").hasAnyRole("ADMIN", "TEACHER")
                         .requestMatchers("/api/courses/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/enrollments/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
-                        .requestMatchers("/api/grades/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/api/grades/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/comprehensive-grades/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/export/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/api/templates/**").hasAnyRole("ADMIN", "TEACHER")
                         .requestMatchers("/api/messages/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
                         .requestMatchers("/api/resources/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
 

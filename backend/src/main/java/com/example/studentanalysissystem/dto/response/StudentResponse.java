@@ -30,6 +30,7 @@ public class StudentResponse {
     private LocalDate enrollmentDate;
     private LocalDate graduationDate;
     private String avatarUrl;
+    private Boolean hasCustomAvatar;
     private String remarks;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

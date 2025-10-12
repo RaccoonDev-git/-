@@ -2,6 +2,7 @@ package com.example.studentanalysissystem.controller;
 
 import com.example.studentanalysissystem.dto.request.CreateTeacherRequest;
 import com.example.studentanalysissystem.dto.request.UpdateTeacherRequest;
+import com.example.studentanalysissystem.dto.response.CourseResponse;
 import com.example.studentanalysissystem.dto.response.TeacherResponse;
 import com.example.studentanalysissystem.service.TeacherService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 教师控制器
@@ -57,6 +59,17 @@ public class TeacherController {
     })
     public ResponseEntity<TeacherResponse> getTeacherByEmployeeNumber(@PathVariable String employeeNumber) {
         TeacherResponse response = teacherService.getTeacherByEmployeeNumber(employeeNumber);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "根据用户ID查询教师", description = "通过用户ID获取教师信息")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "404", description = "教师不存在")
+    })
+    public ResponseEntity<TeacherResponse> getTeacherByUserId(@PathVariable Long userId) {
+        TeacherResponse response = teacherService.getTeacherByUserId(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -115,5 +128,47 @@ public class TeacherController {
     public ResponseEntity<Void> deleteTeacher(@PathVariable Long id) {
         teacherService.deleteTeacher(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{teacherId}/classes")
+    @Operation(summary = "获取教师所教班级", description = "获取指定教师所教授的所有班级")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<String>> getTeacherClasses(@PathVariable Long teacherId) {
+        List<String> classes = teacherService.getTeacherClasses(teacherId);
+        return ResponseEntity.ok(classes);
+    }
+
+    @GetMapping("/{teacherId}/courses")
+    @Operation(summary = "获取教师课程", description = "获取指定教师所教授的所有课程")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<CourseResponse>> getTeacherCourses(@PathVariable Long teacherId) {
+        List<CourseResponse> courses = teacherService.getTeacherCourses(teacherId);
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/{teacherId}/classes/{className}/courses")
+    @Operation(summary = "获取教师在指定班级的课程", description = "获取指定教师在指定班级所教授的课程")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<CourseResponse>> getTeacherCoursesInClass(
+            @PathVariable Long teacherId,
+            @PathVariable String className) {
+        List<CourseResponse> courses = teacherService.getTeacherCoursesInClass(teacherId, className);
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/{teacherId}/analysis-data")
+    @Operation(summary = "获取教师学情分析数据", description = "获取指定教师的班级、课程和学生成绩数据")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<Map<String, Object>> getTeacherAnalysisData(@PathVariable Long teacherId) {
+        Map<String, Object> analysisData = teacherService.getTeacherAnalysisData(teacherId);
+        return ResponseEntity.ok(analysisData);
+    }
+
+    @GetMapping("/{teacherId}/students")
+    @Operation(summary = "获取教师管理的学生", description = "获取指定教师所教授班级的所有学生")
+    @ApiResponse(responseCode = "200", description = "查询成功")
+    public ResponseEntity<List<com.example.studentanalysissystem.dto.response.StudentResponse>> getTeacherStudents(@PathVariable Long teacherId) {
+        List<com.example.studentanalysissystem.dto.response.StudentResponse> students = teacherService.getTeacherStudents(teacherId);
+        return ResponseEntity.ok(students);
     }
 }

@@ -4,6 +4,7 @@ import com.example.studentanalysissystem.dto.request.CreateStudentRequest;
 import com.example.studentanalysissystem.dto.response.StudentResponse;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 学生服务接口
@@ -79,4 +80,14 @@ public interface StudentService {
      * 根据ID获取学生实体对象（用于内部操作）
      */
     com.example.studentanalysissystem.model.Student getStudentEntityById(Long id);
+
+    /**
+     * 根据课程ID获取选修该课程的班级列表
+     */
+    List<String> getClassesByCourseId(Long courseId);
+
+    /**
+     * 获取指定课程和班级的学生成绩数据
+     */
+    List<Map<String, Object>> getStudentScoresByCourseAndClass(Long courseId, String className);
 }

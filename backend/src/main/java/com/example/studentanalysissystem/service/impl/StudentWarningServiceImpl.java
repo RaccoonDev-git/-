@@ -50,12 +50,26 @@ public class StudentWarningServiceImpl implements StudentWarningService {
         List<Student> students = studentRepository.findByCourseId(courseId);
 
         for (Student student : students) {
-            // 获取学生的综合成绩
-            ComprehensiveGrade grade = comprehensiveGradeRepository
-                    .findByStudentIdAndCourseId(student.getId(), courseId)
+            // 获取学生的综合成绩（可能有多个记录，取最新的）
+            List<ComprehensiveGrade> grades = comprehensiveGradeRepository
+                    .findAllByStudentIdAndCourseId(student.getId(), courseId);
+
+            if (grades == null || grades.isEmpty()) {
+                continue;
+            }
+
+            // 取最新的综合成绩记录（按创建时间排序）
+            ComprehensiveGrade grade = grades.stream()
+                    .filter(g -> g.getRegularScore() != null)
+                    .max((g1, g2) -> {
+                        if (g1.getCreatedAt() == null && g2.getCreatedAt() == null) return 0;
+                        if (g1.getCreatedAt() == null) return -1;
+                        if (g2.getCreatedAt() == null) return 1;
+                        return g1.getCreatedAt().compareTo(g2.getCreatedAt());
+                    })
                     .orElse(null);
 
-            if (grade == null || grade.getRegularScore() == null) {
+            if (grade == null) {
                 continue;
             }
 
@@ -140,6 +154,14 @@ public class StudentWarningServiceImpl implements StudentWarningService {
     @Override
     public List<StudentWarningResponse> getWarningsByCourseId(Long courseId) {
         List<StudentWarning> warnings = studentWarningRepository.findByCourseId(courseId);
+        return warnings.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StudentWarningResponse> getAllWarnings() {
+        List<StudentWarning> warnings = studentWarningRepository.findAll();
         return warnings.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());

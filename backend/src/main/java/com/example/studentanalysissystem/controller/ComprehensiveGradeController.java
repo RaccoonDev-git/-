@@ -44,6 +44,14 @@ public class ComprehensiveGradeController {
         return ResponseEntity.ok(grades);
     }
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @Operation(summary = "获取所有综合成绩", description = "获取所有综合成绩记录")
+    public ResponseEntity<List<ComprehensiveGradeResponse>> getAllComprehensiveGrades() {
+        List<ComprehensiveGradeResponse> grades = comprehensiveGradeService.getAllComprehensiveGrades();
+        return ResponseEntity.ok(grades);
+    }
+
     @GetMapping("/course/{courseId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @Operation(summary = "获取课程综合成绩", description = "获取指定课程的所有综合成绩")

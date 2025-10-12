@@ -156,6 +156,19 @@ public class ComprehensiveGradeServiceImpl implements ComprehensiveGradeService 
     }
 
     @Override
+    public List<ComprehensiveGradeResponse> getAllComprehensiveGrades() {
+        List<ComprehensiveGrade> grades = comprehensiveGradeRepository.findAll();
+        return grades.stream()
+                .map(grade -> {
+                    CourseWeightConfig weightConfig = courseWeightConfigRepository
+                            .findByCourseIdAndIsActive(grade.getCourse().getId(), true)
+                            .orElse(null);
+                    return comprehensiveGradeMapper.toResponse(grade, weightConfig, null);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ComprehensiveGradeResponse> getComprehensiveGradesByStudentId(Long studentId) {
         List<ComprehensiveGrade> grades = comprehensiveGradeRepository.findByStudentId(studentId);
         return grades.stream()

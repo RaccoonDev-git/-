@@ -38,6 +38,12 @@ public class Teacher {
     @Column(name = "title", length = 50)
     private String title;
 
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
+    
+    @Column(name = "has_custom_avatar", nullable = false)
+    private Boolean hasCustomAvatar = false;
+
     @Column(name = "remarks", columnDefinition = "TEXT")
     private String remarks;
 

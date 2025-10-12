@@ -2,6 +2,7 @@ package com.example.studentanalysissystem.controller;
 
 import com.example.studentanalysissystem.dto.request.LoginRequest;
 import com.example.studentanalysissystem.dto.request.RegisterRequest;
+import com.example.studentanalysissystem.dto.request.UpdateAvatarRequest;
 import com.example.studentanalysissystem.dto.request.UpdateUserRequest;
 import com.example.studentanalysissystem.dto.response.UserResponse;
 import com.example.studentanalysissystem.service.UserService;
@@ -113,5 +114,19 @@ public class UserController {
             @RequestParam String newPassword) {
         userService.changePassword(id, oldPassword, newPassword);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/avatar")
+    @Operation(summary = "更新头像", description = "用户更新自己的头像")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "更新成功"),
+            @ApiResponse(responseCode = "404", description = "用户不存在"),
+            @ApiResponse(responseCode = "400", description = "请求参数错误")
+    })
+    public ResponseEntity<UserResponse> updateAvatar(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateAvatarRequest request) {
+        UserResponse response = userService.updateAvatar(id, request);
+        return ResponseEntity.ok(response);
     }
 }

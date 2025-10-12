@@ -67,10 +67,10 @@ public class StudentWarningController {
             @Parameter(description = "处理状态") @RequestParam(required = false) String handled) {
         List<StudentWarningResponse> warnings;
         if (level != null || handled != null) {
-            // 根据条件筛选预警
-            warnings = studentWarningService.getUnhandledWarnings();
+            // 根据条件筛选预警 - 暂时返回所有预警，后续可以添加筛选逻辑
+            warnings = studentWarningService.getAllWarnings();
         } else {
-            warnings = studentWarningService.getUnhandledWarnings();
+            warnings = studentWarningService.getAllWarnings();
         }
         return ResponseEntity.ok(warnings);
     }

@@ -2,6 +2,7 @@ package com.example.studentanalysissystem.service.impl;
 
 import com.example.studentanalysissystem.dto.request.CreateTeacherRequest;
 import com.example.studentanalysissystem.dto.request.UpdateTeacherRequest;
+import com.example.studentanalysissystem.dto.response.CourseResponse;
 import com.example.studentanalysissystem.dto.response.TeacherResponse;
 import com.example.studentanalysissystem.exception.DuplicateResourceException;
 import com.example.studentanalysissystem.exception.ResourceNotFoundException;
@@ -10,12 +11,18 @@ import com.example.studentanalysissystem.model.Teacher;
 import com.example.studentanalysissystem.model.User;
 import com.example.studentanalysissystem.repository.TeacherRepository;
 import com.example.studentanalysissystem.repository.UserRepository;
+import com.example.studentanalysissystem.service.CourseService;
+import com.example.studentanalysissystem.service.StudentService;
 import com.example.studentanalysissystem.service.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * 教师服务实现类
@@ -28,6 +35,8 @@ public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
     private final TeacherMapper teacherMapper;
+    private final CourseService courseService;
+    private final StudentService studentService;
 
     @Override
     @Transactional
@@ -124,5 +133,102 @@ public class TeacherServiceImpl implements TeacherService {
     public List<TeacherResponse> searchTeachers(String keyword) {
         List<Teacher> teachers = teacherRepository.searchByKeyword(keyword);
         return teacherMapper.toResponseList(teachers);
+    }
+
+    @Override
+    public List<String> getTeacherClasses(Long teacherId) {
+        // 获取教师的所有课程
+        List<CourseResponse> teacherCourses = courseService.getCoursesByTeacherId(teacherId);
+        
+        // 获取这些课程对应的班级
+        List<String> classes = teacherCourses.stream()
+                .flatMap(course -> {
+                    // 通过课程获取有学生选修的班级
+                    try {
+                        return studentService.getClassesByCourseId(course.getId()).stream();
+                    } catch (Exception e) {
+                        // 如果获取失败，返回空流
+                        return java.util.stream.Stream.empty();
+                    }
+                })
+                .distinct()
+                .collect(Collectors.toList());
+        
+        return classes;
+    }
+
+    @Override
+    public List<CourseResponse> getTeacherCourses(Long teacherId) {
+        return courseService.getCoursesByTeacherId(teacherId);
+    }
+
+    @Override
+    public List<CourseResponse> getTeacherCoursesInClass(Long teacherId, String className) {
+        // 获取教师的所有课程
+        List<CourseResponse> teacherCourses = courseService.getCoursesByTeacherId(teacherId);
+        
+        // 过滤出在该班级有学生的课程
+        return teacherCourses.stream()
+                .filter(course -> {
+                    try {
+                        List<String> courseClasses = studentService.getClassesByCourseId(course.getId());
+                        return courseClasses.contains(className);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> getTeacherAnalysisData(Long teacherId) {
+        Map<String, Object> analysisData = new HashMap<>();
+        
+        // 获取教师所教的班级
+        List<String> teacherClasses = getTeacherClasses(teacherId);
+        
+        // 获取教师的所有课程
+        List<CourseResponse> teacherCourses = getTeacherCourses(teacherId);
+        
+        // 构建分析数据结构
+        Map<String, Object> classData = new HashMap<>();
+        
+        for (String className : teacherClasses) {
+            // 获取该班级的课程
+            List<CourseResponse> classCourses = getTeacherCoursesInClass(teacherId, className);
+            
+            // 构建课程数据
+            Map<String, Object> courseData = new HashMap<>();
+            for (CourseResponse course : classCourses) {
+                // 获取该课程在该班级的学生成绩数据
+                List<Map<String, Object>> studentScores = studentService.getStudentScoresByCourseAndClass(course.getId(), className);
+                courseData.put(course.getName(), studentScores);
+            }
+            
+            classData.put(className, courseData);
+        }
+        
+        analysisData.put("classes", teacherClasses);
+        analysisData.put("courses", teacherCourses.stream().map(CourseResponse::getName).collect(Collectors.toList()));
+        analysisData.put("analysisData", classData);
+        
+        return analysisData;
+    }
+
+    @Override
+    public List<com.example.studentanalysissystem.dto.response.StudentResponse> getTeacherStudents(Long teacherId) {
+        // 获取教师所教的班级
+        List<String> teacherClasses = getTeacherClasses(teacherId);
+        
+        // 获取这些班级的所有学生
+        List<com.example.studentanalysissystem.dto.response.StudentResponse> allStudents = new ArrayList<>();
+        
+        for (String className : teacherClasses) {
+            List<com.example.studentanalysissystem.dto.response.StudentResponse> classStudents = 
+                studentService.getStudentsByClassName(className);
+            allStudents.addAll(classStudents);
+        }
+        
+        return allStudents;
     }
 }

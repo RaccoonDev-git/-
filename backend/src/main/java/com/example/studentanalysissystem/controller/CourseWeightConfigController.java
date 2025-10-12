@@ -42,7 +42,14 @@ public class CourseWeightConfigController {
         if (config != null && !config.isEmpty()) {
             return ResponseEntity.ok(config);
         }
-        return ResponseEntity.ok(null);
+        // 返回一个默认的配置对象而不是null，避免JSON解析错误
+        return ResponseEntity.ok(Map.of(
+                "courseId", courseId,
+                "regularWeight", 30,
+                "finalWeight", 70,
+                "makeupWeight", 100,
+                "isDefault", true
+        ));
     }
 
     @PostMapping

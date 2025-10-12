@@ -30,6 +30,11 @@ public interface StudentWarningService {
     List<StudentWarningResponse> getWarningsByCourseId(Long courseId);
 
     /**
+     * 获取所有预警
+     */
+    List<StudentWarningResponse> getAllWarnings();
+
+    /**
      * 获取未处理的预警
      */
     List<StudentWarningResponse> getUnhandledWarnings();

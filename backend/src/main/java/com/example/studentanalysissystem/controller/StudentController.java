@@ -60,6 +60,17 @@ public class StudentController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "根据用户ID查询学生", description = "通过用户ID获取学生信息")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "404", description = "学生不存在")
+    })
+    public ResponseEntity<StudentResponse> getStudentByUserId(@PathVariable Long userId) {
+        StudentResponse response = studentService.getStudentByUserId(userId);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     @Operation(summary = "查询所有学生", description = "获取学生列表")
     @ApiResponse(responseCode = "200", description = "查询成功")

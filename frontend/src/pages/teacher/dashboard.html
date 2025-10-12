@@ -34,7 +34,7 @@
         position: relative;
         display: flex;
         flex-direction: column;
-        cursor: none;
+        cursor: default;
       }
 
       /* 动态星空背景 */
@@ -372,6 +372,8 @@
         z-index: 9999;
         transition: transform 0.1s ease-out;
         box-shadow: 0 0 10px #39f7ff;
+        display: block;
+        transform: translate(-50%, -50%);
       }
 
       /* 光标拖尾样式 */
@@ -796,6 +798,9 @@
         align-items: center;
         justify-content: center;
         font-weight: bold;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
       }
 
       .chat-info {
@@ -1193,6 +1198,10 @@
         font-weight: 500;
         margin-bottom: 5px;
         word-break: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
       }
 
       .resource-meta {
@@ -1725,61 +1734,212 @@
       }
 
       .actions-column {
-        width: 200px;
+        width: 240px;
+        text-align: center;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
       .action-btn {
-        padding: 6px 12px;
-        margin-right: 5px;
+        padding: 6px 10px;
         border: none;
         border-radius: 6px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 12px;
+        font-size: 11px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 60px;
+        justify-content: center;
       }
 
       .btn-view {
-        background: rgba(33, 150, 243, 0.2);
+        background: rgba(33, 150, 243, 0.15);
         color: #64b5f6;
+        border: 1px solid rgba(33, 150, 243, 0.3);
       }
 
       .btn-view:hover {
-        background: rgba(33, 150, 243, 0.3);
+        background: rgba(33, 150, 243, 0.25);
+        border-color: rgba(33, 150, 243, 0.5);
+        transform: translateY(-1px);
       }
 
       .btn-edit {
-        background: rgba(76, 175, 80, 0.2);
+        background: rgba(76, 175, 80, 0.15);
         color: #81c784;
+        border: 1px solid rgba(76, 175, 80, 0.3);
       }
 
       .btn-edit:hover {
-        background: rgba(76, 175, 80, 0.3);
+        background: rgba(76, 175, 80, 0.25);
+        border-color: rgba(76, 175, 80, 0.5);
+        transform: translateY(-1px);
       }
 
       .btn-delete {
-        background: rgba(244, 67, 54, 0.2);
+        background: rgba(244, 67, 54, 0.15);
         color: #e57373;
+        border: 1px solid rgba(244, 67, 54, 0.3);
       }
 
       .btn-delete:hover {
-        background: rgba(244, 67, 54, 0.3);
+        background: rgba(244, 67, 54, 0.25);
+        border-color: rgba(244, 67, 54, 0.5);
+        transform: translateY(-1px);
+      }
+
+      .btn-more {
+        background: rgba(158, 158, 158, 0.15);
+        color: #bdbdbd;
+        border: 1px solid rgba(158, 158, 158, 0.3);
+        position: relative;
+      }
+
+      .btn-more:hover {
+        background: rgba(158, 158, 158, 0.25);
+        border-color: rgba(158, 158, 158, 0.5);
+        transform: translateY(-1px);
+      }
+
+      /* 下拉菜单样式 */
+      .action-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(57, 247, 255, 0.2);
+        border-radius: 8px;
+        padding: 8px 0;
+        min-width: 140px;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        display: none;
+      }
+
+      .action-dropdown.show {
+        display: block;
+      }
+
+      .action-dropdown button {
+        width: 100%;
+        padding: 8px 16px;
+        border: none;
+        background: none;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: left;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
+      }
+
+      .action-dropdown button:hover {
+        background: rgba(57, 247, 255, 0.1);
+        color: #39f7ff;
+      }
+
+      .action-dropdown .divider {
+        height: 1px;
+        background: rgba(57, 247, 255, 0.1);
+        margin: 4px 0;
+      }
+
+      /* 通知系统样式 */
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        max-width: 300px;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+      }
+
+      .notification.success {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        border-left: 4px solid #2e7d32;
+      }
+
+      .notification.error {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+        border-left: 4px solid #c62828;
+      }
+
+      .notification.warning {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        border-left: 4px solid #ef6c00;
+      }
+
+      .notification.info {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        border-left: 4px solid #1565c0;
       }
 
       /* 卡片视图样式 */
       .student-cards-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 20px;
         padding: 10px 0;
+        justify-items: center;
+      }
+
+      /* 响应式卡片布局 */
+      @media (min-width: 1200px) {
+        .student-cards-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      @media (max-width: 1199px) and (min-width: 900px) {
+        .student-cards-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 899px) and (min-width: 600px) {
+        .student-cards-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 599px) {
+        .student-cards-grid {
+          grid-template-columns: 1fr;
+        }
       }
 
       .student-card {
         background: rgba(15, 23, 42, 0.5);
         border: 1px solid rgba(57, 247, 255, 0.2);
         border-radius: 12px;
-        padding: 20px;
+        padding: 16px;
         transition: all 0.3s ease;
         cursor: pointer;
+        width: 100%;
+        max-width: 320px;
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
       }
 
       .student-card:hover {
@@ -1842,9 +2002,10 @@
 
       .student-card-actions {
         display: flex;
-        gap: 10px;
-        padding-top: 15px;
+        gap: 8px;
+        padding-top: 12px;
         border-top: 1px solid rgba(57, 247, 255, 0.1);
+        margin-top: auto; /* 推到底部 */
       }
 
       .student-card-actions button {
@@ -1855,6 +2016,31 @@
         cursor: pointer;
         transition: all 0.3s ease;
         font-size: 12px;
+      }
+
+      /* 空状态样式 */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .empty-state .empty-icon {
+        font-size: 48px;
+        color: rgba(57, 247, 255, 0.3);
+        margin-bottom: 20px;
+      }
+
+      .empty-state h3 {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+
+      .empty-state p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        line-height: 1.5;
       }
 
       /* 分页样式 */
@@ -3017,7 +3203,7 @@
         <div class="avatar" onclick="toggleDropdown()">
           <i class="fas fa-user"></i>
           <div class="dropdown-menu" id="dropdownMenu">
-            <a href="../../personal-center.html"
+            <a href="../../personal-center.html?from=teacher"
               ><i class="fas fa-user-circle"></i>个人中心</a
             >
             <div class="separator"></div>
@@ -3089,29 +3275,21 @@
               <label><i class="fas fa-graduation-cap"></i> 年级</label>
               <select id="grade-filter" onchange="filterStudents()">
                 <option value="">全部年级</option>
-                <option value="1">一年级</option>
-                <option value="2">二年级</option>
-                <option value="3">三年级</option>
-                <option value="4">四年级</option>
+                <!-- 年级选项将通过JavaScript动态生成 -->
               </select>
             </div>
             <div class="filter-group">
               <label><i class="fas fa-users"></i> 班级</label>
               <select id="class-filter" onchange="filterStudents()">
                 <option value="">全部班级</option>
-                <option value="计算机科学与技术1班">计算机科学与技术1班</option>
-                <option value="软件工程2班">软件工程2班</option>
-                <option value="信息安全3班">信息安全3班</option>
+                <!-- 班级选项将通过JavaScript动态生成 -->
               </select>
             </div>
             <div class="filter-group">
               <label><i class="fas fa-book"></i> 专业</label>
               <select id="major-filter" onchange="filterStudents()">
                 <option value="">全部专业</option>
-                <option value="计算机科学与技术">计算机科学与技术</option>
-                <option value="软件工程">软件工程</option>
-                <option value="信息安全">信息安全</option>
-                <option value="数据科学">数据科学</option>
+                <!-- 专业选项将通过JavaScript动态生成 -->
               </select>
             </div>
             <div class="search-box">
@@ -3196,6 +3374,17 @@
             <div id="student-card-grid" class="student-cards-grid">
               <!-- 动态生成学生卡片 -->
             </div>
+            <div
+              id="empty-card-state"
+              class="empty-state"
+              style="display: none"
+            >
+              <div class="empty-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <h3>暂无学生数据</h3>
+              <p>当前班级还没有学生信息，请添加学生或选择其他班级。</p>
+            </div>
           </div>
 
           <!-- 分页控件 -->
@@ -3229,9 +3418,10 @@
             <div class="page-size-selector">
               <label>每页显示:</label>
               <select id="pageSizeSelect" onchange="changePageSize(this.value)">
-                <option value="10">10</option>
+                <option value="12">12</option>
                 <option value="20" selected>20</option>
-                <option value="50">50</option>
+                <option value="24">24</option>
+                <option value="32">32</option>
                 <option value="100">100</option>
               </select>
             </div>
@@ -3246,15 +3436,10 @@
               id="analysis-class-select"
               onchange="updateCourseOptionsAndLoadData()"
             >
-              <option value="class1">18CS-A1</option>
-              <option value="class2">18CS-A2</option>
-              <option value="class3">18CS-A3</option>
+              <option value="">请选择班级...</option>
             </select>
             <select id="subject-select" onchange="loadAnalysisData()">
-              <option value="Data Structure">Data Structure</option>
-              <option value="Compiler Principles">Compiler Principles</option>
-              <option value="Computer Basics">Computer Basics</option>
-              <option value="English">English</option>
+              <option value="">请选择课程...</option>
             </select>
           </div>
           <div class="chart-container">
@@ -3381,7 +3566,7 @@
               <label>选择课程:</label>
               <select
                 id="comprehensive-course-select"
-                onchange="loadComprehensiveGrades()"
+                onchange="handleCourseChange()"
               >
                 <option value="">请选择课程</option>
               </select>
@@ -4231,130 +4416,14 @@
       }
       createStars();
 
-      // 学生数据
-      let students = {
-        计算机科学与技术1班: [
-          {
-            name: "张三",
-            id: "2023001",
-            grade: "2023",
-            class: "计算机科学与技术1班",
-            major: "计算机科学与技术",
-            phone: "13800138000",
-            remarks: "",
-          },
-          {
-            name: "李四",
-            id: "2023002",
-            grade: "2023",
-            class: "计算机科学与技术1班",
-            major: "计算机科学与技术",
-            phone: "13800138001",
-            remarks: "",
-          },
-        ],
-        软件工程2班: [
-          {
-            name: "王五",
-            id: "2023003",
-            grade: "2022",
-            class: "软件工程2班",
-            major: "软件工程",
-            phone: "13800138002",
-            remarks: "",
-          },
-          {
-            name: "赵六",
-            id: "2023004",
-            grade: "2022",
-            class: "软件工程2班",
-            major: "软件工程",
-            phone: "13800138003",
-            remarks: "",
-          },
-        ],
-        信息安全3班: [
-          {
-            name: "孙七",
-            id: "2023005",
-            grade: "2021",
-            class: "信息安全3班",
-            major: "信息安全",
-            phone: "13800138004",
-            remarks: "",
-          },
-          {
-            name: "周八",
-            id: "2023006",
-            grade: "2021",
-            class: "信息安全3班",
-            major: "信息安全",
-            phone: "13800138005",
-            remarks: "",
-          },
-        ],
-      };
+      // 学生数据 - 从API动态获取
+      let students = {};
 
-      // 学情分析数据
-      const analysisData = {
-        class1: {
-          cLanguage: [
-            { name: "张三", id: "2023001", score: 85 },
-            { name: "李四", id: "2023002", score: 78 },
-          ],
-          math: [
-            { name: "张三", id: "2023001", score: 90 },
-            { name: "李四", id: "2023002", score: 85 },
-          ],
-          english: [
-            { name: "张三", id: "2023001", score: 88 },
-            { name: "李四", id: "2023002", score: 92 },
-          ],
-          physics: [
-            { name: "张三", id: "2023001", score: 82 },
-            { name: "李四", id: "2023002", score: 75 },
-          ],
-        },
-        class2: {
-          cLanguage: [
-            { name: "王五", id: "2023003", score: 90 },
-            { name: "赵六", id: "2023004", score: 88 },
-          ],
-          math: [
-            { name: "王五", id: "2023003", score: 85 },
-            { name: "赵六", id: "2023004", score: 78 },
-          ],
-          english: [
-            { name: "王五", id: "2023003", score: 95 },
-            { name: "赵六", id: "2023004", score: 89 },
-          ],
-          physics: [
-            { name: "王五", id: "2023003", score: 88 },
-            { name: "赵六", id: "2023004", score: 86 },
-          ],
-        },
-        class3: {
-          cLanguage: [
-            { name: "孙七", id: "2023005", score: 82 },
-            { name: "周八", id: "2023006", score: 85 },
-          ],
-          math: [
-            { name: "孙七", id: "2023005", score: 88 },
-            { name: "周八", id: "2023006", score: 92 },
-          ],
-          english: [
-            { name: "孙七", id: "2023005", score: 90 },
-            { name: "周八", id: "2023006", score: 87 },
-          ],
-          physics: [
-            { name: "孙七", id: "2023005", score: 85 },
-            { name: "周八", id: "2023006", score: 89 },
-          ],
-        },
-      };
+      // 学情分析数据 - 从API动态获取
+      let analysisData = {};
 
       let currentPage = 1;
-      const pageSize = 5;
+      let currentPageSize = 20; // 统一使用新的分页系统
 
       // 学生管理功能
       function loadStudents() {
@@ -4372,8 +4441,8 @@
           return;
         }
 
-        const start = (currentPage - 1) * pageSize;
-        const end = start + pageSize;
+        const start = (currentPage - 1) * currentPageSize;
+        const end = start + currentPageSize;
         students[selectedClass].slice(start, end).forEach((student) => {
           const row = document.createElement("tr");
           row.innerHTML = `
@@ -4497,13 +4566,53 @@
       }
 
       function deleteStudent(studentId) {
-        if (confirm("确定删除该学生吗？")) {
-          const classSelect = document.getElementById("class-select");
-          const selectedClass = classSelect.value;
-          students[selectedClass] = students[selectedClass].filter(
-            (s) => s.id !== studentId
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value;
+
+        let student = null;
+        if (selectedClass && students[selectedClass]) {
+          student = students[selectedClass].find((s) => s.id === studentId);
+        } else {
+          for (const className in students) {
+            student = students[className].find((s) => s.id === studentId);
+            if (student) break;
+          }
+        }
+
+        if (student) {
+          const confirmed = confirm(
+            `⚠️ 确定要删除学生 "${student.name}" 吗？\n\n` +
+              `学号: ${student.id}\n` +
+              `班级: ${student.class || "未知"}\n\n` +
+              `⚠️ 此操作不可撤销！\n` +
+              `删除后该学生的所有数据将被永久移除。`
           );
-          loadStudents();
+
+          if (confirmed) {
+            // 从对应班级中删除学生
+            if (selectedClass && students[selectedClass]) {
+              students[selectedClass] = students[selectedClass].filter(
+                (s) => s.id !== studentId
+              );
+            } else {
+              // 从所有班级中查找并删除
+              for (const className in students) {
+                const index = students[className].findIndex(
+                  (s) => s.id === studentId
+                );
+                if (index !== -1) {
+                  students[className].splice(index, 1);
+                  break;
+                }
+              }
+            }
+
+            // 刷新列表
+            refreshStudentList();
+
+            // 显示成功消息
+            showNotification(`学生 "${student.name}" 已成功删除`, "success");
+          }
         }
       }
 
@@ -4539,43 +4648,53 @@
           .join("");
       }
 
-      function importStudents() {
+      async function importStudents() {
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = ".json";
+        input.accept = ".json,.csv,.xlsx,.xls";
 
-        input.onchange = function (e) {
+        input.onchange = async function (e) {
           const file = e.target.files[0];
-          const reader = new FileReader();
+          if (!file) return;
 
-          reader.onload = function (event) {
-            try {
-              const importedData = JSON.parse(event.target.result);
-              const classSelect = document.getElementById("class-select");
-              const selectedClass = classSelect.value;
+          try {
+            showNotification("正在处理文件...", "info");
 
-              // 合并导入的学生数据
-              students[selectedClass] = [
-                ...students[selectedClass],
-                ...(importedData[selectedClass] || []),
-              ];
+            const formData = new FormData();
+            formData.append("file", file);
 
-              // 保存并更新显示
-              saveStudentsData();
-              loadStudents();
+            const token = localStorage.getItem("token");
+            const response = await fetch(
+              "http://localhost:8080/api/admin/students/import",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+              }
+            );
 
-              // 更新所有导入学生的分析数据
-              importedData[selectedClass].forEach(() => {
-                updateAnalysisData(selectedClass);
-              });
+            const result = await response.json();
 
-              alert("导入成功！");
-            } catch (error) {
-              alert("导入失败，请检查文件格式！");
+            if (response.ok && result.success) {
+              showNotification(
+                `成功导入 ${result.importedCount} 个学生`,
+                "success"
+              );
+
+              // 重新加载学生数据
+              await loadStudentsFromAPI();
+
+              // 刷新学生列表显示
+              refreshStudentList();
+            } else {
+              throw new Error(result.message || "导入失败");
             }
-          };
-
-          reader.readAsText(file);
+          } catch (error) {
+            console.error("导入失败:", error);
+            showNotification(`导入失败: ${error.message}`, "error");
+          }
         };
 
         input.click();
@@ -4612,14 +4731,41 @@
         document.getElementById("studentDetailModal").dataset.editingId = "new";
       }
 
-      function exportStudents() {
-        const data = JSON.stringify(students, null, 2);
-        const blob = new Blob([data], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "students.json";
-        a.click();
+      async function exportStudents() {
+        try {
+          showNotification("正在准备导出数据...", "info");
+
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            "http://localhost:8080/api/admin/students/export",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`导出失败: ${response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `学生数据_${
+            new Date().toISOString().split("T")[0]
+          }.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          showNotification("学生数据导出成功", "success");
+        } catch (error) {
+          console.error("导出失败:", error);
+          showNotification(`导出失败: ${error.message}`, "error");
+        }
       }
 
       function prevPage() {
@@ -4729,7 +4875,6 @@
         field: "",
         order: "asc", // 'asc' or 'desc'
       };
-      let currentPageSize = 10;
 
       // 视图切换
       function switchView(view) {
@@ -4848,25 +4993,52 @@
       }
 
       // 批量导出
-      function batchExport() {
+      async function batchExport() {
         if (selectedStudents.size === 0) {
-          alert("请先选择要导出的学生");
+          showNotification("请先选择要导出的学生", "warning");
           return;
         }
 
-        const classSelect = document.getElementById("class-filter");
-        const selectedClass = classSelect.value;
+        try {
+          showNotification("正在导出选中的学生数据...", "info");
 
-        // 获取选中的学生数据
-        const selectedData = students[selectedClass].filter((s) =>
-          selectedStudents.has(s.id)
-        );
+          const token = localStorage.getItem("token");
+          const studentIds = Array.from(selectedStudents);
 
-        // 导出为CSV
-        exportToCSV(
-          selectedData,
-          `学生数据_${new Date().toLocaleDateString()}.csv`
-        );
+          const response = await fetch(
+            "http://localhost:8080/api/admin/students/export/selected",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ studentIds }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`导出失败: ${response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `选中学生数据_${
+            new Date().toISOString().split("T")[0]
+          }.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          showNotification(
+            `已导出 ${studentIds.length} 个学生的数据`,
+            "success"
+          );
+        } catch (error) {
+          console.error("批量导出失败:", error);
+          showNotification(`导出失败: ${error.message}`, "error");
+        }
       }
 
       // 筛选功能
@@ -4948,8 +5120,14 @@
           const token = localStorage.getItem("token");
           console.log("正在从API加载学生数据...");
 
+          // 获取当前教师ID
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const teacherId = payload.userId || payload.teacherId || payload.sub;
+
+          console.log("教师学生管理 - 教师ID:", teacherId);
+
           const response = await fetch(
-            "http://localhost:8080/api/admin/students",
+            `http://localhost:8080/api/teachers/${teacherId}/students`,
             {
               method: "GET",
               headers: {
@@ -4992,8 +5170,8 @@
           // 保存到localStorage
           localStorage.setItem("studentsData", JSON.stringify(students));
 
-          // 更新班级下拉框
-          updateClassFilter();
+          // 更新所有筛选器下拉框
+          updateAllFilters();
 
           console.log("学生数据加载完成");
           return true;
@@ -5004,8 +5182,59 @@
         }
       }
 
+      // 更新所有筛选器下拉框
+      function updateAllFilters() {
+        // 收集所有学生数据中的年级、班级、专业信息
+        const allGrades = new Set();
+        const allClasses = new Set();
+        const allMajors = new Set();
+
+        Object.values(students).forEach((classStudents) => {
+          classStudents.forEach((student) => {
+            if (student.grade) allGrades.add(student.grade);
+            if (student.class) allClasses.add(student.class);
+            if (student.major) allMajors.add(student.major);
+          });
+        });
+
+        // 更新年级选卡
+        updateGradeFilter(allGrades);
+
+        // 更新班级选卡
+        updateClassFilter(allClasses);
+
+        // 更新专业选卡
+        updateMajorFilter(allMajors);
+      }
+
+      // 更新年级筛选下拉框
+      function updateGradeFilter(allGrades) {
+        const gradeSelect = document.getElementById("grade-filter");
+        if (!gradeSelect) return;
+
+        // 保存当前选择
+        const currentSelection = gradeSelect.value;
+
+        // 清空现有选项（保留"全部年级"）
+        gradeSelect.innerHTML = '<option value="">全部年级</option>';
+
+        // 添加所有年级选项
+        const gradeList = Array.from(allGrades).sort();
+        gradeList.forEach((grade) => {
+          const option = document.createElement("option");
+          option.value = grade;
+          option.textContent = `${grade}年级`;
+          gradeSelect.appendChild(option);
+        });
+
+        // 恢复之前的选择（如果还存在）
+        if (currentSelection && gradeList.includes(currentSelection)) {
+          gradeSelect.value = currentSelection;
+        }
+      }
+
       // 更新班级筛选下拉框
-      function updateClassFilter() {
+      function updateClassFilter(allClasses) {
         const classSelect = document.getElementById("class-filter");
         if (!classSelect) return;
 
@@ -5016,7 +5245,7 @@
         classSelect.innerHTML = '<option value="">全部班级</option>';
 
         // 添加所有班级选项
-        const classList = Object.keys(students).sort();
+        const classList = Array.from(allClasses).sort();
         classList.forEach((className) => {
           const option = document.createElement("option");
           option.value = className;
@@ -5027,6 +5256,32 @@
         // 恢复之前的选择（如果还存在）
         if (currentSelection && classList.includes(currentSelection)) {
           classSelect.value = currentSelection;
+        }
+      }
+
+      // 更新专业筛选下拉框
+      function updateMajorFilter(allMajors) {
+        const majorSelect = document.getElementById("major-filter");
+        if (!majorSelect) return;
+
+        // 保存当前选择
+        const currentSelection = majorSelect.value;
+
+        // 清空现有选项（保留"全部专业"）
+        majorSelect.innerHTML = '<option value="">全部专业</option>';
+
+        // 添加所有专业选项
+        const majorList = Array.from(allMajors).sort();
+        majorList.forEach((major) => {
+          const option = document.createElement("option");
+          option.value = major;
+          option.textContent = major;
+          majorSelect.appendChild(option);
+        });
+
+        // 恢复之前的选择（如果还存在）
+        if (currentSelection && majorList.includes(currentSelection)) {
+          majorSelect.value = currentSelection;
         }
       }
 
@@ -5135,21 +5390,49 @@
               <td>${student.major || "-"}</td>
               <td>${student.phone || "-"}</td>
               <td class="actions-column">
-                <button class="action-btn btn-view" onclick="viewStudentDetail('${
-                  student.id
-                }')">
-                  <i class="fas fa-eye"></i> 查看
-                </button>
-                <button class="action-btn btn-edit" onclick="editStudent('${
-                  student.id
-                }')">
-                  <i class="fas fa-edit"></i> 编辑
-                </button>
-                <button class="action-btn btn-delete" onclick="deleteStudent('${
-                  student.id
-                }')">
-                  <i class="fas fa-trash"></i> 删除
-                </button>
+                <div class="action-buttons">
+                  <button class="action-btn btn-view" onclick="viewStudentDetail('${
+                    student.id
+                  }')" title="查看详情">
+                    <i class="fas fa-eye"></i> 查看
+                  </button>
+                  <button class="action-btn btn-edit" onclick="editStudent('${
+                    student.id
+                  }')" title="编辑信息">
+                    <i class="fas fa-edit"></i> 编辑
+                  </button>
+                  <div class="action-dropdown-container" style="position: relative;">
+                    <button class="action-btn btn-more" onclick="toggleActionDropdown('${
+                      student.id
+                    }')" title="更多操作">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="action-dropdown" id="dropdown-${student.id}">
+                      <button onclick="viewStudentGrades('${student.id}')">
+                        <i class="fas fa-chart-line"></i> 成绩查看
+                      </button>
+                      <button onclick="sendMessageToStudent('${student.id}')">
+                        <i class="fas fa-comment"></i> 发送消息
+                      </button>
+                      <button onclick="exportStudentData('${student.id}')">
+                        <i class="fas fa-download"></i> 导出数据
+                      </button>
+                      <div class="divider"></div>
+                      <button onclick="resetStudentPassword('${student.id}')">
+                        <i class="fas fa-key"></i> 重置密码
+                      </button>
+                      <button onclick="archiveStudent('${student.id}')">
+                        <i class="fas fa-archive"></i> 归档
+                      </button>
+                      <div class="divider"></div>
+                      <button onclick="deleteStudent('${
+                        student.id
+                      }')" style="color: #e57373;">
+                        <i class="fas fa-trash"></i> 删除
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </td>
             `;
           tbody.appendChild(row);
@@ -5159,11 +5442,28 @@
       // 渲染卡片视图
       function renderCardView(studentList) {
         const container = document.getElementById("student-card-grid");
+        const emptyState = document.getElementById("empty-card-state");
+
         if (!container) {
           console.error("卡片视图容器不存在: student-card-grid");
           return;
         }
+
+        // 清空容器
         container.innerHTML = "";
+
+        // 如果没有学生数据，显示空状态
+        if (!studentList || studentList.length === 0) {
+          if (emptyState) {
+            emptyState.style.display = "block";
+          }
+          return;
+        }
+
+        // 隐藏空状态
+        if (emptyState) {
+          emptyState.style.display = "none";
+        }
 
         studentList.forEach((student) => {
           const card = document.createElement("div");
@@ -5327,6 +5627,194 @@
         }
         currentPage = 1;
         refreshStudentList();
+      }
+
+      // 切换操作下拉菜单
+      function toggleActionDropdown(studentId) {
+        // 关闭所有其他下拉菜单
+        document.querySelectorAll(".action-dropdown").forEach((dropdown) => {
+          if (dropdown.id !== `dropdown-${studentId}`) {
+            dropdown.classList.remove("show");
+          }
+        });
+
+        // 切换当前下拉菜单
+        const dropdown = document.getElementById(`dropdown-${studentId}`);
+        if (dropdown) {
+          dropdown.classList.toggle("show");
+        }
+      }
+
+      // 点击外部关闭下拉菜单
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".action-dropdown-container")) {
+          document.querySelectorAll(".action-dropdown").forEach((dropdown) => {
+            dropdown.classList.remove("show");
+          });
+        }
+      });
+
+      // 通知系统
+      function showNotification(message, type = "info", duration = 3000) {
+        // 创建通知元素
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+
+        // 添加到页面
+        document.body.appendChild(notification);
+
+        // 显示动画
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 100);
+
+        // 自动隐藏
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+            }
+          }, 300);
+        }, duration);
+      }
+
+      // 查看学生成绩
+      function viewStudentGrades(studentId) {
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value;
+
+        let student = null;
+        if (selectedClass && students[selectedClass]) {
+          student = students[selectedClass].find((s) => s.id === studentId);
+        } else {
+          // 从所有班级中查找学生
+          for (const className in students) {
+            student = students[className].find((s) => s.id === studentId);
+            if (student) break;
+          }
+        }
+
+        if (student) {
+          alert(`查看 ${student.name} 的成绩详情\n\n功能开发中...`);
+          // 这里可以跳转到成绩详情页面或打开模态框
+        }
+      }
+
+      // 发送消息给学生
+      function sendMessageToStudent(studentId) {
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value;
+
+        let student = null;
+        if (selectedClass && students[selectedClass]) {
+          student = students[selectedClass].find((s) => s.id === studentId);
+        } else {
+          for (const className in students) {
+            student = students[className].find((s) => s.id === studentId);
+            if (student) break;
+          }
+        }
+
+        if (student) {
+          const message = prompt(`发送消息给 ${student.name}:`, "");
+          if (message && message.trim()) {
+            alert(
+              `消息已发送给 ${student.name}:\n"${message}"\n\n功能开发中...`
+            );
+          }
+        }
+      }
+
+      // 导出学生数据
+      async function exportStudentData(studentId) {
+        try {
+          showNotification("正在导出学生数据...", "info");
+
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `http://localhost:8080/api/admin/students/${studentId}/export`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`导出失败: ${response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `学生数据_${studentId}_${
+            new Date().toISOString().split("T")[0]
+          }.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          showNotification("学生数据导出成功", "success");
+        } catch (error) {
+          console.error("导出失败:", error);
+          showNotification(`导出失败: ${error.message}`, "error");
+        }
+      }
+
+      // 重置学生密码
+      function resetStudentPassword(studentId) {
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value;
+
+        let student = null;
+        if (selectedClass && students[selectedClass]) {
+          student = students[selectedClass].find((s) => s.id === studentId);
+        } else {
+          for (const className in students) {
+            student = students[className].find((s) => s.id === studentId);
+            if (student) break;
+          }
+        }
+
+        if (student) {
+          if (
+            confirm(
+              `确定要重置 ${student.name} 的密码吗？\n\n新密码将发送到学生邮箱。`
+            )
+          ) {
+            alert(`已重置 ${student.name} 的密码\n\n功能开发中...`);
+          }
+        }
+      }
+
+      // 归档学生
+      function archiveStudent(studentId) {
+        const classSelect = document.getElementById("class-filter");
+        const selectedClass = classSelect.value;
+
+        let student = null;
+        if (selectedClass && students[selectedClass]) {
+          student = students[selectedClass].find((s) => s.id === studentId);
+        } else {
+          for (const className in students) {
+            student = students[className].find((s) => s.id === studentId);
+            if (student) break;
+          }
+        }
+
+        if (student) {
+          if (
+            confirm(
+              `确定要归档 ${student.name} 吗？\n\n归档后学生将无法登录系统。`
+            )
+          ) {
+            alert(`已归档 ${student.name}\n\n功能开发中...`);
+          }
+        }
       }
 
       // 查看学生详情
@@ -6105,9 +6593,54 @@
       // 导出功能增强 - 从后端API获取真实数据
       async function exportAllStudents() {
         try {
+          showNotification("正在准备导出所有学生数据...", "info");
+
           const token = localStorage.getItem("token");
           const response = await fetch(
-            "http://localhost:8080/api/admin/students",
+            "http://localhost:8080/api/admin/students/export",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`导出失败: ${response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `所有学生数据_${
+            new Date().toISOString().split("T")[0]
+          }.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          showNotification("所有学生数据导出成功", "success");
+        } catch (error) {
+          console.error("导出失败:", error);
+          showNotification(`导出失败: ${error.message}`, "error");
+        }
+      }
+
+      // 从API加载学生数据
+      async function loadStudentsFromAPI() {
+        try {
+          const token = localStorage.getItem("token");
+
+          // 获取当前教师ID
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const teacherId = payload.userId || payload.teacherId || payload.sub;
+
+          console.log("教师学生管理 - 教师ID:", teacherId);
+
+          const response = await fetch(
+            `http://localhost:8080/api/teachers/${teacherId}/students`,
             {
               method: "GET",
               headers: {
@@ -6121,31 +6654,43 @@
             throw new Error("获取学生数据失败");
           }
 
-          const students = await response.json();
+          const studentsData = await response.json();
+          console.log(`成功加载 ${studentsData.length} 条学生数据`);
 
-          if (!students || students.length === 0) {
-            alert("没有学生数据可导出");
-            return;
-          }
+          // 重组数据结构 - 按班级分组
+          students = {}; // 清空现有数据
 
-          // 转换为CSV格式 - 匹配导入模板格式
-          const csvData = students.map((student) => ({
-            姓名: student.name || "",
-            学号: student.studentNumber || "",
-            年级: student.gradeLevel || "",
-            班级: student.className || "",
-            专业: student.major || "",
-            手机号: student.phone || "",
-            备注: student.remarks || "",
-          }));
+          studentsData.forEach((student) => {
+            const className = student.className || "未分配班级";
 
-          exportToCSV(
-            csvData,
-            `学生数据_${new Date().toLocaleDateString()}.csv`
-          );
+            if (!students[className]) {
+              students[className] = [];
+            }
+
+            // 转换为前端使用的格式
+            students[className].push({
+              name: student.name,
+              id: student.studentNumber,
+              grade: student.gradeLevel ? student.gradeLevel.toString() : "",
+              class: className,
+              major: student.major || "",
+              phone: student.phone || "",
+              remarks: student.remarks || "",
+              userId: student.userId,
+            });
+          });
+
+          // 保存到localStorage
+          localStorage.setItem("studentsData", JSON.stringify(students));
+
+          // 更新所有筛选器下拉框
+          updateAllFilters();
+
+          return students;
         } catch (error) {
-          console.error("导出失败:", error);
-          alert("导出失败：" + error.message);
+          console.error("加载学生数据失败:", error);
+          showNotification(`加载学生数据失败: ${error.message}`, "error");
+          return null;
         }
       }
 
@@ -6843,23 +7388,48 @@
       // 动态加载班级和科目选项
       async function loadAnalysisOptions() {
         try {
-          // 从后端API获取班级和课程数据
-          const students = await apiRequest("/students");
-          const courses = await apiRequest("/courses");
+          // 获取当前教师ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("未找到教师令牌");
+            return;
+          }
 
-          // 获取所有班级
-          const classNames = [...new Set(students.map((s) => s.className))];
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const teacherId = payload.userId || payload.teacherId || payload.sub;
+
+          console.log("学情分析模块 - 开始加载选项");
+          console.log("学情分析模块 - 教师ID:", teacherId);
+
+          // 从API获取完整的学情分析数据
+          const analysisResponse = await apiRequest(
+            `/teachers/${teacherId}/analysis-data`
+          );
+          console.log("学情分析模块 - 获取到的分析数据:", analysisResponse);
+
+          // 更新全局分析数据
+          analysisData = analysisResponse.analysisData || {};
+
+          // 获取班级列表
+          const teacherClasses = analysisResponse.classes || [];
+          console.log("学情分析模块 - 教师所教班级:", teacherClasses);
+
           const classSelect = document.getElementById("analysis-class-select");
 
-          // 动态生成班级选项（使用数据库中的实际班级名称）
-          classSelect.innerHTML = classNames
-            .map((className, index) => {
-              const classKey = `class${index + 1}`;
-              return `<option value="${classKey}">${className}</option>`;
-            })
-            .join("");
+          // 动态生成班级选项（只显示教师所教的班级）
+          classSelect.innerHTML =
+            '<option value="">请选择班级...</option>' +
+            teacherClasses
+              .map((className) => {
+                return `<option value="${className}">${className}</option>`;
+              })
+              .join("");
 
-          // 初始加载时显示所有课程
+          console.log(
+            "学情分析模块 - 班级选项已更新，数量:",
+            teacherClasses.length
+          );
+
           await updateCourseOptions();
         } catch (error) {
           console.error("加载选项失败:", error);
@@ -6874,52 +7444,49 @@
           const subjectSelect = document.getElementById("subject-select");
           const selectedClass = classSelect.value;
 
-          // 获取班级映射
-          const students = await apiRequest("/students");
-          const grades = await apiRequest("/grades");
-          const courses = await apiRequest("/courses");
+          if (!selectedClass) {
+            subjectSelect.innerHTML = '<option value="">请选择课程...</option>';
+            return;
+          }
 
-          const classNames = [...new Set(students.map((s) => s.className))];
-          const classMapping = {};
-          classNames.forEach((className, index) => {
-            classMapping[`class${index + 1}`] = className;
-          });
+          console.log(`学情分析模块 - 更新班级 ${selectedClass} 的课程选项`);
 
-          const selectedClassName = classMapping[selectedClass];
+          // 从动态数据中获取该班级的课程
+          const classData = analysisData[selectedClass];
+          if (!classData) {
+            console.warn(`未找到班级 ${selectedClass} 的数据`);
+            subjectSelect.innerHTML =
+              '<option value="">暂无课程数据...</option>';
+            return;
+          }
 
-          // 获取该班级的学生ID
-          const classStudents = students.filter(
-            (s) => s.className === selectedClassName
-          );
-          const classStudentIds = classStudents.map((s) => s.id);
-
-          // 获取该班级学生有成绩的课程ID
-          const classCourseIds = [
-            ...new Set(
-              grades
-                .filter((g) => classStudentIds.includes(g.studentId))
-                .map((g) => g.courseId)
-            ),
-          ];
-
-          // 过滤出该班级有成绩的课程
-          const availableCourses = courses.filter((c) =>
-            classCourseIds.includes(c.id)
+          // 获取该班级的所有课程名称
+          const availableCourses = Object.keys(classData);
+          console.log(
+            `学情分析模块 - 班级 ${selectedClass} 可用课程:`,
+            availableCourses
           );
 
           // 更新课程选择器
-          subjectSelect.innerHTML = availableCourses
-            .map((course) => {
-              return `<option value="${course.name}">${course.name}</option>`;
-            })
-            .join("");
+          subjectSelect.innerHTML =
+            '<option value="">请选择课程...</option>' +
+            availableCourses
+              .map((courseName) => {
+                return `<option value="${courseName}">${courseName}</option>`;
+              })
+              .join("");
 
           console.log(
-            `班级 ${selectedClassName} 可用的课程:`,
-            availableCourses.map((c) => c.name)
+            `班级 ${selectedClass} 可用的课程数量:`,
+            availableCourses.length
           );
         } catch (error) {
           console.error("更新课程选项失败:", error);
+          const subjectSelect = document.getElementById("subject-select");
+          if (subjectSelect) {
+            subjectSelect.innerHTML =
+              '<option value="">加载课程失败...</option>';
+          }
         }
       }
 
@@ -6939,160 +7506,64 @@
           "analysis-table-body"
         );
 
+        // 检查是否选择了班级和课程
+        if (!selectedClass || !selectedSubject) {
+          analysisTableBody.innerHTML =
+            '<tr><td colspan="5" style="text-align: center; color: #999;">请先选择班级和课程</td></tr>';
+          return;
+        }
+
         try {
-          // 从后端API获取学生数据
-          const students = await apiRequest("/students");
-          const grades = await apiRequest("/grades");
-          const courses = await apiRequest("/courses");
+          console.log("学情分析 - 选择的班级:", selectedClass);
+          console.log("学情分析 - 选择的课程:", selectedSubject);
 
-          // 根据选择的班级和科目筛选数据
-          console.log("选中的班级:", selectedClass);
-          console.log(
-            "所有学生班级:",
-            students.map((s) => s.className)
-          );
-
-          // 动态获取所有班级名称
-          const classNames = [...new Set(students.map((s) => s.className))];
-          console.log("数据库中的班级名称:", classNames);
-
-          // 动态创建班级映射
-          const classMapping = {};
-          classNames.forEach((className, index) => {
-            classMapping[`class${index + 1}`] = className;
-          });
-          console.log("动态班级映射:", classMapping);
-
-          const filteredStudents = students.filter((student) => {
-            return student.className === classMapping[selectedClass];
-          });
-
-          console.log("过滤后的学生数量:", filteredStudents.length);
-
-          // 直接使用课程名称，不需要映射
-          const subjectMapping = {};
-          courses.forEach((course) => {
-            subjectMapping[course.name] = course.name;
-          });
-
-          console.log("选中的课程:", selectedSubject);
-          console.log("课程映射结果:", subjectMapping[selectedSubject]);
-          console.log(
-            "所有课程:",
-            courses.map((c) => c.name)
-          );
-
-          // 获取对应科目的课程ID
-          const targetCourse = courses.find(
-            (course) => course.name === subjectMapping[selectedSubject]
-          );
-
-          if (!targetCourse) {
-            console.error("未找到对应课程:", subjectMapping[selectedSubject]);
-            console.error(
-              "可用的课程名称:",
-              courses.map((c) => c.name)
-            );
+          // 从动态数据中获取学生成绩数据
+          const classData = analysisData[selectedClass];
+          if (!classData) {
+            console.error("未找到班级数据:", selectedClass);
+            analysisTableBody.innerHTML =
+              '<tr><td colspan="5" style="text-align: center; color: #ff6b6b;">未找到班级数据</td></tr>';
             return;
           }
 
-          console.log("找到目标课程:", targetCourse);
+          const courseData = classData[selectedSubject];
+          if (!courseData) {
+            console.error("未找到课程数据:", selectedSubject);
+            analysisTableBody.innerHTML =
+              '<tr><td colspan="5" style="text-align: center; color: #ff6b6b;">未找到课程数据</td></tr>';
+            return;
+          }
 
-          // 获取该课程的成绩数据
-          const courseGrades = grades.filter(
-            (grade) => grade.courseId === targetCourse.id
-          );
-
-          console.log("目标课程ID:", targetCourse.id);
-          console.log("该课程的成绩数量:", courseGrades.length);
-          console.log("课程成绩数据:", courseGrades);
-
-          // 构建学生成绩数据
-          const studentGradeData = filteredStudents.map((student) => {
-            const studentGrade = courseGrades.find(
-              (grade) => grade.studentId === student.id
-            );
-            return {
-              name: student.name,
-              studentNumber: student.studentNumber,
-              className: student.className,
-              score: studentGrade ? studentGrade.score : 0,
-              studentId: student.id,
-            };
-          });
-
-          console.log("构建的学生成绩数据:", studentGradeData);
+          console.log("学情分析 - 获取到的学生数据:", courseData);
 
           // 更新表格
-          analysisTableBody.innerHTML = studentGradeData
+          analysisTableBody.innerHTML = courseData
             .map(
               (s) => `
                 <tr>
                     <td>${s.name}</td>
-                    <td>${s.studentNumber}</td>
-                    <td>${s.className}</td>
-                    <td>${s.score}</td>
-                    <td><button onclick="analyzeStudent('${s.studentNumber}')">分析</button></td>
+                    <td>${s.studentNumber || s.id}</td>
+                    <td>${selectedClass}</td>
+                    <td>${s.score > 0 ? s.score.toFixed(1) : "-"}</td>
+                    <td><button onclick="analyzeStudent('${
+                      s.studentNumber || s.id
+                    }')">分析</button></td>
                 </tr>
               `
             )
             .join("");
 
           // 更新饼图
-          updateScoreChartFromData(
-            studentGradeData,
-            subjectMapping[selectedSubject]
-          );
+          updateScoreChartFromData(courseData, selectedSubject);
 
           // 重新加载分析图表，确保数据更新
           await loadClassComparison();
           await loadCourseCorrelation();
         } catch (error) {
           console.error("加载分析数据失败:", error);
-          // 如果API调用失败，使用本地数据作为备选
-          loadAnalysisDataFromLocal();
+          analysisTableBody.innerHTML =
+            '<tr><td colspan="5" style="text-align: center; color: #ff6b6b;">加载数据失败，请稍后重试</td></tr>';
         }
-      }
-
-      // 使用本地数据作为备选
-      function loadAnalysisDataFromLocal() {
-        const classSelect = document.getElementById("analysis-class-select");
-        const subjectSelect = document.getElementById("subject-select");
-        const selectedClass = classSelect.value;
-        const selectedSubject = subjectSelect.value;
-        const analysisTableBody = document.getElementById(
-          "analysis-table-body"
-        );
-
-        const data = analysisData[selectedClass][selectedSubject];
-
-        // 添加班级名称映射
-        const classNames = {
-          class1: "计算机科学与技术1班",
-          class2: "软件工程2班",
-          class3: "信息安全3班",
-        };
-
-        analysisTableBody.innerHTML = data
-          .map(
-            (s) => `
-              <tr>
-                  <td>${s.name}</td>
-                  <td>${s.id}</td>
-                  <td>${classNames[selectedClass]}</td>
-                  <td>${s.score}</td>
-                  <td><button onclick="analyzeStudent('${s.id}')">分析</button></td>
-              </tr>
-          `
-          )
-          .join("");
-
-        // 更新饼图
-        updateScoreChart(selectedClass, selectedSubject);
-
-        // 重新加载分析图表，确保数据更新
-        loadClassComparison();
-        loadCourseCorrelation();
       }
 
       // 使用API数据更新饼图
@@ -7411,19 +7882,77 @@
 
       // 自定义光标和拖尾效果
       const cursor = document.querySelector(".custom-cursor");
+      let lastTrailTime = 0;
+      const TRAIL_INTERVAL = 50;
+      let isMouseOverChart = false;
+
+      // 检查鼠标是否在图表区域
+      function checkMouseOverChart(e) {
+        const chartElements = document.querySelectorAll(
+          ".chart-container, canvas, svg, .chartjs-size-monitor"
+        );
+        isMouseOverChart = false;
+
+        chartElements.forEach((element) => {
+          const rect = element.getBoundingClientRect();
+          if (
+            e.clientX >= rect.left &&
+            e.clientX <= rect.right &&
+            e.clientY >= rect.top &&
+            e.clientY <= rect.bottom
+          ) {
+            isMouseOverChart = true;
+          }
+        });
+      }
+
       document.addEventListener("mousemove", (e) => {
-        cursor.style.left = `${e.pageX}px`;
-        cursor.style.top = `${e.pageY}px`;
+        // 检查是否在图表区域
+        checkMouseOverChart(e);
 
-        const trail = document.createElement("div");
-        trail.className = "cursor-trail";
-        trail.style.left = `${e.pageX}px`;
-        trail.style.top = `${e.pageY}px`;
-        document.body.appendChild(trail);
+        // 在图表区域时隐藏自定义光标，显示系统光标
+        if (isMouseOverChart) {
+          cursor.style.display = "none";
+          document.body.style.cursor = "default";
+        } else {
+          cursor.style.display = "block";
+          document.body.style.cursor = "none";
+        }
 
-        setTimeout(() => {
-          trail.remove();
-        }, 800);
+        // 使用clientX/clientY而不是pageX/pageY，避免滚动偏移
+        cursor.style.left = `${e.clientX}px`;
+        cursor.style.top = `${e.clientY}px`;
+
+        // 只在非图表区域显示拖尾效果，并添加时间间隔控制
+        if (!isMouseOverChart) {
+          const now = Date.now();
+          if (now - lastTrailTime > TRAIL_INTERVAL) {
+            const trail = document.createElement("div");
+            trail.className = "cursor-trail";
+            trail.style.left = `${e.clientX}px`;
+            trail.style.top = `${e.clientY}px`;
+            document.body.appendChild(trail);
+
+            setTimeout(() => {
+              trail.remove();
+            }, 800);
+            lastTrailTime = now;
+          }
+        }
+      });
+
+      // 鼠标离开页面时恢复系统光标
+      document.addEventListener("mouseleave", () => {
+        document.body.style.cursor = "default";
+        cursor.style.display = "none";
+      });
+
+      // 鼠标进入页面时恢复自定义光标（如果不在图表区域）
+      document.addEventListener("mouseenter", () => {
+        if (!isMouseOverChart) {
+          document.body.style.cursor = "none";
+          cursor.style.display = "block";
+        }
       });
 
       // 页面加载时强制设置为白天模式
@@ -7542,9 +8071,9 @@
               : "";
 
           div.innerHTML = `
-            <div class="chat-avatar">${
-              chat.partnerName ? chat.partnerName[0] : "?"
-            }</div>
+            <div class="chat-avatar" data-partner-id="${chat.partnerId}">
+              <i class="fas fa-user" style="display: block;"></i>
+            </div>
             <div class="chat-info">
               <div class="chat-name">${chat.partnerName || "未知用户"}</div>
               <div class="chat-preview">${
@@ -8732,6 +9261,66 @@
 
       // ==================== 综合成绩管理功能 ====================
 
+      // 处理课程选择变化
+      async function handleCourseChange() {
+        const courseId = document.getElementById(
+          "comprehensive-course-select"
+        ).value;
+        await updateClassOptionsForCourse(courseId);
+        await loadComprehensiveGrades();
+      }
+
+      // 根据选中的课程更新班级选项
+      async function updateClassOptionsForCourse(courseId) {
+        try {
+          if (!courseId) {
+            // 如果没选择课程，显示所有班级
+            const students = await apiRequest("/students");
+            const classes = [...new Set(students.map((s) => s.className))];
+            const classSelect = document.getElementById(
+              "comprehensive-class-select"
+            );
+            if (classSelect) {
+              classSelect.innerHTML = '<option value="">全部班级</option>';
+              classes.forEach((className) => {
+                const option = document.createElement("option");
+                option.value = className;
+                option.textContent = className;
+                classSelect.appendChild(option);
+              });
+            }
+            return;
+          }
+
+          // 获取该课程的综合成绩数据
+          const grades = await apiRequest(
+            `/comprehensive-grades/course/${courseId}`
+          );
+
+          // 获取该课程有成绩的班级
+          const classesWithGrades = [
+            ...new Set(grades.map((grade) => grade.studentClass)),
+          ];
+
+          const classSelect = document.getElementById(
+            "comprehensive-class-select"
+          );
+          if (classSelect) {
+            classSelect.innerHTML = '<option value="">全部班级</option>';
+            classesWithGrades.forEach((className) => {
+              const option = document.createElement("option");
+              option.value = className;
+              option.textContent = className;
+              classSelect.appendChild(option);
+            });
+          }
+
+          console.log(`课程 ${courseId} 有成绩的班级:`, classesWithGrades);
+        } catch (error) {
+          console.error("更新班级选项失败:", error);
+        }
+      }
+
       // 加载综合成绩
       async function loadComprehensiveGrades() {
         const courseId = document.getElementById(
@@ -8747,20 +9336,42 @@
           const grades = await apiRequest(
             `/comprehensive-grades/course/${courseId}`
           );
+
+          console.log("综合成绩数据:", grades);
+          console.log("综合成绩数据类型:", typeof grades);
+          console.log("综合成绩数据长度:", grades?.length);
+
           const tbody = document.getElementById("comprehensive-grades-tbody");
           tbody.innerHTML = "";
 
-          grades.forEach((grade) => {
+          // 如果指定了班级，过滤成绩
+          let filteredGrades = grades;
+          if (classId) {
+            filteredGrades = grades.filter(
+              (grade) => grade.studentClass === classId
+            );
+          }
+
+          filteredGrades.forEach((grade) => {
             const row = document.createElement("tr");
+
+            // 安全的数值格式化函数
+            const formatScore = (score) => {
+              if (score === null || score === undefined || isNaN(score)) {
+                return "--";
+              }
+              return Number(score).toFixed(2);
+            };
+
             row.innerHTML = `
-              <td>${grade.studentNumber}</td>
-              <td>${grade.studentName}</td>
+              <td>${grade.studentNumber || "--"}</td>
+              <td>${grade.studentName || "--"}</td>
               <td>${grade.studentClass || "未知"}</td>
-              <td>${grade.regularScore || "--"}</td>
-              <td>${grade.finalScore || "--"}</td>
-              <td>${grade.makeupScore || "--"}</td>
-              <td>${grade.comprehensiveScore || "--"}</td>
-              <td>${grade.finalGrade || "--"}</td>
+              <td>${formatScore(grade.regularScore)}</td>
+              <td>${formatScore(grade.finalScore)}</td>
+              <td>${formatScore(grade.makeupScore)}</td>
+              <td>${formatScore(grade.comprehensiveScore)}</td>
+              <td>${formatScore(grade.finalGrade)}</td>
               <td>${grade.gradeLevel || "--"}</td>
               <td class="${grade.isPassed ? "grade-passed" : "grade-failed"}">
                 ${grade.isPassed ? "通过" : "未通过"}
@@ -8915,27 +9526,29 @@
         ).value;
 
         try {
+          showNotification("正在下载模板...", "info");
+
           let url;
           let filename;
 
           if (importType === "students") {
             // 下载学生信息模板
-            url = `${window.API_URL}/students/template`;
-            filename = "student_import_template.csv";
+            url = "http://localhost:8080/api/admin/students/import/template";
+            filename = "student_import_template.xlsx";
           } else if (importType === "grades") {
             const courseType =
               document.getElementById("course-type-select").value;
 
             if (courseType) {
               // 下载课程专用模板
-              url = `${window.API_URL}/templates/preset/${encodeURIComponent(
+              url = `http://localhost:8080/api/templates/preset/${encodeURIComponent(
                 courseType
               )}`;
               filename = `${courseType}_template.csv`;
             } else {
-              // 下载通用模板
-              url = `${window.API_URL}/templates/generic`;
-              filename = "generic_template.csv";
+              // 下载通用综合成绩模板
+              url = "http://localhost:8080/api/comprehensive-grades/template";
+              filename = "comprehensive_grade_import_template.csv";
             }
           }
 
@@ -8944,12 +9557,11 @@
             method: "GET",
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
             },
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`下载失败: ${response.statusText}`);
           }
 
           // 获取文件内容
@@ -8964,9 +9576,11 @@
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(downloadUrl);
+
+          showNotification("模板下载成功", "success");
         } catch (error) {
           console.error("下载模板失败:", error);
-          alert("下载模板失败，请稍后重试");
+          showNotification(`下载模板失败: ${error.message}`, "error");
         }
       }
 
@@ -9166,6 +9780,48 @@
 
       // ==================== 学生预警功能 ====================
 
+      // 初始化学生预警管理
+      let warningsLoaded = false;
+
+      function initializeStudentWarnings() {
+        console.log("初始化学生预警管理");
+
+        // 监听学生预警管理模块的显示
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (
+              mutation.type === "attributes" &&
+              mutation.attributeName === "style"
+            ) {
+              const warningsSection =
+                document.getElementById("student-warnings");
+              if (
+                warningsSection &&
+                warningsSection.style.display !== "none" &&
+                !warningsLoaded
+              ) {
+                console.log("学生预警管理模块已显示，加载预警数据");
+                warningsLoaded = true;
+                loadWarnings();
+              } else if (
+                warningsSection &&
+                warningsSection.style.display === "none"
+              ) {
+                warningsLoaded = false;
+              }
+            }
+          });
+        });
+
+        const warningsSection = document.getElementById("student-warnings");
+        if (warningsSection) {
+          observer.observe(warningsSection, {
+            attributes: true,
+            attributeFilter: ["style"],
+          });
+        }
+      }
+
       // 加载预警列表
       async function loadWarnings() {
         const levelFilter = document.getElementById(
@@ -9176,13 +9832,82 @@
         ).value;
 
         try {
+          // 获取当前教师ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("未找到教师令牌");
+            return;
+          }
+
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const teacherId = payload.userId || payload.teacherId || payload.sub;
+
+          // 获取当前教师负责且有学生选修的课程
+          const teacherCourses = await apiRequest(
+            `/courses/teacher/${teacherId}`
+          );
+          const allComprehensiveGrades = await apiRequest(
+            "/comprehensive-grades"
+          );
+          const coursesWithStudents = [
+            ...new Set(allComprehensiveGrades.map((grade) => grade.courseId)),
+          ];
+          const activeTeacherCourses = teacherCourses.filter((course) =>
+            coursesWithStudents.includes(course.id)
+          );
+
+          console.log("加载预警 - 教师课程总数:", teacherCourses.length);
+          console.log(
+            "加载预警 - 有学生选修的教师课程:",
+            activeTeacherCourses.length
+          );
+
+          // 获取所有预警，然后过滤出当前教师课程的预警
           let url = "/student-warnings";
           const params = [];
           if (levelFilter) params.push(`level=${levelFilter}`);
           if (statusFilter) params.push(`handled=${statusFilter}`);
           if (params.length > 0) url += "?" + params.join("&");
 
-          const warnings = await apiRequest(url);
+          const allWarnings = await apiRequest(url);
+          const teacherCourseIds = activeTeacherCourses.map(
+            (course) => course.id
+          );
+
+          // 过滤出当前教师课程的预警，并应用额外的筛选条件
+          let warnings = allWarnings.filter((warning) =>
+            teacherCourseIds.includes(warning.courseId)
+          );
+
+          // 应用预警级别筛选
+          if (levelFilter) {
+            warnings = warnings.filter(
+              (warning) => warning.warningLevel === levelFilter
+            );
+          }
+
+          // 应用处理状态筛选
+          if (statusFilter !== "") {
+            const isHandled = statusFilter === "true";
+            warnings = warnings.filter(
+              (warning) => warning.isHandled === isHandled
+            );
+          }
+
+          console.log("加载预警 - 总预警数:", allWarnings.length);
+          console.log("加载预警 - 教师课程预警数:", warnings.length);
+          console.log("加载预警 - 筛选条件:", { levelFilter, statusFilter });
+          console.log("加载预警 - 教师课程ID列表:", teacherCourseIds);
+          console.log(
+            "加载预警 - 筛选后的预警:",
+            warnings.map((w) => ({
+              id: w.id,
+              courseId: w.courseId,
+              level: w.warningLevel,
+              handled: w.isHandled,
+            }))
+          );
+
           const warningsList = document.getElementById("warnings-list");
           warningsList.innerHTML = "";
 
@@ -9240,8 +9965,95 @@
       // 检查所有预警
       async function checkAllWarnings() {
         try {
-          await apiRequest("/student-warnings/check-all", "POST");
-          alert("预警检查完成");
+          // 获取当前教师ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("未找到教师令牌");
+            return;
+          }
+
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const teacherId = payload.userId || payload.teacherId || payload.sub;
+
+          // 获取当前教师负责且有学生选修的课程
+          const teacherCourses = await apiRequest(
+            `/courses/teacher/${teacherId}`
+          );
+          const allComprehensiveGrades = await apiRequest(
+            "/comprehensive-grades"
+          );
+          const coursesWithStudents = [
+            ...new Set(allComprehensiveGrades.map((grade) => grade.courseId)),
+          ];
+          const activeTeacherCourses = teacherCourses.filter((course) =>
+            coursesWithStudents.includes(course.id)
+          );
+
+          console.log("检查预警 - 教师课程总数:", teacherCourses.length);
+          console.log(
+            "检查预警 - 有学生选修的教师课程:",
+            activeTeacherCourses.length
+          );
+
+          // 为每个有学生的课程检查预警
+          let successCount = 0;
+          let errorCount = 0;
+          let errorMessages = [];
+
+          for (const course of activeTeacherCourses) {
+            try {
+              const response = await fetch(
+                `${window.API_URL}/student-warnings/check/${course.id}`,
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+
+              if (response.ok) {
+                successCount++;
+                console.log(`课程 ${course.name} 预警检查完成`);
+              } else {
+                errorCount++;
+                const errorText = await response.text();
+                errorMessages.push(
+                  `${course.name}: ${response.status} ${errorText}`
+                );
+                console.error(
+                  `课程 ${course.name} 预警检查失败:`,
+                  response.status,
+                  errorText
+                );
+              }
+            } catch (error) {
+              errorCount++;
+              errorMessages.push(`${course.name}: 网络错误`);
+              console.error(`课程 ${course.name} 预警检查失败:`, error);
+            }
+          }
+
+          if (successCount > 0 || errorCount > 0) {
+            let message = `预警检查完成！\n成功检查 ${successCount} 门课程`;
+            if (errorCount > 0) {
+              message += `\n失败 ${errorCount} 门课程`;
+              if (errorMessages.length > 0) {
+                message += `\n\n错误详情:\n${errorMessages
+                  .slice(0, 3)
+                  .join("\n")}`;
+                if (errorMessages.length > 3) {
+                  message += `\n...还有 ${errorMessages.length - 3} 个错误`;
+                }
+              }
+            }
+            alert(message);
+          } else {
+            alert("没有找到可检查的课程");
+          }
+
+          // 重新加载预警列表
           loadWarnings();
         } catch (error) {
           console.error("检查预警失败:", error);
@@ -9255,6 +10067,16 @@
         if (remarks === null) return;
 
         try {
+          // 检查后端服务是否可用
+          try {
+            await apiRequest("/student-warnings", "GET");
+            console.log("后端服务检查成功");
+          } catch (error) {
+            console.error("后端服务检查失败:", error);
+            alert("后端服务不可用，请确保后端服务正在运行");
+            return;
+          }
+
           // 获取当前用户ID（这里假设从JWT token中获取）
           const token = localStorage.getItem("token");
           const payload = JSON.parse(atob(token.split(".")[1]));
@@ -9264,9 +10086,7 @@
             `/student-warnings/handle/${warningId}?handledBy=${userId}&handleRemarks=${encodeURIComponent(
               remarks
             )}`,
-            {
-              method: "PUT",
-            }
+            "PUT"
           );
           alert("预警处理成功");
           loadWarnings();
@@ -9291,21 +10111,540 @@
       }
 
       // 批量处理预警
-      function batchHandleWarnings() {
-        const selectedWarnings = document.querySelectorAll(
-          '.warning-card input[type="checkbox"]:checked'
+      async function batchHandleWarnings() {
+        const warningCards = document.querySelectorAll(".warning-card");
+        const unhandledCards = Array.from(warningCards).filter(
+          (card) => !card.classList.contains("warning-handled")
         );
-        if (selectedWarnings.length === 0) {
-          alert("请先选择要处理的预警");
+
+        if (unhandledCards.length === 0) {
+          alert("没有未处理的预警");
           return;
         }
 
-        const warningIds = Array.from(selectedWarnings).map((cb) => cb.value);
+        // 显示选择界面
+        const selectedWarnings = await showWarningSelectionDialog(
+          unhandledCards
+        );
+        if (!selectedWarnings || selectedWarnings.length === 0) {
+          return;
+        }
+
         const remarks = prompt("请输入处理备注:");
         if (remarks === null) return;
 
-        // 实现批量处理逻辑
-        console.log("批量处理预警:", warningIds, remarks);
+        try {
+          // 检查后端服务是否可用
+          try {
+            await apiRequest("/student-warnings", "GET");
+            console.log("后端服务检查成功");
+          } catch (error) {
+            console.error("后端服务检查失败:", error);
+            alert("后端服务不可用，请确保后端服务正在运行");
+            return;
+          }
+
+          // 获取当前用户ID
+          const token = localStorage.getItem("token");
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const userId = payload.userId;
+
+          let successCount = 0;
+          let errorCount = 0;
+
+          console.log(`开始批量处理 ${selectedWarnings.length} 个预警`);
+
+          // 处理选中的预警
+          for (const warningId of selectedWarnings) {
+            try {
+              // 在处理前再次检查预警是否仍然未处理
+              const currentCard = document.querySelector(
+                `button[onclick*="handleWarning(${warningId})"]`
+              );
+              if (
+                !currentCard ||
+                currentCard
+                  .closest(".warning-card")
+                  .classList.contains("warning-handled")
+              ) {
+                console.log(`预警 ${warningId} 已被处理，跳过`);
+                continue;
+              }
+
+              console.log(`正在处理预警 ${warningId}...`);
+              const response = await apiRequest(
+                `/student-warnings/handle/${warningId}?handledBy=${userId}&handleRemarks=${encodeURIComponent(
+                  remarks
+                )}`,
+                "PUT"
+              );
+
+              successCount++;
+              console.log(`预警 ${warningId} 处理成功`);
+
+              // 标记卡片为已处理
+              if (currentCard) {
+                currentCard
+                  .closest(".warning-card")
+                  .classList.add("warning-handled");
+                currentCard.textContent = "已处理";
+                currentCard.disabled = true;
+                currentCard.style.backgroundColor = "#6c757d";
+              }
+            } catch (error) {
+              errorCount++;
+              console.error(`处理预警 ${warningId} 失败:`, error);
+
+              // 检查错误类型
+              if (error.message && error.message.includes("JSON")) {
+                console.log(`预警 ${warningId} 可能已经被处理过了`);
+                // 对于JSON解析错误，可能是预警已经被处理，尝试标记为已处理
+                const currentCard = document.querySelector(
+                  `button[onclick*="handleWarning(${warningId})"]`
+                );
+                if (currentCard) {
+                  currentCard
+                    .closest(".warning-card")
+                    .classList.add("warning-handled");
+                  currentCard.textContent = "已处理";
+                  currentCard.disabled = true;
+                  currentCard.style.backgroundColor = "#6c757d";
+                }
+                successCount++; // 算作成功，因为预警已经被处理
+                errorCount--;
+              } else if (error.message && error.message.includes("fetch")) {
+                alert("网络连接错误，批量处理已停止");
+                break;
+              } else if (error.message && error.message.includes("404")) {
+                console.log(`预警 ${warningId} 不存在，可能已被删除`);
+                // 404错误表示预警不存在，从界面中移除
+                const currentCard = document.querySelector(
+                  `button[onclick*="handleWarning(${warningId})"]`
+                );
+                if (currentCard) {
+                  currentCard.closest(".warning-card").remove();
+                }
+              }
+            }
+          }
+
+          if (successCount > 0 || errorCount > 0) {
+            alert(
+              `批量处理完成！\n成功处理 ${successCount} 个预警${
+                errorCount > 0 ? `，${errorCount} 个预警处理失败` : ""
+              }`
+            );
+            // 重新加载预警列表
+            loadWarnings();
+          } else {
+            alert("没有预警被处理");
+          }
+        } catch (error) {
+          console.error("批量处理预警失败:", error);
+          alert("批量处理失败，请稍后重试");
+        }
+      }
+
+      // 显示预警选择对话框
+      async function showWarningSelectionDialog(unhandledCards) {
+        return new Promise((resolve) => {
+          // 创建模态框
+          const modal = document.createElement("div");
+          modal.className = "modal";
+          modal.style.display = "block";
+          modal.style.backgroundColor = "rgba(0,0,0,0.5)";
+          modal.style.zIndex = "10000";
+
+          // 创建选择界面
+          const selectionContent = document.createElement("div");
+          selectionContent.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 600px;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 10001;
+          `;
+
+          // 标题
+          const title = document.createElement("h3");
+          title.textContent = "选择要批量处理的预警";
+          title.style.cssText = "margin: 0 0 15px 0; color: #333;";
+
+          // 全选/取消全选按钮
+          const selectAllDiv = document.createElement("div");
+          selectAllDiv.style.cssText = "margin-bottom: 15px;";
+
+          const selectAllBtn = document.createElement("button");
+          selectAllBtn.textContent = "全选";
+          selectAllBtn.style.cssText = "margin-right: 10px; padding: 5px 10px;";
+
+          const deselectAllBtn = document.createElement("button");
+          deselectAllBtn.textContent = "取消全选";
+          deselectAllBtn.style.cssText = "padding: 5px 10px;";
+
+          // 预警列表
+          const warningList = document.createElement("div");
+          warningList.style.cssText =
+            "max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;";
+
+          // 存储复选框引用和预警数据
+          const checkboxes = [];
+          const warningData = new Map(); // 存储预警的完整信息
+
+          // 为每个预警创建复选框
+          unhandledCards.forEach((card) => {
+            // 确保卡片确实是未处理的
+            if (card.classList.contains("warning-handled")) {
+              return; // 跳过已处理的预警
+            }
+
+            const handleButton = card.querySelector(
+              'button[onclick*="handleWarning"]'
+            );
+            if (handleButton) {
+              const onclick = handleButton.getAttribute("onclick");
+              const match = onclick.match(/handleWarning\((\d+)\)/);
+
+              if (match) {
+                const warningId = match[1];
+
+                // 提取预警信息
+                const titleElement = card.querySelector(".warning-title");
+                const levelElement = card.querySelector(".warning-level");
+                const metaElement = card.querySelector(".warning-meta");
+
+                const title = titleElement?.textContent || "未知标题";
+                const warningLevel = levelElement?.textContent || "未知级别";
+
+                // 从meta信息中提取学生和课程信息
+                let studentName = "未知学生";
+                let courseName = "未知课程";
+
+                if (metaElement) {
+                  const metaText = metaElement.textContent;
+                  const studentMatch = metaText.match(/学生:\s*([^(]+)/);
+                  const courseMatch = metaText.match(/课程:\s*([^\s]+)/);
+
+                  if (studentMatch) studentName = studentMatch[1].trim();
+                  if (courseMatch) courseName = courseMatch[1].trim();
+                }
+
+                // 存储预警数据
+                warningData.set(warningId, {
+                  id: warningId,
+                  title,
+                  warningLevel,
+                  studentName,
+                  courseName,
+                  card,
+                });
+
+                const warningItem = document.createElement("div");
+                warningItem.style.cssText =
+                  "display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0;";
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = warningId;
+                checkbox.id = `warning-${warningId}`;
+                checkbox.style.cssText = "margin-right: 10px;";
+
+                const label = document.createElement("label");
+                label.htmlFor = `warning-${warningId}`;
+                label.style.cssText =
+                  "flex: 1; cursor: pointer; font-size: 14px;";
+                label.innerHTML = `
+                  <strong>${studentName}</strong> - ${courseName}<br>
+                  <small style="color: #666;">${title} | ${warningLevel}</small>
+                `;
+
+                warningItem.appendChild(checkbox);
+                warningItem.appendChild(label);
+                warningList.appendChild(warningItem);
+
+                checkboxes.push(checkbox);
+              }
+            }
+          });
+
+          // 按钮区域
+          const buttonDiv = document.createElement("div");
+          buttonDiv.style.cssText = "margin-top: 15px; text-align: right;";
+
+          const confirmBtn = document.createElement("button");
+          confirmBtn.textContent = "确认处理";
+          confirmBtn.style.cssText =
+            "background: #007bff; color: white; border: none; padding: 8px 16px; margin-right: 10px; border-radius: 4px; cursor: pointer;";
+
+          const cancelBtn = document.createElement("button");
+          cancelBtn.textContent = "取消";
+          cancelBtn.style.cssText =
+            "background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;";
+
+          // 事件监听器
+          selectAllBtn.onclick = () => {
+            checkboxes.forEach((cb) => (cb.checked = true));
+          };
+
+          deselectAllBtn.onclick = () => {
+            checkboxes.forEach((cb) => (cb.checked = false));
+          };
+
+          confirmBtn.onclick = () => {
+            const selectedIds = checkboxes
+              .filter((cb) => cb.checked)
+              .map((cb) => {
+                const warningId = parseInt(cb.value);
+                // 双重验证：确保预警数据存在且卡片未处理
+                const warning = warningData.get(warningId);
+                if (
+                  warning &&
+                  !warning.card.classList.contains("warning-handled")
+                ) {
+                  return warningId;
+                }
+                return null;
+              })
+              .filter((id) => id !== null);
+
+            document.body.removeChild(modal);
+            resolve(selectedIds);
+          };
+
+          cancelBtn.onclick = () => {
+            document.body.removeChild(modal);
+            resolve(null);
+          };
+
+          modal.onclick = (e) => {
+            if (e.target === modal) {
+              document.body.removeChild(modal);
+              resolve(null);
+            }
+          };
+
+          // 组装界面
+          selectAllDiv.appendChild(selectAllBtn);
+          selectAllDiv.appendChild(deselectAllBtn);
+
+          buttonDiv.appendChild(confirmBtn);
+          buttonDiv.appendChild(cancelBtn);
+
+          selectionContent.appendChild(title);
+          selectionContent.appendChild(selectAllDiv);
+          selectionContent.appendChild(warningList);
+          selectionContent.appendChild(buttonDiv);
+
+          modal.appendChild(selectionContent);
+          document.body.appendChild(modal);
+        });
+      }
+
+      // 加载教师头像
+      async function loadTeacherAvatar() {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("未找到认证令牌");
+            return;
+          }
+
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const userId = payload.userId || payload.sub;
+
+          // 获取教师信息
+          const response = await fetch(`/api/teachers/user/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const teacherData = await response.json();
+
+            // 设置头像
+            let avatarUrl = teacherData.avatarUrl;
+
+            // 如果没有头像或没有自定义头像，生成默认头像
+            if (!avatarUrl || !teacherData.hasCustomAvatar) {
+              if (teacherData.name) {
+                // 使用UI Avatars生成个性化头像
+                avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  teacherData.name
+                )}&size=200&background=random&color=fff`;
+              } else {
+                // 使用系统默认头像
+                avatarUrl = `/api/static/default-avatar.jpg`;
+              }
+            }
+
+            const avatar = document.querySelector(".avatar");
+            avatar.style.backgroundImage = `url(${avatarUrl})`;
+            avatar.style.backgroundSize = "cover";
+            avatar.style.backgroundPosition = "center";
+            avatar.querySelector("i").style.display = "none";
+
+            // 同步到本地存储
+            localStorage.setItem("avatarData", avatarUrl);
+          }
+        } catch (error) {
+          console.error("加载教师头像失败:", error);
+
+          // 出错时尝试从本地存储加载
+          const localAvatarData = localStorage.getItem("avatarData");
+          if (localAvatarData) {
+            const avatar = document.querySelector(".avatar");
+            avatar.style.backgroundImage = `url(${localAvatarData})`;
+            avatar.style.backgroundSize = "cover";
+            avatar.style.backgroundPosition = "center";
+            avatar.querySelector("i").style.display = "none";
+          }
+        }
+      }
+
+      // 加载聊天头像
+      async function loadChatAvatars() {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("未找到认证令牌");
+            return;
+          }
+
+          // 获取所有聊天头像元素
+          const chatAvatars = document.querySelectorAll(
+            ".chat-avatar[data-partner-id]"
+          );
+
+          // 如果没有聊天头像，直接返回
+          if (chatAvatars.length === 0) {
+            console.log("没有找到聊天头像元素");
+            return;
+          }
+
+          console.log(`找到 ${chatAvatars.length} 个聊天头像元素`);
+
+          // 先获取有效的学生ID列表
+          let validStudentIds = new Set();
+          try {
+            const validIdsResponse = await fetch(
+              "/api/user-info/valid-student-ids",
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            if (validIdsResponse.ok) {
+              const ids = await validIdsResponse.json();
+              validStudentIds = new Set(ids.map((id) => id.toString()));
+              console.log(
+                `获取到 ${validStudentIds.size} 个有效学生ID:`,
+                Array.from(validStudentIds)
+              );
+            }
+          } catch (error) {
+            console.warn("获取有效学生ID失败，使用默认过滤:", error);
+            // 如果获取失败，使用默认范围过滤
+            validStudentIds = new Set(["4", "5", "6", "7", "8", "9", "10"]); // 默认学生ID范围
+          }
+
+          // 收集聊天头像中的学生ID，只处理有效的ID
+          const studentIds = new Set();
+          Array.from(chatAvatars).forEach((avatarElement) => {
+            const partnerId = avatarElement.getAttribute("data-partner-id");
+            if (partnerId && validStudentIds.has(partnerId)) {
+              studentIds.add(partnerId);
+            }
+          });
+
+          console.log(
+            `需要加载 ${studentIds.size} 个唯一学生头像（已过滤无效ID）`
+          );
+
+          // 批量获取学生信息
+          const avatarPromises = Array.from(studentIds).map(
+            async (studentId) => {
+              try {
+                // 获取学生信息
+                const response = await fetch(
+                  `/api/students/user/${studentId}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+
+                if (response.ok) {
+                  const studentData = await response.json();
+                  console.log(`成功获取学生 ${studentId} 信息`);
+                  return { studentId, studentData };
+                } else if (response.status === 404) {
+                  console.log(`学生 ${studentId} 不存在，跳过`);
+                  return null;
+                } else {
+                  console.warn(
+                    `获取学生 ${studentId} 信息失败: ${response.status}`
+                  );
+                  return null;
+                }
+              } catch (error) {
+                console.error(`加载学生 ${studentId} 信息失败:`, error);
+                return null;
+              }
+            }
+          );
+
+          // 等待所有学生信息获取完成
+          const studentResults = await Promise.all(avatarPromises);
+          const validStudents = studentResults.filter(
+            (result) => result !== null
+          );
+
+          console.log(`成功获取 ${validStudents.length} 个学生信息`);
+
+          // 更新所有相关的头像元素
+          validStudents.forEach(({ studentId, studentData }) => {
+            const relatedAvatars = Array.from(chatAvatars).filter(
+              (avatar) => avatar.getAttribute("data-partner-id") === studentId
+            );
+
+            relatedAvatars.forEach((avatarElement) => {
+              // 设置头像
+              let avatarUrl = studentData.avatarUrl;
+
+              // 如果没有头像或没有自定义头像，生成默认头像
+              if (!avatarUrl || !studentData.hasCustomAvatar) {
+                if (studentData.name) {
+                  // 使用UI Avatars生成个性化头像
+                  avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    studentData.name
+                  )}&size=200&background=random&color=fff`;
+                } else {
+                  // 使用系统默认头像
+                  avatarUrl = `/api/static/default-avatar.jpg`;
+                }
+              }
+
+              avatarElement.style.backgroundImage = `url(${avatarUrl})`;
+              avatarElement.style.backgroundSize = "cover";
+              avatarElement.style.backgroundPosition = "center";
+              avatarElement.querySelector("i").style.display = "none";
+              console.log(`成功设置学生 ${studentId} 的头像`);
+            });
+          });
+          console.log("聊天头像加载完成");
+        } catch (error) {
+          console.error("加载聊天头像失败:", error);
+        }
       }
 
       // 统一的页面初始化函数
@@ -9325,32 +10664,25 @@
         // 初始化资源管理
         initializeResources();
 
+        // 初始化学生预警管理
+        initializeStudentWarnings();
+
         // 初始化新模块的选项
         await initializeNewModules();
+
+        // 加载用户头像
+        await loadTeacherAvatar();
+
+        // 加载聊天头像
+        await loadChatAvatars();
       });
 
       // 初始化新模块
       async function initializeNewModules() {
         try {
-          // 加载课程选项
-          const courses = await apiRequest("/courses");
-          const courseSelects = [
-            "course-select",
-            "comprehensive-course-select",
-          ];
-
-          courseSelects.forEach((selectId) => {
-            const select = document.getElementById(selectId);
-            if (select) {
-              select.innerHTML = '<option value="">请选择课程</option>';
-              courses.forEach((course) => {
-                const option = document.createElement("option");
-                option.value = course.id;
-                option.textContent = course.name;
-                select.appendChild(option);
-              });
-            }
-          });
+          // 为权重配置和综合成绩管理加载当前教师的课程
+          await loadTeacherCoursesForWeightConfig();
+          await loadTeacherCoursesForComprehensiveGrades();
 
           // 加载班级选项
           const students = await apiRequest("/students");
@@ -9369,6 +10701,147 @@
           }
         } catch (error) {
           console.error("初始化新模块失败:", error);
+        }
+      }
+
+      // 为权重配置加载当前教师的有学生选修的课程
+      async function loadTeacherCoursesForWeightConfig() {
+        try {
+          // 获取当前教师ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("未找到教师令牌");
+            return;
+          }
+
+          // 从JWT token中提取教师ID
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const teacherId = payload.userId || payload.teacherId || payload.sub;
+
+          console.log("权重配置模块 - 提取的教师ID:", teacherId);
+
+          // 获取该教师的课程
+          const teacherCourses = await apiRequest(
+            `/courses/teacher/${teacherId}`
+          );
+
+          // 获取有综合成绩的课程ID（即有学生选修的课程）
+          const allComprehensiveGrades = await apiRequest(
+            "/comprehensive-grades"
+          );
+          const coursesWithStudents = [
+            ...new Set(allComprehensiveGrades.map((grade) => grade.courseId)),
+          ];
+
+          // 过滤出有学生选修的教师课程
+          const activeTeacherCourses = teacherCourses.filter((course) =>
+            coursesWithStudents.includes(course.id)
+          );
+
+          console.log("权重配置模块 - 教师课程总数:", teacherCourses.length);
+          console.log(
+            "权重配置模块 - 有学生选修的教师课程:",
+            activeTeacherCourses.length
+          );
+
+          const courseSelect = document.getElementById("course-select");
+          if (courseSelect) {
+            courseSelect.innerHTML = '<option value="">请选择课程</option>';
+            activeTeacherCourses.forEach((course) => {
+              const option = document.createElement("option");
+              option.value = course.id;
+              option.textContent = course.name;
+              courseSelect.appendChild(option);
+            });
+          }
+        } catch (error) {
+          console.error("加载教师课程失败:", error);
+          // 如果获取教师课程失败，则加载所有课程作为备选
+          const courses = await apiRequest("/courses");
+          const courseSelect = document.getElementById("course-select");
+          if (courseSelect) {
+            courseSelect.innerHTML = '<option value="">请选择课程</option>';
+            courses.forEach((course) => {
+              const option = document.createElement("option");
+              option.value = course.id;
+              option.textContent = course.name;
+              courseSelect.appendChild(option);
+            });
+          }
+        }
+      }
+
+      // 为综合成绩管理加载当前教师的有学生选修的课程
+      async function loadTeacherCoursesForComprehensiveGrades() {
+        try {
+          // 获取当前教师ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("未找到教师令牌");
+            return;
+          }
+
+          // 从JWT token中提取教师ID
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const teacherId = payload.userId || payload.teacherId || payload.sub;
+
+          console.log("综合成绩管理模块 - 提取的教师ID:", teacherId);
+
+          // 获取该教师的课程
+          const teacherCourses = await apiRequest(
+            `/courses/teacher/${teacherId}`
+          );
+
+          // 获取有综合成绩的课程ID（即有学生选修的课程）
+          const allComprehensiveGrades = await apiRequest(
+            "/comprehensive-grades"
+          );
+          const coursesWithStudents = [
+            ...new Set(allComprehensiveGrades.map((grade) => grade.courseId)),
+          ];
+
+          // 过滤出有学生选修的教师课程
+          const activeTeacherCourses = teacherCourses.filter((course) =>
+            coursesWithStudents.includes(course.id)
+          );
+
+          console.log(
+            "综合成绩管理模块 - 教师课程总数:",
+            teacherCourses.length
+          );
+          console.log(
+            "综合成绩管理模块 - 有学生选修的教师课程:",
+            activeTeacherCourses.length
+          );
+
+          const courseSelect = document.getElementById(
+            "comprehensive-course-select"
+          );
+          if (courseSelect) {
+            courseSelect.innerHTML = '<option value="">请选择课程</option>';
+            activeTeacherCourses.forEach((course) => {
+              const option = document.createElement("option");
+              option.value = course.id;
+              option.textContent = course.name;
+              courseSelect.appendChild(option);
+            });
+          }
+        } catch (error) {
+          console.error("加载综合成绩管理教师课程失败:", error);
+          // 如果获取教师课程失败，则加载所有课程作为备选
+          const courses = await apiRequest("/courses");
+          const courseSelect = document.getElementById(
+            "comprehensive-course-select"
+          );
+          if (courseSelect) {
+            courseSelect.innerHTML = '<option value="">请选择课程</option>';
+            courses.forEach((course) => {
+              const option = document.createElement("option");
+              option.value = course.id;
+              option.textContent = course.name;
+              courseSelect.appendChild(option);
+            });
+          }
         }
       }
     </script>

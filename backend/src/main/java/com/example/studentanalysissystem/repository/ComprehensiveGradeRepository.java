@@ -32,6 +32,11 @@ public interface ComprehensiveGradeRepository extends JpaRepository<Comprehensiv
     Optional<ComprehensiveGrade> findByStudentIdAndCourseId(Long studentId, Long courseId);
 
     /**
+     * 根据学生ID和课程ID查找所有综合成绩（可能有多条记录）
+     */
+    List<ComprehensiveGrade> findAllByStudentIdAndCourseId(Long studentId, Long courseId);
+
+    /**
      * 根据学生ID、课程ID、学期和学年查找综合成绩
      */
     Optional<ComprehensiveGrade> findByStudentIdAndCourseIdAndSemesterAndAcademicYear(

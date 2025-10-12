@@ -2,15 +2,21 @@ package com.example.studentanalysissystem.service.impl;
 
 import com.example.studentanalysissystem.dto.request.LoginRequest;
 import com.example.studentanalysissystem.dto.request.RegisterRequest;
+import com.example.studentanalysissystem.dto.request.UpdateAvatarRequest;
 import com.example.studentanalysissystem.dto.request.UpdateUserRequest;
 import com.example.studentanalysissystem.dto.response.UserResponse;
 import com.example.studentanalysissystem.exception.BusinessException;
 import com.example.studentanalysissystem.exception.DuplicateResourceException;
 import com.example.studentanalysissystem.exception.ResourceNotFoundException;
 import com.example.studentanalysissystem.mapper.UserMapper;
+import com.example.studentanalysissystem.model.Student;
+import com.example.studentanalysissystem.model.Teacher;
 import com.example.studentanalysissystem.model.User;
+import com.example.studentanalysissystem.repository.StudentRepository;
+import com.example.studentanalysissystem.repository.TeacherRepository;
 import com.example.studentanalysissystem.repository.UserRepository;
 import com.example.studentanalysissystem.service.UserService;
+import com.example.studentanalysissystem.service.DefaultAvatarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +36,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
+    private final DefaultAvatarService defaultAvatarService;
 
     @Override
     @Transactional
@@ -209,5 +218,65 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                 keyword, keyword);
         return userMapper.toResponseList(users);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateAvatar(Long id, UpdateAvatarRequest request) {
+        // 查找用户
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        // 根据用户角色更新对应的头像字段
+        if (user.getRole() == User.UserRole.STUDENT) {
+            // 更新学生头像
+            updateStudentAvatar(user, request.getAvatarUrl());
+        } else if (user.getRole() == User.UserRole.TEACHER) {
+            // 更新教师头像
+            updateTeacherAvatar(user, request.getAvatarUrl());
+        }
+
+        // 返回更新后的用户信息
+        return userMapper.toResponse(user);
+    }
+
+    private void updateStudentAvatar(User user, String avatarUrl) {
+        Student student = studentRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Student", "userId", user.getId()));
+        
+        // 检查是否为默认头像
+        boolean isDefaultAvatar = defaultAvatarService.isDefaultAvatar(avatarUrl);
+        student.setHasCustomAvatar(!isDefaultAvatar);
+        
+        if (isDefaultAvatar) {
+            // 如果是默认头像，生成个性化头像
+            String generatedAvatar = defaultAvatarService.generateAvatarUrl(user.getUsername(), user.getEmail());
+            student.setAvatarUrl(generatedAvatar);
+        } else {
+            // 用户自定义头像
+            student.setAvatarUrl(avatarUrl);
+        }
+        
+        studentRepository.save(student);
+    }
+
+    private void updateTeacherAvatar(User user, String avatarUrl) {
+        Teacher teacher = teacherRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "userId", user.getId()));
+        
+        // 检查是否为默认头像
+        boolean isDefaultAvatar = defaultAvatarService.isDefaultAvatar(avatarUrl);
+        teacher.setHasCustomAvatar(!isDefaultAvatar);
+        
+        if (isDefaultAvatar) {
+            // 如果是默认头像，生成个性化头像
+            String generatedAvatar = defaultAvatarService.generateAvatarUrl(user.getUsername(), user.getEmail());
+            teacher.setAvatarUrl(generatedAvatar);
+        } else {
+            // 用户自定义头像
+            teacher.setAvatarUrl(avatarUrl);
+        }
+        
+        teacherRepository.save(teacher);
     }
 }

@@ -69,4 +69,10 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
      */
     @Query("SELECT e FROM CourseEnrollment e JOIN FETCH e.student WHERE e.course.id = :courseId AND e.status = 'ENROLLED'")
     List<CourseEnrollment> findEnrolledStudentsByCourse(@Param("courseId") Long courseId);
+
+    /**
+     * 根据课程ID获取选修该课程的学生ID列表
+     */
+    @Query("SELECT e.student.id FROM CourseEnrollment e WHERE e.course.id = :courseId AND e.status = 'ENROLLED'")
+    List<Long> findStudentIdsByCourseId(@Param("courseId") Long courseId);
 }

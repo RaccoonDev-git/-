@@ -373,6 +373,75 @@ public class AdminController {
     }
 
     /**
+     * 下载学生导入模板
+     */
+    @GetMapping("/students/import/template")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
+    @Operation(summary = "下载学生导入模板", description = "下载学生批量导入的Excel模板文件")
+    public ResponseEntity<byte[]> downloadStudentImportTemplate() {
+        try {
+            Workbook workbook = excelExportService.createWorkbook();
+            Sheet sheet = workbook.createSheet("学生导入模板");
+
+            // 创建样式
+            CellStyle headerStyle = excelExportService.createHeaderStyle(workbook);
+            CellStyle dataStyle = excelExportService.createDataStyle(workbook);
+            
+            // 创建说明行
+            Row instructionRow = sheet.createRow(0);
+            Cell instructionCell = instructionRow.createCell(0);
+            instructionCell.setCellValue("学生信息导入模板 - 请按照以下格式填写学生信息，第一行为说明，第二行为表头，从第三行开始填写数据");
+            
+            // 创建标题行
+            List<String> headers = java.util.Arrays.asList(
+                    "学号(必填)", "姓名(必填)", "年级(必填)", "班级(必填)", "专业", "手机号", "邮箱", "备注");
+            Row headerRow = sheet.createRow(1);
+            for (int i = 0; i < headers.size(); i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers.get(i));
+                cell.setCellStyle(headerStyle);
+            }
+
+            // 创建示例数据行
+            String[][] sampleData = {
+                {"2023001", "张三", "2023", "23软工A1", "软件工程", "13800138001", "zhangsan@example.com", "示例学生1"},
+                {"2023002", "李四", "2023", "23软工A1", "软件工程", "13800138002", "lisi@example.com", "示例学生2"},
+                {"2023003", "王五", "2023", "23软工B1", "软件工程", "13800138003", "wangwu@example.com", "示例学生3"}
+            };
+            
+            int rowNum = 2;
+            for (String[] data : sampleData) {
+                Row row = sheet.createRow(rowNum++);
+                for (int i = 0; i < data.length; i++) {
+                    Cell cell = row.createCell(i);
+                    cell.setCellValue(data[i]);
+                    cell.setCellStyle(dataStyle);
+                }
+            }
+
+            // 自动调整列宽
+            for (int i = 0; i < headers.size(); i++) {
+                sheet.autoSizeColumn(i);
+                // 设置最小列宽
+                if (sheet.getColumnWidth(i) < 3000) {
+                    sheet.setColumnWidth(i, 3000);
+                }
+            }
+
+            byte[] excelBytes = excelExportService.workbookToBytes(workbook);
+            
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=student_import_template.xlsx")
+                    .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(excelBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
      * 批量导入学生(支持CSV、Excel、JSON格式)
      */
     @PostMapping("/students/import")
@@ -571,6 +640,250 @@ public class AdminController {
             response.put("message", "文件解析失败: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * 导出所有学生数据
+     */
+    @GetMapping("/students/export")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
+    @Operation(summary = "导出学生列表", description = "导出所有学生数据为Excel文件")
+    public ResponseEntity<byte[]> exportStudents() {
+        try {
+            List<StudentResponse> students = studentService.getAllStudents();
+
+            Workbook workbook = excelExportService.createWorkbook();
+            Sheet sheet = workbook.createSheet("学生列表");
+
+            // 创建样式
+            CellStyle headerStyle = excelExportService.createHeaderStyle(workbook);
+            CellStyle dataStyle = excelExportService.createDataStyle(workbook);
+
+            // 创建标题行
+            List<String> headers = java.util.Arrays.asList(
+                    "学号", "姓名", "年级", "班级", "专业", "手机号", "邮箱", "备注");
+            excelExportService.createHeaderRow(sheet, headers, headerStyle);
+
+            // 填充数据
+            int rowNum = 1;
+            for (StudentResponse student : students) {
+                Row row = sheet.createRow(rowNum++);
+                
+                Cell cell0 = row.createCell(0);
+                cell0.setCellValue(student.getStudentNumber());
+                cell0.setCellStyle(dataStyle);
+                
+                Cell cell1 = row.createCell(1);
+                cell1.setCellValue(student.getName());
+                cell1.setCellStyle(dataStyle);
+                
+                Cell cell2 = row.createCell(2);
+                cell2.setCellValue(student.getGradeLevel() != null ? student.getGradeLevel().toString() : "");
+                cell2.setCellStyle(dataStyle);
+                
+                Cell cell3 = row.createCell(3);
+                cell3.setCellValue(student.getClassName() != null ? student.getClassName() : "");
+                cell3.setCellStyle(dataStyle);
+                
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(student.getMajor() != null ? student.getMajor() : "");
+                cell4.setCellStyle(dataStyle);
+                
+                Cell cell5 = row.createCell(5);
+                cell5.setCellValue(student.getPhone() != null ? student.getPhone() : "");
+                cell5.setCellStyle(dataStyle);
+                
+                Cell cell6 = row.createCell(6);
+                cell6.setCellValue(student.getEmail() != null ? student.getEmail() : "");
+                cell6.setCellStyle(dataStyle);
+                
+                Cell cell7 = row.createCell(7);
+                cell7.setCellValue(student.getRemarks() != null ? student.getRemarks() : "");
+                cell7.setCellStyle(dataStyle);
+            }
+
+            // 自动调整列宽
+            for (int i = 0; i < headers.size(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            byte[] excelBytes = excelExportService.workbookToBytes(workbook);
+            
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=students.xlsx")
+                    .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(excelBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 导出选中的学生数据
+     */
+    @PostMapping("/students/export/selected")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
+    @Operation(summary = "导出选中学生", description = "导出选中的学生数据为Excel文件")
+    public ResponseEntity<byte[]> exportSelectedStudents(@RequestBody Map<String, List<String>> request) {
+        try {
+            List<String> studentIds = request.get("studentIds");
+            if (studentIds == null || studentIds.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            List<StudentResponse> allStudents = studentService.getAllStudents();
+            List<StudentResponse> selectedStudents = allStudents.stream()
+                    .filter(s -> studentIds.contains(s.getStudentNumber()))
+                    .collect(java.util.stream.Collectors.toList());
+
+            Workbook workbook = excelExportService.createWorkbook();
+            Sheet sheet = workbook.createSheet("选中学生列表");
+
+            // 创建样式
+            CellStyle headerStyle = excelExportService.createHeaderStyle(workbook);
+            CellStyle dataStyle = excelExportService.createDataStyle(workbook);
+
+            // 创建标题行
+            List<String> headers = java.util.Arrays.asList(
+                    "学号", "姓名", "年级", "班级", "专业", "手机号", "邮箱", "备注");
+            excelExportService.createHeaderRow(sheet, headers, headerStyle);
+
+            // 填充数据
+            int rowNum = 1;
+            for (StudentResponse student : selectedStudents) {
+                Row row = sheet.createRow(rowNum++);
+                
+                Cell cell0 = row.createCell(0);
+                cell0.setCellValue(student.getStudentNumber());
+                cell0.setCellStyle(dataStyle);
+                
+                Cell cell1 = row.createCell(1);
+                cell1.setCellValue(student.getName());
+                cell1.setCellStyle(dataStyle);
+                
+                Cell cell2 = row.createCell(2);
+                cell2.setCellValue(student.getGradeLevel() != null ? student.getGradeLevel().toString() : "");
+                cell2.setCellStyle(dataStyle);
+                
+                Cell cell3 = row.createCell(3);
+                cell3.setCellValue(student.getClassName() != null ? student.getClassName() : "");
+                cell3.setCellStyle(dataStyle);
+                
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(student.getMajor() != null ? student.getMajor() : "");
+                cell4.setCellStyle(dataStyle);
+                
+                Cell cell5 = row.createCell(5);
+                cell5.setCellValue(student.getPhone() != null ? student.getPhone() : "");
+                cell5.setCellStyle(dataStyle);
+                
+                Cell cell6 = row.createCell(6);
+                cell6.setCellValue(student.getEmail() != null ? student.getEmail() : "");
+                cell6.setCellStyle(dataStyle);
+                
+                Cell cell7 = row.createCell(7);
+                cell7.setCellValue(student.getRemarks() != null ? student.getRemarks() : "");
+                cell7.setCellStyle(dataStyle);
+            }
+
+            // 自动调整列宽
+            for (int i = 0; i < headers.size(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            byte[] excelBytes = excelExportService.workbookToBytes(workbook);
+            
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=selected_students.xlsx")
+                    .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(excelBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 导出单个学生数据
+     */
+    @GetMapping("/students/{studentId}/export")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
+    @Operation(summary = "导出单个学生数据", description = "导出指定学生的详细数据为Excel文件")
+    public ResponseEntity<byte[]> exportStudent(@PathVariable String studentId) {
+        try {
+            StudentResponse student = studentService.getAllStudents().stream()
+                    .filter(s -> s.getStudentNumber().equals(studentId))
+                    .findFirst()
+                    .orElseThrow(() -> new ResourceNotFoundException("学生不存在"));
+
+            Workbook workbook = excelExportService.createWorkbook();
+            Sheet sheet = workbook.createSheet("学生详细信息");
+
+            // 创建样式
+            CellStyle headerStyle = excelExportService.createHeaderStyle(workbook);
+            CellStyle dataStyle = excelExportService.createDataStyle(workbook);
+
+            // 创建标题行
+            List<String> headers = java.util.Arrays.asList(
+                    "学号", "姓名", "年级", "班级", "专业", "手机号", "邮箱", "备注");
+            excelExportService.createHeaderRow(sheet, headers, headerStyle);
+
+            // 填充数据
+            Row row = sheet.createRow(1);
+            
+            Cell cell0 = row.createCell(0);
+            cell0.setCellValue(student.getStudentNumber());
+            cell0.setCellStyle(dataStyle);
+            
+            Cell cell1 = row.createCell(1);
+            cell1.setCellValue(student.getName());
+            cell1.setCellStyle(dataStyle);
+            
+            Cell cell2 = row.createCell(2);
+            cell2.setCellValue(student.getGradeLevel() != null ? student.getGradeLevel().toString() : "");
+            cell2.setCellStyle(dataStyle);
+            
+            Cell cell3 = row.createCell(3);
+            cell3.setCellValue(student.getClassName() != null ? student.getClassName() : "");
+            cell3.setCellStyle(dataStyle);
+            
+            Cell cell4 = row.createCell(4);
+            cell4.setCellValue(student.getMajor() != null ? student.getMajor() : "");
+            cell4.setCellStyle(dataStyle);
+            
+            Cell cell5 = row.createCell(5);
+            cell5.setCellValue(student.getPhone() != null ? student.getPhone() : "");
+            cell5.setCellStyle(dataStyle);
+            
+            Cell cell6 = row.createCell(6);
+            cell6.setCellValue(student.getEmail() != null ? student.getEmail() : "");
+            cell6.setCellStyle(dataStyle);
+            
+            Cell cell7 = row.createCell(7);
+            cell7.setCellValue(student.getRemarks() != null ? student.getRemarks() : "");
+            cell7.setCellStyle(dataStyle);
+
+            // 自动调整列宽
+            for (int i = 0; i < headers.size(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            byte[] excelBytes = excelExportService.workbookToBytes(workbook);
+            
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=student_" + studentId + ".xlsx")
+                    .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(excelBytes);
+
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 

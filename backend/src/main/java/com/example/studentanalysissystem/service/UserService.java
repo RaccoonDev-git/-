@@ -2,6 +2,7 @@ package com.example.studentanalysissystem.service;
 
 import com.example.studentanalysissystem.dto.request.LoginRequest;
 import com.example.studentanalysissystem.dto.request.RegisterRequest;
+import com.example.studentanalysissystem.dto.request.UpdateAvatarRequest;
 import com.example.studentanalysissystem.dto.request.UpdateUserRequest;
 import com.example.studentanalysissystem.dto.response.UserResponse;
 import com.example.studentanalysissystem.model.User;
@@ -83,4 +84,9 @@ public interface UserService {
      * 搜索用户(根据用户名或邮箱)
      */
     List<UserResponse> searchUsers(String keyword);
+
+    /**
+     * 更新用户头像
+     */
+    UserResponse updateAvatar(Long id, UpdateAvatarRequest request);
 }

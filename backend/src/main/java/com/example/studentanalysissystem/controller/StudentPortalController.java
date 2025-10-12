@@ -1,9 +1,11 @@
 package com.example.studentanalysissystem.controller;
 
 import com.example.studentanalysissystem.dto.response.ChatListItemResponse;
+import com.example.studentanalysissystem.dto.response.ComprehensiveGradeResponse;
 import com.example.studentanalysissystem.dto.response.MessageResponse;
 import com.example.studentanalysissystem.dto.response.ResourceResponse;
 import com.example.studentanalysissystem.security.JwtUtil;
+import com.example.studentanalysissystem.service.ComprehensiveGradeService;
 import com.example.studentanalysissystem.service.MessageService;
 import com.example.studentanalysissystem.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +36,7 @@ public class StudentPortalController {
 
     private final MessageService messageService;
     private final ResourceService resourceService;
+    private final ComprehensiveGradeService comprehensiveGradeService;
     private final JwtUtil jwtUtil;
 
     /**
@@ -45,18 +48,47 @@ public class StudentPortalController {
     public ResponseEntity<Map<String, Object>> getScores(HttpServletRequest request) {
         try {
             Long studentId = getCurrentUserId(request);
-            // 返回每个科目的成绩数组
+            
+            // 从数据库获取学生的综合成绩数据
+            List<ComprehensiveGradeResponse> comprehensiveGrades = comprehensiveGradeService.getComprehensiveGradesByStudentId(studentId);
+            
+            // 按课程分组成绩数据
             Map<String, Object> scores = new HashMap<>();
-            scores.put("c", Arrays.asList(85, 90, 88, 92, 87));
-            scores.put("math", Arrays.asList(92, 88, 90, 95, 89));
-            scores.put("linear", Arrays.asList(88, 85, 90, 87, 91));
-            scores.put("physics", Arrays.asList(82, 85, 88, 84, 86));
-            scores.put("english", Arrays.asList(87, 89, 86, 90, 88));
+            for (ComprehensiveGradeResponse grade : comprehensiveGrades) {
+                String courseName = grade.getCourseName();
+                if (!scores.containsKey(courseName)) {
+                    scores.put(courseName, new ArrayList<>());
+                }
+                @SuppressWarnings("unchecked")
+                List<Object> courseScores = (List<Object>) scores.get(courseName);
+                courseScores.add(grade.getComprehensiveScore());
+            }
 
-            log.info("学生 {} 获取成绩数据", studentId);
+            log.info("学生 {} 获取成绩数据，共 {} 门课程", studentId, scores.size());
             return ResponseEntity.ok(scores);
         } catch (Exception e) {
             log.error("获取学生成绩失败", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 获取学生的详细成绩数据
+     */
+    @Operation(summary = "获取学生详细成绩数据")
+    @GetMapping("/grade-details")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'TEACHER')")
+    public ResponseEntity<List<ComprehensiveGradeResponse>> getStudentGradeDetails(HttpServletRequest request) {
+        try {
+            Long studentId = getCurrentUserId(request);
+            
+            // 从数据库获取学生的综合成绩数据
+            List<ComprehensiveGradeResponse> comprehensiveGrades = comprehensiveGradeService.getComprehensiveGradesByStudentId(studentId);
+
+            log.info("学生 {} 获取详细成绩数据，共 {} 条记录", studentId, comprehensiveGrades.size());
+            return ResponseEntity.ok(comprehensiveGrades);
+        } catch (Exception e) {
+            log.error("获取学生详细成绩数据失败", e);
             return ResponseEntity.internalServerError().build();
         }
     }

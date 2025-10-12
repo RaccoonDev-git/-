@@ -24,6 +24,7 @@ import java.util.List;
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
 @Tag(name = "课程管理", description = "课程信息的CRUD操作")
+@CrossOrigin(origins = "*")
 public class CourseController {
 
     private final CourseService courseService;

@@ -16,6 +16,11 @@ public interface ComprehensiveGradeService {
     ComprehensiveGradeResponse calculateComprehensiveGrade(CalculateComprehensiveGradeRequest request);
 
     /**
+     * 获取所有综合成绩
+     */
+    List<ComprehensiveGradeResponse> getAllComprehensiveGrades();
+
+    /**
      * 根据学生ID获取综合成绩
      */
     List<ComprehensiveGradeResponse> getComprehensiveGradesByStudentId(Long studentId);

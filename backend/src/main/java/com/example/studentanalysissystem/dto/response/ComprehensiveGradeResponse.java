@@ -22,6 +22,7 @@ public class ComprehensiveGradeResponse {
     private Long studentId;
     private String studentName;
     private String studentNumber;
+    private String studentClass;
     private Long courseId;
     private String courseCode;
     private String courseName;

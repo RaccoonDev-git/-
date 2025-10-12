@@ -7,6 +7,7 @@ import com.example.studentanalysissystem.exception.ResourceNotFoundException;
 import com.example.studentanalysissystem.mapper.StudentMapper;
 import com.example.studentanalysissystem.model.Student;
 import com.example.studentanalysissystem.model.User;
+import com.example.studentanalysissystem.repository.CourseEnrollmentRepository;
 import com.example.studentanalysissystem.repository.StudentRepository;
 import com.example.studentanalysissystem.repository.UserRepository;
 import com.example.studentanalysissystem.service.StudentService;
@@ -15,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * 学生服务实现类
@@ -27,6 +31,7 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final StudentMapper studentMapper;
+    private final CourseEnrollmentRepository enrollmentRepository;
 
     @Override
     @Transactional
@@ -183,5 +188,46 @@ public class StudentServiceImpl implements StudentService {
     public Student getStudentEntityById(Long id) {
         return studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("学生不存在，ID: " + id));
+    }
+
+    @Override
+    public List<String> getClassesByCourseId(Long courseId) {
+        // 通过选课记录获取选修该课程的学生ID
+        List<Long> studentIds = enrollmentRepository.findStudentIdsByCourseId(courseId);
+        
+        // 获取这些学生的班级信息
+        List<Student> students = studentRepository.findAllById(studentIds);
+        
+        // 提取班级名称并去重
+        return students.stream()
+                .map(Student::getClassName)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Map<String, Object>> getStudentScoresByCourseAndClass(Long courseId, String className) {
+        // 获取该班级选修该课程的学生
+        List<Long> studentIds = enrollmentRepository.findStudentIdsByCourseId(courseId);
+        List<Student> students = studentRepository.findAllById(studentIds);
+        
+        // 过滤出指定班级的学生
+        List<Student> classStudents = students.stream()
+                .filter(student -> className.equals(student.getClassName()))
+                .collect(Collectors.toList());
+        
+        // 构建学生成绩数据
+        return classStudents.stream().map(student -> {
+            Map<String, Object> studentData = new HashMap<>();
+            studentData.put("name", student.getName());
+            studentData.put("id", student.getId());
+            studentData.put("studentNumber", student.getStudentNumber());
+            
+            // 这里可以从成绩表中获取实际成绩，暂时使用模拟数据
+            // 实际项目中应该从Grade表或ComprehensiveGrade表查询
+            studentData.put("score", 75 + (Math.random() * 25)); // 模拟成绩 75-100
+            
+            return studentData;
+        }).collect(Collectors.toList());
     }
 }

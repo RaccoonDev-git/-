@@ -35,6 +35,7 @@ public class ComprehensiveGradeMapper {
                 .studentId(grade.getStudent().getId())
                 .studentName(grade.getStudent().getName())
                 .studentNumber(grade.getStudent().getStudentNumber())
+                .studentClass(grade.getStudent().getClassName())
                 .courseId(grade.getCourse().getId())
                 .courseCode(grade.getCourse().getCode())
                 .courseName(grade.getCourse().getName())

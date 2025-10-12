@@ -47,6 +47,9 @@ public class Student {
 
     @Column(name = "avatar_url", length = 255)
     private String avatarUrl;
+    
+    @Column(name = "has_custom_avatar", nullable = false)
+    private Boolean hasCustomAvatar = false;
 
     @Column(name = "remarks", columnDefinition = "TEXT")
     private String remarks;
