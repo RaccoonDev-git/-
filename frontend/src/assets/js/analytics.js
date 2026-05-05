@@ -53,7 +53,7 @@ async function loadAnalyticsData() {
 }
 // 辅助：分析API基础地址
 const ANALYSIS_API_BASE =
-  (window.API_URL || "http://localhost:8080/api") + "/analysis";
+  (window.API_URL || "/api") + "/analysis";
 
 // 从分析后端获取成绩统计
 async function fetchGradeStatistics(params = {}) {

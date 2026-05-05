@@ -6,7 +6,6 @@ import com.example.studentanalysissystem.dto.response.CourseResponse;
 import com.example.studentanalysissystem.dto.response.TeacherResponse;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 教师服务接口
@@ -78,10 +77,6 @@ public interface TeacherService {
      */
     List<CourseResponse> getTeacherCoursesInClass(Long teacherId, String className);
 
-    /**
-     * 获取教师学情分析数据
-     */
-    Map<String, Object> getTeacherAnalysisData(Long teacherId);
 
     /**
      * 获取教师管理的学生

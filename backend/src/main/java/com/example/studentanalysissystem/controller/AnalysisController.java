@@ -4,12 +4,11 @@ import com.example.studentanalysissystem.dto.response.ClassComparisonResponse;
 import com.example.studentanalysissystem.dto.response.CourseCorrelationResponse;
 import com.example.studentanalysissystem.dto.response.GradeStatisticsResponse;
 import com.example.studentanalysissystem.dto.response.StudentProfileResponse;
-import com.example.studentanalysissystem.dto.response.StudentWarningResponse;
+import com.example.studentanalysissystem.dto.response.StudentAnalysisResponse;
 import com.example.studentanalysissystem.service.ClassComparisonService;
 import com.example.studentanalysissystem.service.CourseCorrelationService;
 import com.example.studentanalysissystem.service.GradeAnalysisService;
 import com.example.studentanalysissystem.service.StudentAnalysisService;
-import com.example.studentanalysissystem.service.StudentWarningService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,7 +38,6 @@ public class AnalysisController {
         private final StudentAnalysisService studentAnalysisService;
         private final ClassComparisonService classComparisonService;
         private final CourseCorrelationService courseCorrelationService;
-        private final StudentWarningService studentWarningService;
 
         /**
          * 获取成绩统计分析
@@ -145,7 +143,7 @@ public class AnalysisController {
         @GetMapping("/student/{studentId}/profile")
         @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
         @Operation(summary = "获取学生个人学习档案", description = "获取学生的成绩趋势、排名、强弱科目分析、学习建议等信息")
-        public ResponseEntity<StudentProfileResponse> getStudentProfile(
+        public ResponseEntity<StudentAnalysisResponse> getStudentProfile(
                         @Parameter(description = "学生ID", required = true) @PathVariable Long studentId) {
 
                 log.info("GET /api/analysis/student/{}/profile", studentId);
@@ -167,7 +165,8 @@ public class AnalysisController {
                 } catch (Exception ignored) {
                 }
 
-                StudentProfileResponse response = studentAnalysisService.getStudentProfile(studentId);
+                // 使用综合分析替代
+                StudentAnalysisResponse response = studentAnalysisService.getStudentComprehensiveAnalysis(studentId);
                 return ResponseEntity.ok(response);
         }
 
@@ -213,23 +212,4 @@ public class AnalysisController {
                 return ResponseEntity.ok(response);
         }
 
-        /**
-         * 获取学生预警列表
-         */
-        @GetMapping("/warnings")
-        @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-        @Operation(summary = "获取学生预警列表", description = "获取需要关注的学生预警信息，包括挂科风险、学习异常等")
-        public ResponseEntity<List<StudentWarningResponse>> getStudentWarnings(
-                        @Parameter(description = "班级名称（可选）") @RequestParam(required = false) String className,
-                        @Parameter(description = "专业（可选）") @RequestParam(required = false) String major,
-                        @Parameter(description = "预警级别（可选：high/medium/low）") @RequestParam(required = false) String warningLevel) {
-
-                log.info("GET /api/analysis/warnings - className: {}, major: {}, warningLevel: {}",
-                                className, major, warningLevel);
-
-                // 暂时返回空列表，后续实现具体的查询逻辑
-                List<StudentWarningResponse> warnings = studentWarningService.getUnhandledWarnings();
-
-                return ResponseEntity.ok(warnings);
-        }
 }

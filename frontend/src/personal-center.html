@@ -810,22 +810,31 @@
           const payload = JSON.parse(atob(token.split(".")[1]));
           const userId = payload.userId || payload.sub;
 
+          // 获取当前用户信息
+          const currentUser = await getCurrentUser();
+          if (!currentUser) {
+            console.error("无法获取用户信息");
+            return;
+          }
+
           let avatarUrl = null;
 
           // 根据用户角色获取头像
           let userAvatarUrl = null;
           let hasCustomAvatar = false;
 
-          if (currentUser && currentUser.role === "TEACHER" && currentTeacher) {
-            userAvatarUrl = currentTeacher.avatarUrl;
-            hasCustomAvatar = currentTeacher.hasCustomAvatar;
-          } else if (
-            currentUser &&
-            currentUser.role === "STUDENT" &&
-            currentStudent
-          ) {
-            userAvatarUrl = currentStudent.avatarUrl;
-            hasCustomAvatar = currentStudent.hasCustomAvatar;
+          if (currentUser.role === "TEACHER") {
+            const currentTeacher = await getCurrentTeacher();
+            if (currentTeacher) {
+              userAvatarUrl = currentTeacher.avatarUrl;
+              hasCustomAvatar = currentTeacher.hasCustomAvatar;
+            }
+          } else if (currentUser.role === "STUDENT") {
+            const currentStudent = await getCurrentStudent();
+            if (currentStudent) {
+              userAvatarUrl = currentStudent.avatarUrl;
+              hasCustomAvatar = currentStudent.hasCustomAvatar;
+            }
           }
 
           // 确定最终头像URL
@@ -862,11 +871,13 @@
             avatar.style.backgroundPosition = "center";
             document.getElementById("avatarIcon").style.display = "none";
 
-            // 同步到本地存储
-            localStorage.setItem("avatarData", finalAvatarUrl);
+            // 同步到本地存储（使用用户ID作为键）
+            const cacheKey = `avatarData_${userId}`;
+            localStorage.setItem(cacheKey, finalAvatarUrl);
           } else {
-            // 尝试从本地存储加载
-            const localAvatarData = localStorage.getItem("avatarData");
+            // 尝试从本地存储加载（使用用户ID作为键）
+            const cacheKey = `avatarData_${userId}`;
+            const localAvatarData = localStorage.getItem(cacheKey);
             if (localAvatarData) {
               const avatar = document.querySelector(".profile-avatar");
               avatar.style.backgroundImage = `url(${localAvatarData})`;
@@ -878,23 +889,60 @@
         } catch (error) {
           console.error("加载头像时出错:", error);
 
-          // 出错时尝试从本地存储加载
-          const localAvatarData = localStorage.getItem("avatarData");
-          if (localAvatarData) {
-            const avatar = document.querySelector(".profile-avatar");
-            avatar.style.backgroundImage = `url(${localAvatarData})`;
-            avatar.style.backgroundSize = "cover";
-            avatar.style.backgroundPosition = "center";
-            document.getElementById("avatarIcon").style.display = "none";
+          // 出错时尝试从本地存储加载（使用用户ID作为键）
+          try {
+            const token = localStorage.getItem("token");
+            if (token) {
+              const payload = JSON.parse(atob(token.split(".")[1]));
+              const userId = payload.userId || payload.sub;
+              const cacheKey = `avatarData_${userId}`;
+              const localAvatarData = localStorage.getItem(cacheKey);
+              if (localAvatarData) {
+                const avatar = document.querySelector(".profile-avatar");
+                avatar.style.backgroundImage = `url(${localAvatarData})`;
+                avatar.style.backgroundSize = "cover";
+                avatar.style.backgroundPosition = "center";
+                document.getElementById("avatarIcon").style.display = "none";
+              }
+            }
+          } catch (e) {
+            console.error("从本地存储加载头像失败:", e);
           }
         }
       }
 
       // API基础URL
-      const API_BASE_URL = "http://localhost:8080/api";
-      let currentUser = null;
-      let currentTeacher = null;
-      let currentStudent = null;
+      const API_BASE_URL = "/api";
+      
+      // 用户数据缓存 - 使用用户ID作为键来避免多用户冲突
+      const userDataCache = new Map();
+      
+      function getCurrentUserId() {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) return null;
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          return payload.userId;
+        } catch (error) {
+          console.error("获取用户ID失败:", error);
+          return null;
+        }
+      }
+      
+      function getUserCacheKey(userId) {
+        return `user_${userId}`;
+      }
+      
+      // 清理其他用户的缓存数据
+      function clearOtherUserCache(currentUserId) {
+        const keys = Array.from(userDataCache.keys());
+        keys.forEach(key => {
+          if (!key.includes(`user_${currentUserId}`)) {
+            userDataCache.delete(key);
+          }
+        });
+        console.log("已清理其他用户的缓存数据");
+      }
 
       // 获取URL参数
       function getUrlParams() {
@@ -924,29 +972,33 @@
         }
 
         // 根据用户角色决定返回页面
-        if (currentUser) {
-          if (currentUser.role === "TEACHER") {
-            window.location.href = "/src/pages/teacher/dashboard.html";
-          } else if (currentUser.role === "STUDENT") {
-            window.location.href = "/src/pages/student/student.html";
+        getCurrentUser().then(currentUser => {
+          if (currentUser) {
+            if (currentUser.role === "TEACHER") {
+              window.location.href = "/src/pages/teacher/dashboard.html";
+            } else if (currentUser.role === "STUDENT") {
+              window.location.href = "/src/pages/student/student.html";
+            } else {
+              window.location.href = "/src/pages/admin/grade-query.html";
+            }
           } else {
-            window.location.href = "/src/pages/admin/grade-query.html";
+            // 如果没有用户信息，返回登录页
+            window.location.href = "/src/login.html";
           }
-        } else {
-          // 如果没有用户信息，返回登录页
-          window.location.href = "/src/login.html";
-        }
+        });
       }
 
       // 保存个人信息
       async function saveProfile() {
         try {
+          const currentUser = await getCurrentUser();
           if (!currentUser) {
             alert("请先加载用户信息");
             return;
           }
 
           // 对于教师用户，需要检查currentTeacher
+          const currentTeacher = await getCurrentTeacher();
           if (currentUser.role === "TEACHER" && !currentTeacher) {
             alert("请先加载教师信息");
             return;
@@ -1012,18 +1064,30 @@
       }
 
       // 更新头像
-      function updateAvatar(event) {
+      async function updateAvatar(event) {
         const file = event.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function (e) {
+          reader.onload = async function (e) {
             const avatar = document.querySelector(".profile-avatar");
             avatar.style.backgroundImage = `url(${e.target.result})`;
             avatar.style.backgroundSize = "cover";
 
             // 保存头像到后端和本地存储
-            saveAvatarToServer(e.target.result);
-            localStorage.setItem("avatarData", e.target.result);
+            await saveAvatarToServer(e.target.result);
+            
+            // 使用用户ID作为键
+            try {
+              const token = localStorage.getItem("token");
+              if (token) {
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                const userId = payload.userId || payload.sub;
+                const cacheKey = `avatarData_${userId}`;
+                localStorage.setItem(cacheKey, e.target.result);
+              }
+            } catch (error) {
+              console.error("保存头像到本地存储失败:", error);
+            }
           };
           reader.readAsDataURL(file);
         }
@@ -1092,8 +1156,18 @@
             throw new Error("未找到登录令牌");
           }
 
-          const payload = JSON.parse(atob(token.split(".")[1]));
-          const userId = payload.userId;
+          const userId = getCurrentUserId();
+          if (!userId) {
+            throw new Error("无法获取用户ID");
+          }
+
+          // 检查缓存
+          const cacheKey = getUserCacheKey(userId);
+          const cachedData = userDataCache.get(cacheKey);
+          if (cachedData && cachedData.user && Date.now() - cachedData.timestamp < 5 * 60 * 1000) {
+            console.log("使用缓存的用户信息:", userId);
+            return cachedData.user;
+          }
 
           const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
             headers: {
@@ -1106,8 +1180,17 @@
             throw new Error(`获取用户信息失败: ${response.status}`);
           }
 
-          currentUser = await response.json();
-          return currentUser;
+          const userData = await response.json();
+          
+          // 缓存用户数据
+          if (!userDataCache.has(cacheKey)) {
+            userDataCache.set(cacheKey, {});
+          }
+          const userCache = userDataCache.get(cacheKey);
+          userCache.user = userData;
+          userCache.timestamp = Date.now();
+          
+          return userData;
         } catch (error) {
           console.error("获取用户信息失败:", error);
           alert("获取用户信息失败，请重新登录");
@@ -1118,14 +1201,25 @@
       // 获取当前教师信息
       async function getCurrentTeacher() {
         try {
+          const currentUser = await getCurrentUser();
           if (!currentUser) {
-            await getCurrentUser();
+            return null;
           }
 
           // 只有教师角色才获取教师信息
           if (currentUser.role !== "TEACHER") {
             console.log("用户不是教师，跳过教师信息获取");
             return null;
+          }
+
+          const userId = getCurrentUserId();
+          const cacheKey = getUserCacheKey(userId);
+          
+          // 检查缓存
+          const cachedData = userDataCache.get(cacheKey);
+          if (cachedData && cachedData.teacher && Date.now() - cachedData.timestamp < 5 * 60 * 1000) {
+            console.log("使用缓存的教师信息:", userId);
+            return cachedData.teacher;
           }
 
           const token = localStorage.getItem("token");
@@ -1143,8 +1237,17 @@
             throw new Error(`获取教师信息失败: ${response.status}`);
           }
 
-          currentTeacher = await response.json();
-          return currentTeacher;
+          const teacherData = await response.json();
+          
+          // 缓存教师数据
+          if (!userDataCache.has(cacheKey)) {
+            userDataCache.set(cacheKey, {});
+          }
+          const userCache = userDataCache.get(cacheKey);
+          userCache.teacher = teacherData;
+          userCache.timestamp = Date.now();
+          
+          return teacherData;
         } catch (error) {
           console.error("获取教师信息失败:", error);
           return null;
@@ -1154,14 +1257,25 @@
       // 获取当前学生信息
       async function getCurrentStudent() {
         try {
+          const currentUser = await getCurrentUser();
           if (!currentUser) {
-            await getCurrentUser();
+            return null;
           }
 
           // 只有学生角色才获取学生信息
           if (currentUser.role !== "STUDENT") {
             console.log("用户不是学生，跳过学生信息获取");
             return null;
+          }
+
+          const userId = getCurrentUserId();
+          const cacheKey = getUserCacheKey(userId);
+          
+          // 检查缓存
+          const cachedData = userDataCache.get(cacheKey);
+          if (cachedData && cachedData.student && Date.now() - cachedData.timestamp < 5 * 60 * 1000) {
+            console.log("使用缓存的学生信息:", userId);
+            return cachedData.student;
           }
 
           const token = localStorage.getItem("token");
@@ -1179,8 +1293,17 @@
             throw new Error(`获取学生信息失败: ${response.status}`);
           }
 
-          currentStudent = await response.json();
-          return currentStudent;
+          const studentData = await response.json();
+          
+          // 缓存学生数据
+          if (!userDataCache.has(cacheKey)) {
+            userDataCache.set(cacheKey, {});
+          }
+          const userCache = userDataCache.get(cacheKey);
+          userCache.student = studentData;
+          userCache.timestamp = Date.now();
+          
+          return studentData;
         } catch (error) {
           console.error("获取学生信息失败:", error);
           return null;
@@ -1190,9 +1313,9 @@
       // 加载个人信息
       async function loadProfile() {
         try {
-          await getCurrentUser();
-          await getCurrentTeacher();
-          await getCurrentStudent();
+          const currentUser = await getCurrentUser();
+          const currentTeacher = await getCurrentTeacher();
+          const currentStudent = await getCurrentStudent();
 
           // 根据用户角色显示不同的字段
           if (currentUser) {
@@ -1344,13 +1467,19 @@
       // 加载统计数据
       async function loadStatistics() {
         try {
+          // 获取当前用户信息
+          const currentUser = await getCurrentUser();
           if (!currentUser) {
-            await getCurrentUser();
+            console.error("无法获取用户信息");
+            return;
           }
 
           const token = localStorage.getItem("token");
 
           // 根据用户角色更新标签文本和显示不同的统计信息
+          let currentTeacher = null;
+          let courses = [];
+          
           if (currentUser.role === "TEACHER") {
             // 更新教师标签文本
             document.getElementById("statsTitle").textContent = "教学数据统计";
@@ -1360,9 +1489,7 @@
             document.getElementById("gradeLabel").textContent = "平均成绩";
 
             // 教师统计信息
-            if (!currentTeacher) {
-              await getCurrentTeacher();
-            }
+            currentTeacher = await getCurrentTeacher();
 
             if (currentTeacher) {
               // 获取教师课程数量
@@ -1376,7 +1503,6 @@
                 }
               );
 
-              let courses = [];
               if (coursesResponse.ok) {
                 courses = await coursesResponse.json();
                 document.getElementById("courseCount").textContent =
@@ -1848,6 +1974,31 @@
             window.location.href = "/index.html";
           }, 1000);
           return;
+        }
+
+        // 清理所有缓存数据，强制每次重新加载（避免数据共享问题）
+        userDataCache.clear();
+        console.log("已清理所有用户缓存数据");
+        
+        // 清理localStorage中的旧数据（除了token和avatarData）
+        const currentUserId = getCurrentUserId();
+        if (currentUserId) {
+          // 只保留当前用户的头像数据
+          const avatarKey = `avatarData_${currentUserId}`;
+          const avatarData = localStorage.getItem(avatarKey);
+          // 清理所有非当前用户的avatarData
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('avatarData_') && key !== avatarKey) {
+              localStorage.removeItem(key);
+            }
+            if (key.startsWith('user_') && !key.includes(`user_${currentUserId}`)) {
+              localStorage.removeItem(key);
+            }
+          });
+          // 恢复当前用户的头像数据
+          if (avatarData) {
+            localStorage.setItem(avatarKey, avatarData);
+          }
         }
 
         // 加载个人信息

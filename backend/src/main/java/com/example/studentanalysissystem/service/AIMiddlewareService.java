@@ -12,12 +12,7 @@ public interface AIMiddlewareService {
     /**
      * 分析学生学习情况
      */
-    AIResponse analyzeStudentLearning(Long userId, String analysisType);
-    
-    /**
-     * 推荐学习资源
-     */
-    AIResponse recommendResources(Long userId, String resourceType);
+        AIResponse analyzeStudentLearning(Long userId, String analysisType);
     
     /**
      * 分析班级整体情况

@@ -8,6 +8,7 @@ import com.example.studentanalysissystem.service.StudentService;
 import com.example.studentanalysissystem.service.TeacherService;
 import com.example.studentanalysissystem.service.GradeService;
 import com.example.studentanalysissystem.service.ResourceService;
+import com.example.studentanalysissystem.service.AIDataPreprocessingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class AIMiddlewareServiceImpl implements AIMiddlewareService {
     private final TeacherService teacherService;
     private final GradeService gradeService;
     private final ResourceService resourceService;
+    private final AIDataPreprocessingService aiDataPreprocessingService;
     
     // 当前使用的模型适配器
     private AIModelAdapter currentAdapter;
@@ -67,13 +69,15 @@ public class AIMiddlewareServiceImpl implements AIMiddlewareService {
         try {
             // 根据用户ID获取学生信息
             var student = studentService.getStudentByUserId(userId);
-            var scores = gradeService.getGradesByStudentId(student.getId());
+            
+            // 使用预处理服务获取优化后的数据
+            Map<String, Object> processedData = aiDataPreprocessingService.preprocessStudentAnalysisData(student.getId(), analysisType);
             
             // 构建系统提示词
             String systemPrompt = buildLearningAnalysisSystemPrompt(analysisType);
             
-            // 构建用户提示词
-            String userPrompt = buildLearningAnalysisUserPrompt(student, scores, analysisType);
+            // 使用预处理的数据构建用户提示词
+            String userPrompt = buildOptimizedLearningAnalysisUserPrompt(processedData, analysisType);
             
             // 创建AI请求
             AIRequest request = AIRequest.builder()
@@ -87,7 +91,7 @@ public class AIMiddlewareServiceImpl implements AIMiddlewareService {
                             "userId", userId,
                             "studentId", student.getId(),
                             "analysisType", analysisType,
-                            "scores", scores
+                            "processedData", processedData
                     ))
                     .build();
             
@@ -103,45 +107,7 @@ public class AIMiddlewareServiceImpl implements AIMiddlewareService {
         }
     }
     
-    @Override
-    public AIResponse recommendResources(Long userId, String resourceType) {
-        try {
-            // 根据用户ID获取学生信息
-            var student = studentService.getStudentByUserId(userId);
-            var scores = gradeService.getGradesByStudentId(student.getId());
-            var resources = resourceService.getAllResources(); // 获取所有资源，前端可进一步筛选
-            
-            String systemPrompt = buildResourceRecommendationSystemPrompt();
-            String userPrompt = buildResourceRecommendationUserPrompt(student, scores, resources, resourceType);
-            
-            AIRequest request = AIRequest.builder()
-                    .requestId(UUID.randomUUID().toString())
-                    .userId(userId)
-                    .userRole("STUDENT")
-                    .systemPrompt(systemPrompt)
-                    .userPrompt(userPrompt)
-                    .requestType("RESOURCE_RECOMMENDATION")
-                    .context(Map.of(
-                            "userId", userId,
-                            "studentId", student.getId(),
-                            "resourceType", resourceType,
-                            "scores", scores,
-                            "resources", resources
-                    ))
-                    .build();
-            
-            return callAI(request);
-            
-        } catch (Exception e) {
-            log.error("推荐学习资源失败", e);
-            return AIResponse.builder()
-                    .success(false)
-                    .error("推荐失败: " + e.getMessage())
-                    .timestamp(LocalDateTime.now())
-                    .build();
-        }
-    }
-    
+
     @Override
     public AIResponse analyzeClassPerformance(Long teacherId, Long courseId) {
         try {
@@ -338,40 +304,9 @@ public class AIMiddlewareServiceImpl implements AIMiddlewareService {
             
             分析类型：%s
             
-            请提供详细的分析报告。
+            请提供详细的分析报告，并在分析中明确提及学生的姓名。
             """, student, scores, analysisType);
-    }
-    
-    private String buildResourceRecommendationSystemPrompt() {
-        return """
-            你是一个智能学习资源推荐专家。请根据学生的学习情况和需求，推荐合适的学习资源。
-            
-            推荐原则：
-            1. 基于学生的学习水平和兴趣
-            2. 考虑学生的薄弱环节
-            3. 推荐多样化的资源类型
-            4. 提供推荐理由
-            5. 按优先级排序
-            
-            请以结构化的方式组织推荐结果。
-            """;
-    }
-    
-    private String buildResourceRecommendationUserPrompt(Object student, Object scores, Object resources, String resourceType) {
-        return String.format("""
-            请为以下学生推荐学习资源：
-            
-            学生信息：%s
-            
-            成绩情况：%s
-            
-            已用资源：%s
-            
-            资源类型偏好：%s
-            
-            请提供个性化的资源推荐。
-            """, student, scores, resources, resourceType);
-    }
+          }
     
     private String buildClassAnalysisSystemPrompt() {
         return """
@@ -429,7 +364,7 @@ public class AIMiddlewareServiceImpl implements AIMiddlewareService {
             
             具体情境：%s
             
-            请提供针对性的学习建议。
+            请提供针对性的学习建议，并在建议中明确提及学生的姓名。
             """, student, scores, context);
     }
     
@@ -456,5 +391,35 @@ public class AIMiddlewareServiceImpl implements AIMiddlewareService {
             
             请回复用户的问题。
             """, message, context);
+    }
+    
+    /**
+     * 构建优化的学习分析用户提示词
+     */
+    private String buildOptimizedLearningAnalysisUserPrompt(Map<String, Object> processedData, String analysisType) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> studentInfo = (Map<String, Object>) processedData.get("studentInfo");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> gradeStats = (Map<String, Object>) processedData.get("gradeStatistics");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> courseAnalysis = (Map<String, Object>) processedData.get("courseAnalysis");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> learningTrend = (Map<String, Object>) processedData.get("learningTrend");
+        String simplifiedPrompt = (String) processedData.get("simplifiedPrompt");
+        
+        return String.format("""
+            请分析以下学生的学习情况：
+            
+            %s
+            
+            分析类型：%s
+            
+            请提供简洁明了的分析报告，重点关注：
+            1. 学习优势和不足
+            2. 具体改进建议
+            3. 学习策略推荐
+            
+            请在分析中明确提及学生姓名：%s
+            """, simplifiedPrompt, analysisType, studentInfo.get("name"));
     }
 }

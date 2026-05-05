@@ -1,5 +1,5 @@
 // API基础URL从全局变量获取
-const API_URL = window.API_URL || "http://localhost:8080/api";
+const API_URL = window.API_URL || "/api";
 
 // 打开模态框
 function openModal(title, formData = null) {

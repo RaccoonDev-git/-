@@ -33,19 +33,7 @@ public class AIController {
         
         AIResponse response = aiMiddlewareService.analyzeStudentLearning(userId, analysisType);
         return ResponseEntity.ok(response);
-    }
-    
-    @PostMapping("/recommend/resources/{userId}")
-    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
-    @Operation(summary = "推荐学习资源", description = "基于学生学习情况，AI推荐个性化学习资源")
-    public ResponseEntity<AIResponse> recommendResources(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "all") String resourceType,
-            @RequestHeader("Authorization") String token) {
-        
-        AIResponse response = aiMiddlewareService.recommendResources(userId, resourceType);
-        return ResponseEntity.ok(response);
-    }
+          }
     
     @PostMapping("/analyze/class/{teacherId}")
     @PreAuthorize("hasRole('TEACHER')")

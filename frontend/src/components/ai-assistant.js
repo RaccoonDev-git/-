@@ -4,7 +4,7 @@
  */
 class AIAssistant {
     constructor() {
-        this.apiBaseUrl = 'http://localhost:8080/api/ai';
+        this.apiBaseUrl = 'http://localhost:8082/api/ai';
         this.currentModel = null;
         this.isLoading = false;
         this.init();
@@ -28,12 +28,6 @@ class AIAssistant {
                 e.preventDefault();
                 const analysisType = e.target.dataset.analysisType || 'comprehensive';
                 this.analyzeStudentLearning(null, analysisType); // 传入null，让方法自动获取studentId
-            }
-            
-            if (e.target.matches('.ai-recommend-btn')) {
-                e.preventDefault();
-                const resourceType = e.target.dataset.resourceType || 'all';
-                this.recommendResources(null, resourceType); // 传入null，让方法自动获取studentId
             }
             
             if (e.target.matches('.ai-advice-btn')) {
@@ -92,49 +86,7 @@ class AIAssistant {
         }
     }
     
-    /**
-     * 推荐学习资源
-     */
-    async recommendResources(studentId, resourceType) {
-        if (this.isLoading) return;
-        
-        // 如果没有提供studentId，从token中获取
-        if (!studentId) {
-            studentId = this.getCurrentStudentId();
-            if (!studentId) {
-                this.showError('无法获取当前学生信息，请重新登录');
-                return;
-            }
-        }
-        
-        this.showLoading('正在推荐学习资源...');
-        
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${this.apiBaseUrl}/recommend/resources/${studentId}?resourceType=${resourceType}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                this.showAnalysisResult(result.content, '学习资源推荐');
-            } else {
-                this.showError('推荐失败: ' + result.error);
-            }
-            
-        } catch (error) {
-            console.error('AI推荐失败:', error);
-            this.showError('网络错误，请稍后重试');
-        } finally {
-            this.hideLoading();
-        }
-    }
-    
+
     /**
      * 生成学习建议
      */
@@ -263,6 +215,7 @@ class AIAssistant {
                 display: flex;
                 flex-direction: column;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                color: #333;
             }
             
             .ai-chat-header {
@@ -293,6 +246,7 @@ class AIAssistant {
                 display: flex;
                 flex-direction: column;
                 gap: 15px;
+                color: #333;
             }
             
             .ai-message {
@@ -333,7 +287,7 @@ class AIAssistant {
             
             .ai-text {
                 background: #f5f5f5;
-                color: #333;
+                color: #333 !important;
             }
             
             .user-text {
@@ -602,7 +556,7 @@ class AIAssistant {
             
             .ai-result-text {
                 line-height: 1.6;
-                color: #333;
+                color: #333 !important;
             }
             
             .ai-result-footer {

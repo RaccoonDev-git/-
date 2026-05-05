@@ -7,17 +7,21 @@ import com.example.studentanalysissystem.exception.ResourceNotFoundException;
 import com.example.studentanalysissystem.mapper.StudentMapper;
 import com.example.studentanalysissystem.model.Student;
 import com.example.studentanalysissystem.model.User;
+import com.example.studentanalysissystem.model.Grade;
 import com.example.studentanalysissystem.repository.CourseEnrollmentRepository;
 import com.example.studentanalysissystem.repository.StudentRepository;
 import com.example.studentanalysissystem.repository.UserRepository;
+import com.example.studentanalysissystem.repository.GradeRepository;
 import com.example.studentanalysissystem.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -26,12 +30,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final StudentMapper studentMapper;
     private final CourseEnrollmentRepository enrollmentRepository;
+    private final GradeRepository gradeRepository;
 
     @Override
     @Transactional
@@ -207,14 +213,26 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Map<String, Object>> getStudentScoresByCourseAndClass(Long courseId, String className) {
+        log.info("获取课程 {} 班级 {} 的学生成绩数据", courseId, className);
+        
         // 获取该班级选修该课程的学生
         List<Long> studentIds = enrollmentRepository.findStudentIdsByCourseId(courseId);
+        if (studentIds.isEmpty()) {
+            log.warn("课程 {} 没有学生选修", courseId);
+            return new ArrayList<>();
+        }
+        
         List<Student> students = studentRepository.findAllById(studentIds);
         
         // 过滤出指定班级的学生
         List<Student> classStudents = students.stream()
                 .filter(student -> className.equals(student.getClassName()))
                 .collect(Collectors.toList());
+        
+        if (classStudents.isEmpty()) {
+            log.warn("班级 {} 没有学生选修课程 {}", className, courseId);
+            return new ArrayList<>();
+        }
         
         // 构建学生成绩数据
         return classStudents.stream().map(student -> {
@@ -223,9 +241,22 @@ public class StudentServiceImpl implements StudentService {
             studentData.put("id", student.getId());
             studentData.put("studentNumber", student.getStudentNumber());
             
-            // 这里可以从成绩表中获取实际成绩，暂时使用模拟数据
-            // 实际项目中应该从Grade表或ComprehensiveGrade表查询
-            studentData.put("score", 75 + (Math.random() * 25)); // 模拟成绩 75-100
+            // 从Grade表查询实际成绩
+            try {
+                List<Grade> gradeList = gradeRepository.findByStudentIdAndCourseId(student.getId(), courseId);
+                if (!gradeList.isEmpty()) {
+                    double averageScore = gradeList.stream()
+                            .mapToDouble(g -> g.getScore().doubleValue())
+                            .average()
+                            .orElse(0.0);
+                    studentData.put("score", averageScore);
+                } else {
+                    studentData.put("score", 0.0);
+                }
+            } catch (Exception e) {
+                log.error("查询学生 {} 课程 {} 成绩失败", student.getId(), courseId, e);
+                studentData.put("score", 0.0);
+            }
             
             return studentData;
         }).collect(Collectors.toList());

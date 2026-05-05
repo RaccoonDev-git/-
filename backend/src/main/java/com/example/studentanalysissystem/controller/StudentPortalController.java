@@ -1,11 +1,11 @@
 package com.example.studentanalysissystem.controller;
 
 import com.example.studentanalysissystem.dto.response.ChatListItemResponse;
-import com.example.studentanalysissystem.dto.response.ComprehensiveGradeResponse;
+import com.example.studentanalysissystem.dto.response.GradeResponse;
 import com.example.studentanalysissystem.dto.response.MessageResponse;
 import com.example.studentanalysissystem.dto.response.ResourceResponse;
 import com.example.studentanalysissystem.security.JwtUtil;
-import com.example.studentanalysissystem.service.ComprehensiveGradeService;
+import com.example.studentanalysissystem.service.GradeService;
 import com.example.studentanalysissystem.service.MessageService;
 import com.example.studentanalysissystem.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +36,7 @@ public class StudentPortalController {
 
     private final MessageService messageService;
     private final ResourceService resourceService;
-    private final ComprehensiveGradeService comprehensiveGradeService;
+    private final GradeService gradeService;
     private final JwtUtil jwtUtil;
 
     /**
@@ -49,19 +49,19 @@ public class StudentPortalController {
         try {
             Long studentId = getCurrentUserId(request);
             
-            // 从数据库获取学生的综合成绩数据
-            List<ComprehensiveGradeResponse> comprehensiveGrades = comprehensiveGradeService.getComprehensiveGradesByStudentId(studentId);
+            // 从数据库获取学生的成绩数据
+            List<GradeResponse> grades = gradeService.getGradesByStudentId(studentId);
             
             // 按课程分组成绩数据
             Map<String, Object> scores = new HashMap<>();
-            for (ComprehensiveGradeResponse grade : comprehensiveGrades) {
+            for (GradeResponse grade : grades) {
                 String courseName = grade.getCourseName();
                 if (!scores.containsKey(courseName)) {
                     scores.put(courseName, new ArrayList<>());
                 }
                 @SuppressWarnings("unchecked")
                 List<Object> courseScores = (List<Object>) scores.get(courseName);
-                courseScores.add(grade.getComprehensiveScore());
+                courseScores.add(grade.getScore());
             }
 
             log.info("学生 {} 获取成绩数据，共 {} 门课程", studentId, scores.size());
@@ -78,15 +78,15 @@ public class StudentPortalController {
     @Operation(summary = "获取学生详细成绩数据")
     @GetMapping("/grade-details")
     @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'TEACHER')")
-    public ResponseEntity<List<ComprehensiveGradeResponse>> getStudentGradeDetails(HttpServletRequest request) {
+    public ResponseEntity<List<GradeResponse>> getStudentGradeDetails(HttpServletRequest request) {
         try {
             Long studentId = getCurrentUserId(request);
             
-            // 从数据库获取学生的综合成绩数据
-            List<ComprehensiveGradeResponse> comprehensiveGrades = comprehensiveGradeService.getComprehensiveGradesByStudentId(studentId);
+            // 从数据库获取学生的成绩数据
+            List<GradeResponse> grades = gradeService.getGradesByStudentId(studentId);
 
-            log.info("学生 {} 获取详细成绩数据，共 {} 条记录", studentId, comprehensiveGrades.size());
-            return ResponseEntity.ok(comprehensiveGrades);
+            log.info("学生 {} 获取详细成绩数据，共 {} 条记录", studentId, grades.size());
+            return ResponseEntity.ok(grades);
         } catch (Exception e) {
             log.error("获取学生详细成绩数据失败", e);
             return ResponseEntity.internalServerError().build();

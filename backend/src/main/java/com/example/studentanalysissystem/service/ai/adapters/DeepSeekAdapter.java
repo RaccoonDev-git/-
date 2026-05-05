@@ -6,7 +6,6 @@ import com.example.studentanalysissystem.dto.request.AIRequest;
 import com.example.studentanalysissystem.dto.response.AIResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
@@ -38,14 +37,17 @@ public class DeepSeekAdapter implements AIModelAdapter {
     @Value("${ai.middleware.models.deepseek.endpoint:https://api.deepseek.com/v1/chat/completions}")
     private String endpoint;
     
-    @Value("${ai.middleware.models.deepseek.max-tokens:2000}")
+    @Value("${ai.middleware.models.deepseek.max-tokens:1000}")
     private Integer maxTokens;
     
-    @Value("${ai.middleware.models.deepseek.temperature:0.7}")
+    @Value("${ai.middleware.models.deepseek.temperature:0.3}")
     private Double temperature;
     
-    @Value("${ai.middleware.models.deepseek.timeout:30000}")
+    @Value("${ai.middleware.models.deepseek.timeout:15000}")
     private Integer timeout;
+    
+    @Value("${ai.middleware.models.deepseek.stream:true}")
+    private Boolean stream;
     
     @Value("${ai.middleware.models.deepseek.enabled:true}")
     private Boolean enabled;
@@ -137,6 +139,7 @@ public class DeepSeekAdapter implements AIModelAdapter {
             });
             requestBody.put("max_tokens", config.getMaxTokens());
             requestBody.put("temperature", config.getTemperature());
+            // 禁用流式响应，因为 RestTemplate 不支持 SSE 流式响应
             requestBody.put("stream", false);
             
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);

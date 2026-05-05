@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__, static_folder=".")
 
 # 后端服务器地址
-BACKEND_URL = "http://localhost:8080"
+BACKEND_URL = "http://localhost:8082"
 
 
 # 允许跨域请求

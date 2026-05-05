@@ -2,7 +2,6 @@ package com.example.studentanalysissystem.controller;
 
 import com.example.studentanalysissystem.model.GradeType;
 import com.example.studentanalysissystem.repository.GradeTypeRepository;
-import com.example.studentanalysissystem.service.GradeRecalculationService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +23,6 @@ import java.util.List;
 public class GradeTypeController {
 
     private final GradeTypeRepository gradeTypeRepository;
-    private final GradeRecalculationService gradeRecalculationService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
@@ -84,15 +82,7 @@ public class GradeTypeController {
 
         List<GradeType> savedTypes = gradeTypeRepository.saveAll(gradeTypes);
 
-        // 成绩类型批量创建后，重新计算所有相关课程的综合成绩
-        try {
-            for (GradeType savedType : savedTypes) {
-                gradeRecalculationService.recalculateGradesAfterGradeTypeAddition(savedType.getId());
-            }
-        } catch (Exception e) {
-            // 记录错误但不影响成绩类型的保存
-            System.err.println("重新计算课程成绩失败: " + e.getMessage());
-        }
+        // 注意：综合成绩功能已移除，不再需要重新计算
 
         return ResponseEntity.ok(savedTypes);
     }
@@ -137,13 +127,7 @@ public class GradeTypeController {
                     type.setDescription(request.getDescription());
                     GradeType updatedType = gradeTypeRepository.save(type);
 
-                    // 成绩类型更新后，重新计算相关课程的综合成绩
-                    try {
-                        gradeRecalculationService.recalculateGradesByGradeType(updatedType.getId());
-                    } catch (Exception e) {
-                        // 记录错误但不影响成绩类型的保存
-                        System.err.println("重新计算课程成绩失败: " + e.getMessage());
-                    }
+                    // 注意：综合成绩功能已移除，不再需要重新计算
 
                     return ResponseEntity.ok(updatedType);
                 })
@@ -158,13 +142,7 @@ public class GradeTypeController {
             return ResponseEntity.notFound().build();
         }
 
-        // 删除前先重新计算相关课程的综合成绩
-        try {
-            gradeRecalculationService.recalculateGradesAfterGradeTypeDeletion(id);
-        } catch (Exception e) {
-            // 记录错误但不影响删除操作
-            System.err.println("重新计算课程成绩失败: " + e.getMessage());
-        }
+        // 注意：综合成绩功能已移除，不再需要重新计算
 
         gradeTypeRepository.deleteById(id);
         return ResponseEntity.ok().build();

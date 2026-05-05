@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -180,43 +178,13 @@ public class TeacherServiceImpl implements TeacherService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Map<String, Object> getTeacherAnalysisData(Long teacherId) {
-        Map<String, Object> analysisData = new HashMap<>();
-        
-        // 获取教师所教的班级
-        List<String> teacherClasses = getTeacherClasses(teacherId);
-        
-        // 获取教师的所有课程
-        List<CourseResponse> teacherCourses = getTeacherCourses(teacherId);
-        
-        // 构建分析数据结构
-        Map<String, Object> classData = new HashMap<>();
-        
-        for (String className : teacherClasses) {
-            // 获取该班级的课程
-            List<CourseResponse> classCourses = getTeacherCoursesInClass(teacherId, className);
-            
-            // 构建课程数据
-            Map<String, Object> courseData = new HashMap<>();
-            for (CourseResponse course : classCourses) {
-                // 获取该课程在该班级的学生成绩数据
-                List<Map<String, Object>> studentScores = studentService.getStudentScoresByCourseAndClass(course.getId(), className);
-                courseData.put(course.getName(), studentScores);
-            }
-            
-            classData.put(className, courseData);
-        }
-        
-        analysisData.put("classes", teacherClasses);
-        analysisData.put("courses", teacherCourses.stream().map(CourseResponse::getName).collect(Collectors.toList()));
-        analysisData.put("analysisData", classData);
-        
-        return analysisData;
-    }
 
     @Override
     public List<com.example.studentanalysissystem.dto.response.StudentResponse> getTeacherStudents(Long teacherId) {
+        // 首先检查教师是否存在
+        teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", teacherId));
+        
         // 获取教师所教的班级
         List<String> teacherClasses = getTeacherClasses(teacherId);
         

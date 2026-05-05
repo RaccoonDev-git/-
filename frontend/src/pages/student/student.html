@@ -4,13 +4,397 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>学生页面 - 学情分析系统</title>
-    <!-- 引入 Chart.js 库 - 使用CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <!-- 引入 Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
+    <!-- Chart.js 加载检测与初始化（优先使用本地文件） -->
+    <script>
+      // 存储 Chart 加载状态，避免重复请求
+      let chartLoaded = false;
+      let loadAttempt = 0;
+      let isLoading = false; // 防止重复加载
+      let errorHandlerActive = false; // 防止错误处理递归
+      const MAX_ATTEMPTS = 7; // 最大尝试次数（2个本地路径 + 5个CDN源）
+
+      // 检测 Chart 是否加载成功
+      function checkChartLoaded() {
+        // 检查多种可能的Chart对象形式
+        if (typeof Chart !== 'undefined') {
+          // Chart.js 4.x 版本，Chart是一个构造函数（函数类型）
+          if (typeof Chart === 'function') {
+            chartLoaded = true;
+            console.log('✅ Chart.js 加载成功，Chart构造函数可用');
+            // 加载成功后，初始化图表（若页面加载时需要自动渲染）
+            initAllCharts();
+            return true;
+          }
+          // 某些版本可能是对象形式，包含Chart属性
+          if (typeof Chart === 'object' && Chart && (typeof Chart.Chart === 'function' || typeof Chart.default === 'function')) {
+            chartLoaded = true;
+            console.log('✅ Chart.js 加载成功（对象形式）');
+            initAllCharts();
+            return true;
+          }
+          // 如果Chart存在但不是函数，也尝试标记为已加载（可能是命名空间）
+          if (Chart && typeof Chart !== 'undefined') {
+            chartLoaded = true;
+            console.log('✅ Chart.js 加载成功（兼容模式）');
+            initAllCharts();
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // 加载 Chart.js（优先本地文件，失败后使用CDN）
+      function loadChartJS() {
+        // 防止重复加载
+        if (isLoading) {
+          return;
+        }
+        
+        loadAttempt++;
+        
+        if (loadAttempt > MAX_ATTEMPTS) {
+          isLoading = false;
+          errorHandlerActive = false;
+          console.error('❌ Chart.js 多次加载失败，图表功能将不可用');
+          // 恢复原始错误处理（使用try-catch保护）
+          try {
+            if (window._originalErrorHandler) {
+              window.onerror = window._originalErrorHandler;
+              delete window._originalErrorHandler;
+            } else {
+              window.onerror = null;
+            }
+          } catch (e) {
+            console.warn('恢复原始错误处理失败:', e);
+            window.onerror = null;
+          }
+          // 设置一个标记，表示Chart.js加载失败
+          window.chartLoadFailed = true;
+          // 在所有图表容器中显示错误提示
+          setTimeout(() => {
+            const chartContainers = document.querySelectorAll('.chart-container');
+            chartContainers.forEach(container => {
+              const canvas = container.querySelector('canvas');
+              if (canvas && !canvas.hasAttribute('data-error-shown')) {
+                canvas.setAttribute('data-error-shown', 'true');
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'padding: 20px; text-align: center; color: #999; background: rgba(0,0,0,0.05); border-radius: 4px;';
+                errorDiv.innerHTML = '<p>图表加载失败</p><p style="font-size: 12px; margin-top: 5px;">请检查网络连接或刷新页面</p>';
+                container.appendChild(errorDiv);
+              }
+            });
+          }, 500);
+          return;
+        }
+        
+        isLoading = true;
+
+        // 确定加载源：优先使用本地文件，失败后使用CDN
+        let scriptSrc;
+        if (loadAttempt === 1) {
+          // 优先尝试本地文件（使用绝对路径）
+          scriptSrc = '/src/assets/js/lib/chart.js';
+          console.log('📁 第 1 次尝试从本地文件加载 Chart.js...');
+        } else if (loadAttempt === 2) {
+          // 尝试相对路径的本地文件
+          scriptSrc = '../../assets/js/lib/chart.js';
+          console.log('📁 第 2 次尝试从本地文件（相对路径）加载 Chart.js...');
+        } else if (loadAttempt === 3) {
+          // 使用unpkg CDN（主要源）
+          scriptSrc = 'https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js';
+          console.log('🌐 第 3 次尝试从 unpkg CDN 加载 Chart.js...');
+        } else if (loadAttempt === 4) {
+          // 使用cdnjs CDN（备用1）
+          scriptSrc = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js';
+          console.log('🌐 第 4 次尝试从 cdnjs CDN 加载 Chart.js...');
+        } else if (loadAttempt === 5) {
+          // 使用jsDelivr CDN（备用2）
+          scriptSrc = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+          console.log('🌐 第 5 次尝试从 jsDelivr CDN 加载 Chart.js...');
+        } else if (loadAttempt === 6) {
+          // 使用备用版本（备用3）
+          scriptSrc = 'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.min.js';
+          console.log('🌐 第 6 次尝试从 unpkg CDN (v4.4.0) 加载 Chart.js...');
+        } else {
+          // 使用bootcdn作为最后的备选
+          scriptSrc = 'https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.4/chart.umd.min.js';
+          console.log(`🌐 第 ${loadAttempt} 次尝试从 bootcdn CDN 加载 Chart.js...`);
+        }
+
+        // 创建脚本标签
+        const script = document.createElement('script');
+        script.src = scriptSrc;
+        script.async = false; // 同步加载，确保顺序
+        
+        // 添加错误处理，捕获语法错误
+        script.onerror = function() {
+          isLoading = false;
+          errorHandlerActive = false;
+          console.warn(`⚠️ 加载失败 (${loadAttempt}/${MAX_ATTEMPTS}): ${scriptSrc}`);
+          // 移除失败的脚本标签
+          try {
+            if (script.parentNode) {
+              script.parentNode.removeChild(script);
+            }
+          } catch (e) {
+            console.warn('移除失败脚本时出错:', e);
+          }
+          // 继续尝试下一个源（延迟一点，避免过快重试）
+          if (loadAttempt <= MAX_ATTEMPTS) {
+            setTimeout(() => {
+              loadChartJS();
+            }, 300);
+          }
+        };
+        
+                // 监听脚本加载完成
+        script.onload = function() {
+          // 先定义变量
+          let checkInterval = null;
+          let checkCount = 0;
+          const maxChecks = 15; // 最多检查15次（约1.5秒）
+          
+          // 快速检查是否是占位符文件
+          setTimeout(() => {
+            // 检查占位符标记或Chart对象是否未定义
+            if (window._chartPlaceholder || (typeof Chart === 'undefined' && (scriptSrc.includes('/assets/js/lib/chart.js') || scriptSrc.includes('assets/js/lib/chart.js')))) {
+              console.warn('⚠️ 检测到占位符文件，跳过并尝试其他源...');
+              isLoading = false;
+              // 清除占位符标记
+              if (window._chartPlaceholder) {
+                delete window._chartPlaceholder;
+              }
+              // 如果已经开始了检查循环，清除它
+              if (checkInterval) {
+                clearInterval(checkInterval);
+              }
+              // 移除占位符脚本
+              try {
+                if (script.parentNode) {
+                  script.parentNode.removeChild(script);
+                }
+              } catch (e) {
+                console.warn('移除占位符脚本失败:', e);
+              }
+              // 立即尝试下一个源
+              if (loadAttempt <= MAX_ATTEMPTS) {
+                setTimeout(() => {
+                  errorHandlerActive = false;
+                  loadChartJS();
+                }, 100);
+              }
+              return; // 提前返回，不执行后续检查
+            }
+            
+            // 如果不是占位符，开始正常检查流程
+            // 多次检查Chart对象，因为有些CDN可能需要更长时间
+            checkInterval = setInterval(() => {
+              checkCount++;
+              // 详细日志，帮助调试
+              if (checkCount === 1 || checkCount === 5 || checkCount === 10) {
+                console.log(`检查 Chart 对象 (${checkCount}/${maxChecks}): typeof Chart = ${typeof Chart}`);
+              }
+              
+              if (checkChartLoaded()) {
+                // 加载成功，不需要继续
+                isLoading = false;
+                clearInterval(checkInterval);
+                // 恢复原始错误处理（延迟恢复，避免在错误处理过程中触发）
+                setTimeout(() => {
+                  try {
+                    if (window._originalErrorHandler) {
+                      window.onerror = window._originalErrorHandler;
+                      delete window._originalErrorHandler;
+                    } else {
+                      window.onerror = null;
+                    }
+                    errorHandlerActive = false;
+                  } catch (e) {
+                    console.warn('恢复原始错误处理失败:', e);
+                    window.onerror = null;
+                    errorHandlerActive = false;
+                  }
+                }, 100);
+              } else if (checkCount >= maxChecks) {
+                // 超时，继续尝试下一个源
+                isLoading = false;
+                clearInterval(checkInterval);
+                console.warn(`⚠️ Chart.js 脚本加载但 Chart 对象未定义（超时，检查了${maxChecks}次），继续尝试其他源...`);
+                console.warn(`当前 Chart 状态: typeof Chart = ${typeof Chart}`);
+                // 移除可能有问题的脚本
+                if (script.parentNode) {
+                  script.parentNode.removeChild(script);
+                }
+                // 继续尝试下一个源（延迟一点）
+                if (loadAttempt <= MAX_ATTEMPTS) {
+                  setTimeout(() => {
+                    errorHandlerActive = false; // 重置错误处理标志
+                    loadChartJS();
+                  }, 300);
+                }
+              }
+            }, 100); // 每100ms检查一次
+          }, 50); // 延迟50ms后开始检查
+        };
+        
+        // 添加全局错误处理，捕获脚本执行时的语法错误（仅针对当前脚本）
+        if (!window._originalErrorHandler) {
+          window._originalErrorHandler = window.onerror;
+        }
+        const currentScript = script; // 保存当前脚本引用
+        const currentScriptSrc = scriptSrc; // 保存当前脚本源
+        let errorHandled = false; // 防止重复处理错误
+        
+        window.onerror = function(msg, url, line, col, error) {
+          // 防止递归调用
+          if (errorHandlerActive) {
+            return false; // 如果已经在处理错误，直接返回，避免递归
+          }
+          
+          try {
+            // 只处理当前脚本的错误，且未处理过
+            if (!errorHandled && url && (url.includes('chart') || url.includes('Chart') || url.includes(currentScriptSrc))) {
+              errorHandlerActive = true; // 设置标志，防止递归
+              errorHandled = true;
+              console.error(`❌ Chart.js 加载错误: ${msg} (位置: ${line}:${col})`);
+              console.warn('将尝试其他源...');
+              
+              // 立即移除错误处理，防止递归
+              window.onerror = null;
+              
+              // 延迟恢复原始错误处理，避免在错误处理过程中触发
+              setTimeout(() => {
+                try {
+                  if (window._originalErrorHandler) {
+                    window.onerror = window._originalErrorHandler;
+                  }
+                  errorHandlerActive = false;
+                } catch (e) {
+                  // 如果恢复错误处理也失败，至少设置回null
+                  window.onerror = null;
+                  errorHandlerActive = false;
+                }
+              }, 100);
+              
+              // 移除有问题的脚本
+              try {
+                if (currentScript && currentScript.parentNode) {
+                  currentScript.parentNode.removeChild(currentScript);
+                }
+              } catch (e) {
+                console.warn('移除脚本失败:', e);
+              }
+              
+              // 继续尝试下一个源（延迟一点，避免过快重试）
+              if (loadAttempt <= MAX_ATTEMPTS) {
+                setTimeout(() => {
+                  isLoading = false; // 重置加载标志
+                  loadChartJS();
+                }, 300);
+              }
+              return true; // 阻止默认错误处理
+            }
+            
+            // 其他错误继续使用原始处理
+            if (window._originalErrorHandler) {
+              try {
+                return window._originalErrorHandler(msg, url, line, col, error);
+              } catch (e) {
+                // 如果原始错误处理也失败，至少记录一下
+                console.error('原始错误处理函数执行失败:', e);
+                return false;
+              }
+            }
+            return false;
+          } catch (e) {
+            // 如果错误处理本身出错，至少设置window.onerror为null，避免递归
+            console.error('错误处理函数执行失败:', e);
+            window.onerror = null;
+            errorHandlerActive = false;
+            return false;
+          }
+        };
+        
+        document.head.appendChild(script);
+      }
+
+      // 加载 Chart.js 数据标签插件
+      function loadChartDataLabelsPlugin() {
+        // 检查插件是否已加载
+        if (typeof ChartDataLabels !== 'undefined') {
+          console.log('✅ ChartDataLabels 插件已加载');
+          return;
+        }
+        
+        // 尝试加载本地文件
+        const script = document.createElement('script');
+        script.src = '/js/chartjs-plugin-datalabels.min.js';
+        script.async = false;
+        
+        script.onload = function() {
+          if (typeof ChartDataLabels !== 'undefined') {
+            console.log('✅ ChartDataLabels 插件加载成功');
+          } else {
+            console.warn('⚠️ ChartDataLabels 插件文件加载但对象未定义，尝试CDN...');
+            // 尝试CDN
+            loadChartDataLabelsFromCDN();
+          }
+        };
+        
+        script.onerror = function() {
+          console.warn('⚠️ 本地 ChartDataLabels 插件加载失败，尝试CDN...');
+          loadChartDataLabelsFromCDN();
+        };
+        
+        document.head.appendChild(script);
+      }
+      
+      // 从CDN加载插件
+      function loadChartDataLabelsFromCDN() {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js';
+        script.async = false;
+        
+        script.onload = function() {
+          if (typeof ChartDataLabels !== 'undefined') {
+            console.log('✅ ChartDataLabels 插件从CDN加载成功');
+          } else {
+            console.error('❌ ChartDataLabels 插件加载失败，图表数据标签功能将不可用');
+          }
+        };
+        
+        script.onerror = function() {
+          console.error('❌ ChartDataLabels 插件CDN加载失败，图表数据标签功能将不可用');
+        };
+        
+        document.head.appendChild(script);
+      }
+
+      // 页面 DOM 完全加载后执行
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== DOM 加载完成，开始加载 Chart.js ===');
+        // 先检查是否已经加载（可能CDN很快）
+        if (!checkChartLoaded()) {
+          // 开始加载流程
+          loadChartJS();
+        }
+        // 加载 Chart.js 数据标签插件（在 Chart.js 加载后）
+        setTimeout(() => {
+          loadChartDataLabelsPlugin();
+        }, 500);
+      });
+
+      // 初始化所有图表（在 Chart 加载成功后调用）
+      function initAllCharts() {
+        // 图表将在各自的模块加载时自动创建，这里不需要主动调用
+        console.log('✅ Chart.js 已就绪，可以创建图表');
+      }
+    </script>
     <style>
       /* 全局样式 */
       * {
@@ -100,6 +484,10 @@
         text-decoration: none;
         font-size: 14px;
         transition: all 0.3s ease;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-weight: 500;
       }
 
       .dropdown-menu a i {
@@ -411,6 +799,230 @@
       .sidebar a:hover {
         background-color: #e0f7fa;
         color: #00507a;
+      }
+
+
+      .analysis-sidebar-btn {
+        display: block;
+        padding: 10px;
+        text-decoration: none;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        color: #0077b6;
+        transition: background-color 0.3s;
+        cursor: pointer;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-size: inherit;
+        font-family: inherit;
+      }
+
+
+      .analysis-sidebar-btn:hover {
+        background-color: #e0f7fa;
+        color: #00507a;
+      }
+
+      /* 学情查看提示信息样式 */
+      .analysis-info {
+        background: rgba(0, 86, 145, 0.05);
+        border: 1px solid rgba(0, 86, 145, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+        color: #005691;
+      }
+
+      .analysis-info p {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      /* 分析模块样式 - 与学习资源获取风格一致 */
+      .analysis-module {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(0, 86, 145, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(0, 86, 145, 0.1);
+      }
+
+      .analysis-module h3 {
+        color: #005691;
+        font-size: 18px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(0, 86, 145, 0.2);
+      }
+
+      .analysis-content {
+        margin-top: 15px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 15px;
+        background: rgba(0, 86, 145, 0.05);
+        border-radius: 6px;
+        border: 1px solid rgba(0, 86, 145, 0.1);
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #005691;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+        text-transform: uppercase;
+      }
+
+      .chart-container {
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 6px;
+        border: 1px solid rgba(0, 86, 145, 0.1);
+      }
+
+      .chart-container h4 {
+        color: #005691;
+        font-size: 14px;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .chart-container canvas {
+        max-height: 300px;
+        width: 100% !important;
+        height: 300px !important;
+      }
+
+      .suggestions {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(0, 86, 145, 0.05);
+        border-radius: 6px;
+        border: 1px solid rgba(0, 86, 145, 0.1);
+      }
+
+      .suggestions h4 {
+        color: #005691;
+        font-size: 14px;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .suggestions ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .suggestions li {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(0, 86, 145, 0.1);
+        color: #333;
+        font-size: 14px;
+      }
+
+      .suggestions li:last-child {
+        border-bottom: none;
+      }
+
+      /* 科目建议段落样式 */
+      #subject-suggestions-list {
+        padding: 0;
+        margin: 0;
+      }
+
+      #subject-suggestions-list p {
+        margin: 0 0 1em 0;
+        padding: 0;
+        text-indent: 2em; /* 首行缩进两格 */
+        color: #333;
+        line-height: 1.8;
+        white-space: pre-wrap; /* 保留换行和空格 */
+        word-wrap: break-word; /* 允许长单词换行 */
+        font-size: 14px;
+      }
+
+      #subject-suggestions-list p:last-child {
+        margin-bottom: 0;
+      }
+
+      .ranking-section, .achievement-section {
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(0, 86, 145, 0.05);
+        border-radius: 6px;
+        border: 1px solid rgba(0, 86, 145, 0.1);
+      }
+
+      .ranking-section h4, .achievement-section h4 {
+        color: #005691;
+        font-size: 14px;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .ranking-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+
+      .ranking-position {
+        font-size: 20px;
+        font-weight: bold;
+        color: #005691;
+        margin-right: 15px;
+        min-width: 40px;
+      }
+
+      .ranking-title {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .ranking-detail {
+        color: #666;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .achievement-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .achievement-badge {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
       }
 
       .content {
@@ -1347,8 +1959,16 @@
         flex-wrap: wrap;
       }
 
+      .analysis-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+
+
       .ai-analyze-btn,
-      .ai-recommend-btn,
       .ai-advice-btn,
       .ai-chat-btn {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1367,7 +1987,6 @@
       }
 
       .ai-analyze-btn:hover,
-      .ai-recommend-btn:hover,
       .ai-advice-btn:hover,
       .ai-chat-btn:hover {
         transform: translateY(-2px);
@@ -1375,20 +1994,12 @@
       }
 
       .ai-analyze-btn:active,
-      .ai-recommend-btn:active,
       .ai-advice-btn:active,
       .ai-chat-btn:active {
         transform: translateY(0);
       }
 
-      .ai-recommend-btn {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
-      }
 
-      .ai-recommend-btn:hover {
-        box-shadow: 0 4px 16px rgba(240, 147, 251, 0.4);
-      }
 
       .ai-advice-btn {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -1665,10 +2276,11 @@
         display: flex;
         gap: 12px;
         margin-bottom: 20px;
+        justify-content: flex-start;
       }
 
       .ai-message.user-message {
-        flex-direction: row-reverse;
+        justify-content: flex-end;
       }
 
       .ai-avatar {
@@ -1686,23 +2298,29 @@
 
       .ai-content {
         flex: 1;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.9);
         padding: 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px 18px 18px 4px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: #333;
+        max-width: 70%;
       }
 
       .user-message .ai-content {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: 1px solid rgba(102, 126, 234, 0.3);
+        background: #dee2e6;
+        border: 1px solid #ced4da;
+        color: #333;
+        max-width: 70%;
+        border-radius: 18px 18px 4px 18px;
+        order: -1;
       }
 
       .user-message .ai-avatar {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        background: #28a745;
       }
 
       .ai-text {
-        color: rgba(255, 255, 255, 0.9);
+        color: #333 !important;
         line-height: 1.6;
         margin-bottom: 8px;
       }
@@ -1711,6 +2329,10 @@
         font-size: 12px;
         color: rgba(255, 255, 255, 0.5);
         text-align: right;
+      }
+
+      .user-message .ai-time {
+        text-align: left;
       }
 
       .ai-chat-input {
@@ -1726,11 +2348,11 @@
 
       .ai-input-container input {
         flex: 1;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 8px;
         padding: 12px 15px;
-        color: rgba(255, 255, 255, 0.9);
+        color: #333;
         font-size: 14px;
         outline: none;
         transition: all 0.3s ease;
@@ -1742,7 +2364,7 @@
       }
 
       .ai-input-container input::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(0, 0, 0, 0.5);
       }
 
       .ai-send-btn {
@@ -1768,11 +2390,11 @@
       }
 
       .ai-quick-btn {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 6px;
         padding: 8px 12px;
-        color: rgba(255, 255, 255, 0.8);
+        color: #333;
         cursor: pointer;
         font-size: 12px;
         transition: all 0.3s ease;
@@ -1782,9 +2404,9 @@
       }
 
       .ai-quick-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(102, 126, 234, 0.1);
         border-color: #667eea;
-        color: rgba(255, 255, 255, 1);
+        color: #667eea;
       }
 
       .ai-quick-btn i {
@@ -1822,7 +2444,7 @@
         <div class="avatar" onclick="toggleDropdown()">
           <i class="fas fa-user"></i>
           <div class="dropdown-menu" id="dropdownMenu">
-            <a href="../../personal-center.html?role=student"
+            <a href="../../student-personal-center.html"
               ><i class="fas fa-user-circle"></i>个人中心</a
             >
             <div class="separator"></div>
@@ -1837,6 +2459,15 @@
       <div class="sidebar day-mode">
         <a href="#learning-resources">学习资源获取</a>
         <a href="#learning-analysis">学情查看</a>
+        <button class="analysis-sidebar-btn comprehensive-btn" onclick="openComprehensiveAnalysis()" title="综合分析学习情况">
+          综合分析
+        </button>
+        <button class="analysis-sidebar-btn subject-btn" onclick="openSubjectAnalysis()" title="科目专项分析">
+          科目分析
+        </button>
+        <button class="analysis-sidebar-btn comparison-btn" onclick="openComparisonAnalysis()" title="对比分析">
+          对比分析
+        </button>
         <a href="#ai-assistant">AI助手</a>
         <a href="#communication">沟通与互动</a>
       </div>
@@ -1906,15 +2537,7 @@
                 <i class="fas fa-file-alt"></i> 练习题
               </div>
             </div>
-            <div class="ai-controls">
-              <button
-                class="ai-recommend-btn"
-                data-resource-type="all"
-                title="AI推荐学习资源"
-              >
-                <i class="fas fa-lightbulb"></i> AI资源推荐
-              </button>
-            </div>
+
           </div>
           <div class="resource-grid">
             <!-- 资源卡片将通过JavaScript动态生成 -->
@@ -1923,22 +2546,6 @@
         <!-- 学情查看 -->
         <div id="learning-analysis" style="display: none">
           <h2>学情查看</h2>
-          <div class="ai-analysis-controls">
-            <button
-              class="ai-analyze-btn"
-              data-analysis-type="comprehensive"
-              title="AI智能分析学习情况"
-            >
-              <i class="fas fa-robot"></i> AI学习分析
-            </button>
-            <button
-              class="ai-advice-btn"
-              data-context="学习建议"
-              title="AI生成学习建议"
-            >
-              <i class="fas fa-graduation-cap"></i> 学习建议
-            </button>
-          </div>
           <table>
             <thead>
               <tr>
@@ -1952,6 +2559,79 @@
               <!-- 动态生成课程行 -->
             </tbody>
           </table>
+          
+          <!-- 分析模块 - 只在点击分析按钮时显示 -->
+          <!-- 综合分析 -->
+          <div class="analysis-module" id="comprehensive-analysis" style="display: none">
+            <h3>综合分析</h3>
+            <div class="analysis-content">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-value" id="avg-score">--</div>
+                  <div class="stat-label">平均分</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value" id="total-courses">--</div>
+                  <div class="stat-label">总课程数</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value" id="class-rank">--</div>
+                  <div class="stat-label">班级排名</div>
+                </div>
+              </div>
+              <div class="chart-container">
+                <h4>成绩分布图</h4>
+                <canvas id="comprehensive-chart"></canvas>
+              </div>
+              <div class="suggestions">
+                <h4>学习建议</h4>
+                <ul id="comprehensive-suggestions-list">
+                  <li>正在分析中...</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 科目分析 -->
+          <div class="analysis-module" id="subject-analysis" style="display: none">
+            <h3>科目分析</h3>
+            <div class="analysis-content">
+              <div class="chart-container">
+                <h4>各科目成绩对比</h4>
+                <canvas id="subject-chart"></canvas>
+              </div>
+              <div class="suggestions">
+                <h4>科目建议</h4>
+                <ul id="subject-suggestions-list">
+                  <li>正在分析中...</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 对比分析 -->
+          <div class="analysis-module" id="comparison-analysis" style="display: none">
+            <h3>对比分析</h3>
+            <div class="analysis-content">
+              <div class="ranking-section">
+                <h4>排名情况</h4>
+                <div id="ranking-list">
+                  <div class="ranking-item">
+                    <div class="ranking-position">#12</div>
+                    <div class="ranking-info">
+                      <div class="ranking-title">班级排名</div>
+                      <div class="ranking-detail">在30人中排名第12</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="chart-container">
+                <h4>成绩对比图</h4>
+                <canvas id="comparison-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
         </div>
         <!-- AI助手 -->
         <div id="ai-assistant" style="display: none">
@@ -1975,7 +2655,7 @@
                 <div class="ai-content">
                   <div class="ai-text">
                     你好！我是你的智能学习助手。我可以帮助你：
-                    <br />📚 分析学习情况 <br />💡 推荐学习资源 <br />🎯
+                    <br />📚 分析学习情况 <br />🎯
                     提供学习建议 <br />💬 回答学习问题
                     <br /><br />有什么我可以帮助你的吗？
                   </div>
@@ -1998,9 +2678,6 @@
               <div class="ai-quick-actions">
                 <button class="ai-quick-btn" data-prompt="分析我的学习情况">
                   <i class="fas fa-chart-line"></i> 学习分析
-                </button>
-                <button class="ai-quick-btn" data-prompt="推荐适合我的学习资源">
-                  <i class="fas fa-lightbulb"></i> 资源推荐
                 </button>
                 <button class="ai-quick-btn" data-prompt="给我一些学习建议">
                   <i class="fas fa-graduation-cap"></i> 学习建议
@@ -2175,6 +2852,924 @@
         }
       }
 
+      // 分析功能导航函数 - 在当前页面显示
+      function openComprehensiveAnalysis() {
+        showAnalysisModule('comprehensive');
+      }
+
+      function openSubjectAnalysis() {
+        showAnalysisModule('subject');
+      }
+
+      function openComparisonAnalysis() {
+        showAnalysisModule('comparison');
+      }
+
+
+      // 分析模块管理
+      let charts = {};
+
+      // 备用图表显示函数
+      function showFallbackChart(canvasId, title, data) {
+        console.log(`显示备用内容: ${canvasId}, 标题: ${title}`);
+        
+        // 尝试找到canvas元素或容器
+        let element = document.getElementById(canvasId);
+        if (!element) {
+          // 如果找不到，尝试在chart-container中查找
+          const containers = document.querySelectorAll('.chart-container');
+          for (let container of containers) {
+            const canvas = container.querySelector(`#${canvasId}`);
+            if (canvas) {
+              element = canvas;
+              break;
+            }
+          }
+        }
+        
+        if (!element) {
+          console.warn(`未找到元素: ${canvasId}`);
+          return;
+        }
+        
+        const container = element.parentElement;
+        if (!container) {
+          console.warn(`未找到容器元素: ${canvasId}`);
+          return;
+        }
+        
+        // 构建数据显示
+        let dataHtml = '';
+        if (data && typeof data === 'object') {
+          if (Array.isArray(data)) {
+            dataHtml = data.map((item, index) => 
+              `<div style="margin: 5px 0; padding: 8px; background: white; border-radius: 4px; display: inline-block; margin-right: 10px;">
+                <strong>项目 ${index + 1}</strong>: ${item}
+              </div>`
+            ).join('');
+          } else {
+            dataHtml = Object.entries(data).map(([key, value]) => 
+              `<div style="margin: 5px 0; padding: 8px; background: white; border-radius: 4px; display: inline-block; margin-right: 10px;">
+                <strong>${key}</strong>: ${value}
+              </div>`
+            ).join('');
+          }
+        }
+        
+        container.innerHTML = `
+          <h4 style="color: #005691; margin-bottom: 15px; font-size: 16px; font-weight: 600;">${title}</h4>
+          <div style="padding: 30px; background: rgba(255, 255, 255, 0.8); border-radius: 8px; text-align: center; border: 1px solid rgba(0, 86, 145, 0.1);">
+            ${dataHtml ? `<p style="color: #666; margin-bottom: 15px; font-weight: 500;">图表数据：</p>${dataHtml}` : ''}
+            <p style="color: #999; font-size: 13px; margin-top: 20px; padding: 15px; background: rgba(255, 193, 7, 0.1); border-radius: 4px; border-left: 3px solid #ffc107;">
+              <i class="fas fa-exclamation-triangle" style="margin-right: 5px;"></i>
+              Chart.js库加载失败，无法显示图表。请检查网络连接或刷新页面重试。
+            </p>
+          </div>
+        `;
+      }
+
+      // 测试图表创建
+      function testChartCreation() {
+        console.log('开始测试图表创建');
+        
+        // 创建一个测试canvas
+        const testCanvas = document.createElement('canvas');
+        testCanvas.id = 'test-chart';
+        testCanvas.width = 300;
+        testCanvas.height = 200;
+        testCanvas.style.display = 'none';
+        document.body.appendChild(testCanvas);
+        
+        try {
+          const ctx = testCanvas.getContext('2d');
+          const testChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['测试1', '测试2', '测试3'],
+              datasets: [{
+                data: [30, 50, 20],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+              }]
+            },
+            options: {
+              responsive: false
+            }
+          });
+          
+          console.log('测试图表创建成功');
+          testChart.destroy();
+          document.body.removeChild(testCanvas);
+        } catch (error) {
+          console.error('测试图表创建失败:', error);
+        }
+      }
+
+      // 显示指定的分析模块
+      function showAnalysisModule(moduleType) {
+        // 隐藏所有其他页面内容
+        document.getElementById('learning-resources').style.display = 'none';
+        document.getElementById('ai-assistant').style.display = 'none';
+        document.getElementById('communication').style.display = 'none';
+        
+        // 隐藏所有分析模块
+        hideAllAnalysisModules();
+        
+        // 显示学情查看页面
+        document.getElementById('learning-analysis').style.display = 'block';
+        
+        // 隐藏学情查看的原始表格
+        const table = document.querySelector('#learning-analysis table');
+        if (table) {
+          table.style.display = 'none';
+        }
+        
+        // 等待DOM更新后再显示模块和加载数据
+        setTimeout(() => {
+          console.log('开始显示模块:', moduleType);
+          
+          // 根据模块类型显示对应的模块并加载数据
+          switch(moduleType) {
+            case 'comprehensive':
+              showAnalysisModuleCard('comprehensive-analysis');
+              loadComprehensiveAnalysis();
+              break;
+            case 'subject':
+              showAnalysisModuleCard('subject-analysis');
+              loadSubjectAnalysis();
+              break;
+            case 'comparison':
+              showAnalysisModuleCard('comparison-analysis');
+              loadComparisonAnalysis();
+              break;
+            default:
+              showAnalysisModuleCard('comprehensive-analysis');
+              loadComprehensiveAnalysis();
+          }
+        }, 200);
+      }
+
+      // 隐藏所有分析模块
+      function hideAllAnalysisModules() {
+        const modules = [
+          'comprehensive-analysis',
+          'subject-analysis',
+          'comparison-analysis',
+        ];
+        
+        modules.forEach(moduleId => {
+          const module = document.getElementById(moduleId);
+          if (module) {
+            module.style.display = 'none';
+          }
+        });
+      }
+
+      // 显示指定的分析模块卡片
+      function showAnalysisModuleCard(moduleId) {
+        const module = document.getElementById(moduleId);
+        if (module) {
+          module.style.display = 'block';
+        }
+      }
+
+      // 快速加载综合分析
+      function loadComprehensiveAnalysis() {
+        console.log('开始加载综合分析数据');
+        
+        const data = {
+          averageScore: 85.6,
+          totalCourses: 8,
+          classRank: 12,
+          gradeDistribution: {
+            '优秀(90-100)': 3,
+            '良好(80-89)': 4,
+            '中等(70-79)': 1,
+            '及格(60-69)': 0,
+            '不及格(<60)': 0
+          },
+          subjectScores: {
+            '高等数学': 88,
+            '线性代数': 92,
+            'C语言程序设计': 85,
+            '大学物理': 82,
+            '大学英语': 90,
+            '数据结构': 87
+          }
+        };
+        
+        displayComprehensiveAnalysis(data);
+      }
+
+      // 显示综合分析数据
+      function displayComprehensiveAnalysis(data) {
+        document.getElementById('avg-score').textContent = data.averageScore;
+        document.getElementById('total-courses').textContent = data.totalCourses;
+        document.getElementById('class-rank').textContent = data.classRank;
+
+        // 生成建议
+        const suggestions = generateComprehensiveSuggestions(data);
+        const suggestionsList = document.getElementById('comprehensive-suggestions-list');
+        suggestionsList.innerHTML = '';
+        suggestions.forEach(suggestion => {
+          const li = document.createElement('li');
+          li.textContent = suggestion;
+          suggestionsList.appendChild(li);
+        });
+
+        // 创建图表
+        createComprehensiveChart(data);
+      }
+
+      // 生成综合分析建议
+      function generateComprehensiveSuggestions(data) {
+        const suggestions = [];
+        const avgScore = data.averageScore;
+        
+        if (avgScore >= 90) {
+          suggestions.push('成绩优秀，继续保持学习状态');
+          suggestions.push('可以尝试更有挑战性的学习内容');
+        } else if (avgScore >= 80) {
+          suggestions.push('成绩良好，继续保持努力');
+          suggestions.push('重点关注薄弱科目，提升整体水平');
+        } else if (avgScore >= 70) {
+          suggestions.push('成绩中等，需要加强学习');
+          suggestions.push('建议制定详细的学习计划');
+        } else {
+          suggestions.push('成绩需要提升，建议寻求帮助');
+          suggestions.push('重点关注基础知识的掌握');
+        }
+        
+        return suggestions;
+      }
+
+      // 确保元素可见的辅助函数
+      function ensureElementVisible(elementId) {
+        // 先尝试直接查找
+        let element = document.getElementById(elementId);
+        if (!element) {
+          // 如果找不到，可能是canvas元素的父容器
+          // 尝试查找包含该ID的容器
+          const containers = document.querySelectorAll('.chart-container, .analysis-module');
+          for (let container of containers) {
+            const canvas = container.querySelector(`#${elementId}`);
+            if (canvas) {
+              element = canvas;
+              break;
+            }
+          }
+        }
+        
+        if (!element) {
+          console.warn(`未找到元素: ${elementId}`);
+          return false;
+        }
+        
+        // 查找包含该元素的模块，确保模块可见
+        let parent = element.closest('[id^="comprehensive"], [id^="subject"], [id^="comparison"], [id="learning-analysis"]');
+        if (parent) {
+          // 确保父模块可见
+          if (parent.style.display === 'none') {
+            parent.style.display = 'block';
+          }
+          // 如果父元素是学习分析模块，也要确保它可见
+          const learningAnalysis = document.getElementById('learning-analysis');
+          if (learningAnalysis && learningAnalysis.style.display === 'none') {
+            learningAnalysis.style.display = 'block';
+          }
+        }
+        
+        // 检查元素自身是否可见
+        let current = element;
+        while (current && current !== document.body) {
+          const computedStyle = window.getComputedStyle(current);
+          if (computedStyle.display === 'none') {
+            current.style.display = '';
+          }
+          current = current.parentElement;
+        }
+        
+        return true;
+      }
+
+      // 创建综合分析图表
+      async function createComprehensiveChart(data) {
+        console.log('开始创建综合分析图表');
+        
+        // 0. 检查Chart.js是否加载失败
+        if (window.chartLoadFailed) {
+          console.warn('⚠️ Chart.js加载失败，跳过图表创建');
+          showFallbackChart('comprehensive-chart', '成绩分布图', data.gradeDistribution || {});
+          return;
+        }
+        
+        // 1. 确保图表容器可见
+        if (!ensureElementVisible('comprehensive-chart')) {
+          console.error('⚠️ 无法使图表容器可见');
+          return;
+        }
+        
+        // 2. 先检测 Chart 是否加载成功
+        if (!chartLoaded || typeof Chart === 'undefined') {
+          console.warn('⚠️ Chart.js 未加载，等待加载...');
+          // 等待Chart.js加载（最多等待5秒）
+          let waitCount = 0;
+          while ((!chartLoaded || typeof Chart === 'undefined') && waitCount < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            waitCount++;
+            // 每10次尝试检查一次
+            if (waitCount % 10 === 0) {
+              if (checkChartLoaded()) {
+                break;
+              }
+            }
+          }
+          if (!chartLoaded || typeof Chart === 'undefined') {
+            console.error('⚠️ Chart.js 加载超时，显示备用内容');
+            if (typeof showFallbackChart === 'function') {
+              showFallbackChart('comprehensive-chart', '成绩分布图', data.gradeDistribution);
+            }
+            return; // 不抛出错误，避免未捕获的Promise错误
+          }
+        }
+        
+        // 2. 查找图表容器，确保容器存在
+        const chartContainer = document.getElementById('comprehensive-chart');
+        if (!chartContainer) {
+          console.error('⚠️ 未找到 comprehensive-chart 容器');
+          return Promise.reject(new Error('图表容器不存在'));
+        }
+        
+        // 3. 清空容器内旧图表（避免重复创建）
+        if (charts.comprehensive) {
+          try {
+            charts.comprehensive.destroy();
+          } catch (e) {
+            console.warn('销毁旧图表失败:', e);
+          }
+          charts.comprehensive = null;
+        }
+        
+        // 4. 检查容器是否是canvas元素，如果是则直接使用，否则创建新的canvas
+        let canvas, ctx;
+        if (chartContainer.tagName === 'CANVAS') {
+          canvas = chartContainer;
+          ctx = canvas.getContext('2d');
+        } else {
+          chartContainer.innerHTML = '<canvas id="comprehensive-chart-canvas"></canvas>';
+          canvas = document.getElementById('comprehensive-chart-canvas');
+          if (!canvas) {
+            console.error('⚠️ 无法创建canvas元素');
+            return;
+          }
+          ctx = canvas.getContext('2d');
+        }
+        
+        // 5. 确保canvas有正确的尺寸（延迟一点确保DOM已渲染）
+        await new Promise(resolve => setTimeout(resolve, 50));
+        if (canvas.width === 0 || canvas.height === 0) {
+          const container = canvas.parentElement;
+          if (container && container.offsetWidth > 0) {
+            canvas.width = container.offsetWidth;
+            canvas.height = 300;
+          } else {
+            // 如果容器还没有尺寸，使用默认值
+            canvas.width = 400;
+            canvas.height = 300;
+          }
+        }
+        
+        // 6. 再次确认canvas尺寸
+        if (canvas.width === 0 || canvas.height === 0) {
+          canvas.width = 400;
+          canvas.height = 300;
+        }
+
+        try {
+          charts.comprehensive = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: Object.keys(data.gradeDistribution),
+              datasets: [{
+                label: '成绩分布',
+                data: Object.values(data.gradeDistribution),
+                backgroundColor: [
+                  '#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9E9E9E'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                title: {
+                  display: true,
+                  text: '成绩分布图',
+                  font: { size: 16, weight: 'bold' }
+                },
+                legend: { position: 'bottom' }
+              }
+            }
+          });
+          console.log('综合分析图表创建成功');
+        } catch (error) {
+          console.error('创建综合分析图表失败:', error);
+        }
+      }
+
+      // 加载科目分析（从后端API获取，包含AI生成的建议）
+      let isLoadingSubjectAnalysis = false; // 防止重复加载
+      async function loadSubjectAnalysis() {
+        // 防止重复调用
+        if (isLoadingSubjectAnalysis) {
+          console.log('科目分析正在加载中，跳过重复调用');
+          return;
+        }
+        
+        isLoadingSubjectAnalysis = true;
+        
+        try {
+          // 获取当前学生ID
+          const token = localStorage.getItem('token');
+          if (!token) {
+            throw new Error('未登录');
+          }
+
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const studentId = payload.userId || payload.sub;
+
+          // 先获取综合分析数据，用于显示所有科目成绩对比图
+          const comprehensiveResponse = await fetch(`/api/student-analysis/comprehensive/${studentId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const comprehensiveResult = await comprehensiveResponse.json();
+          
+          // 选择一个科目获取AI建议（默认选择第一个科目或成绩最低的科目）
+          let selectedSubject = '数据结构'; // 默认科目
+          if (comprehensiveResult.success && comprehensiveResult.data && comprehensiveResult.data.courseComparisons) {
+            // 从综合分析中获取科目列表，选择第一个或成绩最低的
+            const courseComparisons = comprehensiveResult.data.courseComparisons;
+            if (courseComparisons && courseComparisons.length > 0) {
+              // 选择平均分最低的科目进行分析
+              const lowestSubject = courseComparisons.reduce((min, course) => {
+                const minScore = typeof min.averageScore === 'number' ? min.averageScore : parseFloat(min.averageScore) || 0;
+                const courseScore = typeof course.averageScore === 'number' ? course.averageScore : parseFloat(course.averageScore) || 0;
+                return courseScore < minScore ? course : min;
+              });
+              selectedSubject = lowestSubject.courseName || courseComparisons[0].courseName;
+              console.log('选择的科目:', selectedSubject);
+            }
+          }
+
+          // 调用后端API获取选定科目的分析（包含AI生成的建议）
+          const response = await fetch(`/api/student-analysis/subject-analysis/${studentId}?subject=${encodeURIComponent(selectedSubject)}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            // 合并数据：使用综合分析的科目对比数据，使用单科目分析的AI建议
+            const displayData = {
+              subjectSuggestions: result.data.subjectSuggestions || [],
+              subjectScores: {}
+            };
+
+            // 从综合分析中提取各科目成绩用于图表
+            if (comprehensiveResult.success && comprehensiveResult.data && comprehensiveResult.data.courseComparisons) {
+              comprehensiveResult.data.courseComparisons.forEach(course => {
+                if (course && course.courseName) {
+                  // 将BigDecimal转换为Number
+                  let score = 0;
+                  if (typeof course.averageScore === 'number') {
+                    score = course.averageScore;
+                  } else if (course.averageScore !== null && course.averageScore !== undefined) {
+                    score = parseFloat(course.averageScore) || 0;
+                  }
+                  displayData.subjectScores[course.courseName] = score;
+                }
+              });
+              console.log('提取的科目成绩数据:', displayData.subjectScores);
+            } else {
+              console.warn('无法从综合分析中获取科目成绩数据');
+            }
+
+            displaySubjectAnalysis(displayData);
+          } else {
+            throw new Error(result.error || '获取科目分析失败');
+          }
+        } catch (error) {
+          console.error('加载科目分析失败:', error);
+          // 失败时显示错误信息
+          const suggestionsList = document.getElementById('subject-suggestions-list');
+          if (suggestionsList) {
+            suggestionsList.innerHTML = '<p style="color: red;">加载AI建议失败，请稍后重试</p>';
+          }
+          // 显示图表错误提示
+          const canvas = document.getElementById('subject-chart');
+          if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#999';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('数据加载失败，请刷新重试', canvas.width / 2, canvas.height / 2);
+          }
+        } finally {
+          // 确保标志被重置
+          isLoadingSubjectAnalysis = false;
+        }
+      }
+
+      // 显示科目分析数据（使用后端返回的AI建议）
+      function displaySubjectAnalysis(data) {
+        // 使用后端返回的AI生成的建议
+        const suggestionsList = document.getElementById('subject-suggestions-list');
+        if (suggestionsList) {
+          suggestionsList.innerHTML = '';
+          
+          if (data.subjectSuggestions && data.subjectSuggestions.length > 0) {
+            // 使用AI生成的建议，每个建议作为一个段落
+            data.subjectSuggestions.forEach(suggestion => {
+              const p = document.createElement('p');
+              p.textContent = suggestion;
+              suggestionsList.appendChild(p);
+            });
+          } else {
+            suggestionsList.innerHTML = '<p>暂无建议</p>';
+          }
+        }
+
+        // 创建图表（使用实际数据）
+        if (data.subjectScores && Object.keys(data.subjectScores).length > 0) {
+          createSubjectChart(data);
+        } else {
+          console.warn('科目成绩数据为空，无法创建图表');
+        }
+      }
+
+            // 创建科目分析图表
+      let isCreatingSubjectChart = false; // 防止重复创建图表
+      async function createSubjectChart(data) {
+        // 防止重复调用
+        if (isCreatingSubjectChart) {
+          console.log('科目图表正在创建中，跳过重复调用');
+          return;
+        }
+        
+        isCreatingSubjectChart = true;
+        
+        try {
+          console.log('开始创建科目分析图表');
+          
+          // 0. 检查Chart.js是否加载失败
+          if (window.chartLoadFailed) {
+            console.warn('⚠️ Chart.js加载失败，跳过图表创建');
+            showFallbackChart('subject-chart', '各科目成绩对比', data.subjectScores || {});
+            return;
+          }
+          
+          // 1. 确保图表容器可见
+          if (!ensureElementVisible('subject-chart')) {
+            console.error('⚠️ 无法使图表容器可见');
+            return;
+          }
+          
+          // 2. 先检测 Chart 是否加载成功
+          if (!chartLoaded || typeof Chart === 'undefined') {
+            console.warn('⚠️ Chart.js 未加载，等待加载...');
+            // 等待Chart.js加载（最多等待5秒）
+            let waitCount = 0;
+            while ((!chartLoaded || typeof Chart === 'undefined') && waitCount < 50) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+              waitCount++;
+              // 每10次尝试检查一次
+              if (waitCount % 10 === 0) {
+                if (checkChartLoaded()) {
+                  break;
+                }
+              }
+            }
+            if (!chartLoaded || typeof Chart === 'undefined') {
+              console.error('⚠️ Chart.js 加载超时，显示备用内容');
+              if (typeof showFallbackChart === 'function') {
+                showFallbackChart('subject-chart', '各科目成绩对比', data.subjectScores);
+              }
+              return; // 不抛出错误，避免未捕获的Promise错误
+            }
+          }
+        
+          // 3. 查找图表容器，确保容器存在
+          const chartContainer = document.getElementById('subject-chart');
+          if (!chartContainer) {
+            console.error('⚠️ 未找到 subject-chart 容器');
+            return;
+          }
+          
+          // 确保数据格式正确
+          if (!data.subjectScores || Object.keys(data.subjectScores).length === 0) {
+            console.error('科目成绩数据为空或格式不正确:', data);
+            showFallbackChart('subject-chart', '各科目成绩对比', {});
+            return;
+          }
+
+          const subjects = Object.keys(data.subjectScores);
+          const scores = Object.values(data.subjectScores).map(score => {
+            // 确保分数是数字类型
+            const numScore = typeof score === 'number' ? score : parseFloat(score) || 0;
+            return numScore;
+          });
+          
+          console.log('科目数据:', { subjects, scores });
+          
+          // 4. 清空容器内旧图表（避免重复创建）
+          if (charts.subject) {
+            try {
+              charts.subject.destroy();
+            } catch (e) {
+              console.warn('销毁旧图表失败:', e);
+            }
+            charts.subject = null;
+          }
+          
+          // 5. 检查容器是否是canvas元素，如果是则直接使用，否则创建新的canvas
+          let canvas, ctx;
+          if (chartContainer.tagName === 'CANVAS') {
+            canvas = chartContainer;
+            ctx = canvas.getContext('2d');
+          } else {
+            chartContainer.innerHTML = '<canvas id="subject-chart-canvas"></canvas>';
+            canvas = document.getElementById('subject-chart-canvas');
+            if (!canvas) {
+              console.error('⚠️ 无法创建canvas元素');
+              return;
+            }
+            ctx = canvas.getContext('2d');
+          }
+          
+          // 6. 确保canvas有正确的尺寸（延迟一点确保DOM已渲染）
+          await new Promise(resolve => setTimeout(resolve, 50));
+          if (canvas.width === 0 || canvas.height === 0) {
+            const container = canvas.parentElement;
+            if (container && container.offsetWidth > 0) {
+              canvas.width = container.offsetWidth;
+              canvas.height = 300;
+            } else {
+              // 如果容器还没有尺寸，使用默认值
+              canvas.width = 400;
+              canvas.height = 300;
+            }
+          }
+          
+          // 7. 再次确认canvas尺寸
+          if (canvas.width === 0 || canvas.height === 0) {
+            canvas.width = 400;
+            canvas.height = 300;
+          }
+          
+          charts.subject = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: subjects,
+              datasets: [{
+                label: '成绩',
+                data: scores,
+                backgroundColor: scores.map(score => 
+                  score >= 90 ? '#4CAF50' : 
+                  score >= 80 ? '#2196F3' : 
+                  score >= 70 ? '#FF9800' : '#F44336'
+                ),
+                borderColor: '#fff',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                title: {
+                  display: true,
+                  text: '各科目成绩对比',
+                  font: { size: 16, weight: 'bold' }
+                },
+                legend: {
+                  display: true,
+                  position: 'top'
+                }
+              },
+              scales: {
+                y: { 
+                  beginAtZero: true, 
+                  max: 100,
+                  ticks: {
+                    stepSize: 10
+                  }
+                },
+                x: {
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 0
+                  }
+                }
+              }
+            }
+          });
+          console.log('科目分析图表创建成功');
+        } catch (error) {
+          console.error('创建科目分析图表失败:', error);
+          // 显示错误信息
+          const chartContainer = document.getElementById('subject-chart');
+          if (chartContainer) {
+            const canvas = chartContainer.tagName === 'CANVAS' ? chartContainer : chartContainer.querySelector('canvas');
+            if (canvas) {
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#999';
+              ctx.font = '14px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText('图表创建失败: ' + error.message, canvas.width / 2, canvas.height / 2);
+            }
+          }
+        } finally {
+          // 确保标志被重置
+          isCreatingSubjectChart = false;
+        }
+      }
+
+      // 快速加载对比分析
+      function loadComparisonAnalysis() {
+        const data = {
+          classRanking: { currentRank: 12, totalStudents: 30 },
+          majorRanking: { currentRank: 45, totalStudents: 120 }
+        };
+        
+        displayComparisonAnalysis(data);
+      }
+
+      // 显示对比分析数据
+      function displayComparisonAnalysis(data) {
+        const rankingList = document.getElementById('ranking-list');
+        rankingList.innerHTML = '';
+
+        if (data.classRanking) {
+          const classItem = document.createElement('div');
+          classItem.className = 'ranking-item';
+          classItem.innerHTML = `
+            <div class="ranking-position">#${data.classRanking.currentRank}</div>
+            <div class="ranking-info">
+              <div class="ranking-title">班级排名</div>
+              <div class="ranking-detail">在${data.classRanking.totalStudents}人中排名第${data.classRanking.currentRank}</div>
+            </div>
+          `;
+          rankingList.appendChild(classItem);
+        }
+
+        createComparisonChart(data);
+      }
+
+      // 创建对比分析图表
+      async function createComparisonChart(data) {
+        console.log('开始创建对比分析图表');
+        
+        // 0. 检查Chart.js是否加载失败
+        if (window.chartLoadFailed) {
+          console.warn('⚠️ Chart.js加载失败，跳过图表创建');
+          showFallbackChart('comparison-chart', '班级对比分析', {
+            '我的成绩': data.myScore || 0,
+            '班级平均': data.classAverage || 0,
+            '年级平均': data.gradeAverage || 0
+          });
+          return;
+        }
+        
+        // 1. 确保图表容器可见
+        if (!ensureElementVisible('comparison-chart')) {
+          console.error('⚠️ 无法使图表容器可见');
+          return;
+        }
+        
+        // 2. 先检测 Chart 是否加载成功
+        if (!chartLoaded || typeof Chart === 'undefined') {
+          console.warn('⚠️ Chart.js 未加载，等待加载...');
+          // 等待Chart.js加载（最多等待5秒）
+          let waitCount = 0;
+          while ((!chartLoaded || typeof Chart === 'undefined') && waitCount < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            waitCount++;
+            // 每10次尝试检查一次
+            if (waitCount % 10 === 0) {
+              if (checkChartLoaded()) {
+                break;
+              }
+            }
+          }
+          if (!chartLoaded || typeof Chart === 'undefined') {
+            console.error('⚠️ Chart.js 加载超时，显示备用内容');
+            if (typeof showFallbackChart === 'function') {
+              showFallbackChart('comparison-chart', '班级对比分析', {
+                '我的成绩': data.myScore,
+                '班级平均': data.classAverage,
+                '年级平均': data.gradeAverage
+              });
+            }
+            return; // 不抛出错误，避免未捕获的Promise错误
+          }
+        }
+        
+        // 2. 查找图表容器，确保容器存在
+        const chartContainer = document.getElementById('comparison-chart');
+        if (!chartContainer) {
+          console.error('⚠️ 未找到 comparison-chart 容器');
+          return Promise.reject(new Error('图表容器不存在'));
+        }
+        
+        // 3. 清空容器内旧图表（避免重复创建）
+        if (charts.comparison) {
+          try {
+            charts.comparison.destroy();
+          } catch (e) {
+            console.warn('销毁旧图表失败:', e);
+          }
+          charts.comparison = null;
+        }
+        
+        // 4. 检查容器是否是canvas元素，如果是则直接使用，否则创建新的canvas
+        let canvas, ctx;
+        if (chartContainer.tagName === 'CANVAS') {
+          canvas = chartContainer;
+          ctx = canvas.getContext('2d');
+        } else {
+          chartContainer.innerHTML = '<canvas id="comparison-chart-canvas"></canvas>';
+          canvas = document.getElementById('comparison-chart-canvas');
+          if (!canvas) {
+            console.error('⚠️ 无法创建canvas元素');
+            return;
+          }
+          ctx = canvas.getContext('2d');
+        }
+        
+        // 5. 确保canvas有正确的尺寸（延迟一点确保DOM已渲染）
+        await new Promise(resolve => setTimeout(resolve, 50));
+        if (canvas.width === 0 || canvas.height === 0) {
+          const container = canvas.parentElement;
+          if (container && container.offsetWidth > 0) {
+            canvas.width = container.offsetWidth;
+            canvas.height = 300;
+          } else {
+            // 如果容器还没有尺寸，使用默认值
+            canvas.width = 400;
+            canvas.height = 300;
+          }
+        }
+        
+        // 6. 再次确认canvas尺寸
+        if (canvas.width === 0 || canvas.height === 0) {
+          canvas.width = 400;
+          canvas.height = 300;
+        }
+
+        try {
+          charts.comparison = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['我的成绩', '班级平均', '年级平均'],
+              datasets: [{
+                label: '成绩对比',
+                data: [85.6, 82.3, 80.1],
+                backgroundColor: ['#4CAF50', '#2196F3', '#FF9800'],
+                borderColor: '#fff',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                title: {
+                  display: true,
+                  text: '成绩对比图',
+                  font: { size: 16, weight: 'bold' }
+                }
+              },
+              scales: {
+                y: { beginAtZero: true, max: 100 }
+              }
+            }
+          });
+          console.log('对比分析图表创建成功');
+        } catch (error) {
+          console.error('创建对比分析图表失败:', error);
+        }
+      }
+
+
       // 科目名称映射
       const subjectNames = {
         c: "C语言程序设计基础",
@@ -2190,7 +3785,7 @@
       // 计算平均成绩并显示
       async function calculateAndShowAverages() {
         try {
-          // 获取学生综合成绩数据
+          // 获取学生成绩数据
           const token = localStorage.getItem("token");
           const response = await fetch("/api/student/scores", {
             headers: {
@@ -2266,11 +3861,11 @@
           // 计算平均成绩 - 直接使用数值，不需要解析
           const averageScore =
             scores.reduce((sum, score) => {
-              // 如果score是数字，直接使用；如果是对象，提取comprehensiveScore
+              // 如果score是数字，直接使用；如果是对象，提取score
               const scoreValue =
                 typeof score === "number"
                   ? score
-                  : parseFloat(score.comprehensiveScore || score.score || 0);
+                  : parseFloat(score.score || 0);
               return sum + (isNaN(scoreValue) ? 0 : scoreValue);
             }, 0) / scores.length;
 
@@ -2305,16 +3900,16 @@
 
         // 提取成绩数据用于图表
         const chartData = scores.map((score) => {
-          // 如果score是数字，直接使用；如果是对象，提取comprehensiveScore
+          // 如果score是数字，直接使用；如果是对象，提取score
           return typeof score === "number"
             ? score
-            : parseFloat(score.comprehensiveScore || score.score || 0);
+            : parseFloat(score.score || 0);
         });
 
         // 根据数据量调整标签
         let chartLabels;
         if (scores.length === 1) {
-          chartLabels = ["综合成绩"];
+          chartLabels = ["总成绩"];
         } else {
           chartLabels = scores.map((score, index) => `第${index + 1}次成绩`);
         }
@@ -2363,7 +3958,14 @@
             .forEach((div) => (div.style.display = "none"));
           const targetId = this.getAttribute("href");
           document.querySelector(targetId).style.display = "block";
+          
           if (targetId === "#learning-analysis") {
+            // 显示学情查看原始表格，隐藏所有分析模块
+            const table = document.querySelector('#learning-analysis table');
+            if (table) {
+              table.style.display = 'table';
+            }
+            hideAllAnalysisModules();
             await calculateAndShowAverages();
           } else if (targetId === "#exams") {
             await displayExams();
@@ -2396,23 +3998,101 @@
         });
       }
 
-      // 显示平时分详情的饼图
+      // 显示成绩构成饼图（基于教师端权重配置）
       async function showPieChart(subject) {
         try {
+          console.log("=== 开始显示成绩构成饼图 ===");
+          console.log("课程名称:", subject);
+          console.log("Chart对象是否存在:", typeof Chart !== 'undefined');
+          console.log("chartLoaded状态:", chartLoaded);
+          
+          // 检查Chart.js是否加载失败
+          if (window.chartLoadFailed) {
+            console.warn("Chart.js加载失败，无法显示饼图");
+            const modal = document.getElementById("pie-chart-modal");
+            if (modal) {
+              modal.style.display = "block";
+              const modalContent = modal.querySelector(".modal-content");
+              if (modalContent) {
+                const canvas = document.getElementById("pie-modal-chart");
+                if (canvas) {
+                  const container = canvas.parentElement;
+                  container.innerHTML = `
+                    <h3>${subject} - 成绩构成</h3>
+                    <div style="padding: 40px; text-align: center; color: #666;">
+                      <p style="margin-bottom: 20px;">Chart.js库加载失败，无法显示图表</p>
+                      <p style="font-size: 14px; color: #999;">请检查网络连接或刷新页面重试</p>
+                    </div>
+                  `;
+                }
+              }
+            }
+            return;
+          }
+          
+          // 等待Chart.js加载完成
+          if (!chartLoaded || typeof Chart === 'undefined') {
+            console.log("等待Chart.js加载...");
+            // 等待Chart.js加载（最多等待5秒）
+            let waitCount = 0;
+            while ((!chartLoaded || typeof Chart === 'undefined') && waitCount < 50 && !window.chartLoadFailed) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+              waitCount++;
+              // 每10次尝试检查一次
+              if (waitCount % 10 === 0) {
+                if (checkChartLoaded()) {
+                  break;
+                }
+              }
+            }
+            if (window.chartLoadFailed || (!chartLoaded && typeof Chart === 'undefined')) {
+              console.error("Chart.js库加载失败，无法显示饼图");
+              const modal = document.getElementById("pie-chart-modal");
+              if (modal) {
+                modal.style.display = "block";
+                const modalContent = modal.querySelector(".modal-content");
+                if (modalContent) {
+                  const canvas = document.getElementById("pie-modal-chart");
+                  if (canvas) {
+                    const container = canvas.parentElement;
+                    container.innerHTML = `
+                      <h3>${subject} - 成绩构成</h3>
+                      <div style="padding: 40px; text-align: center; color: #666;">
+                        <p style="margin-bottom: 20px;">Chart.js库加载失败，无法显示图表</p>
+                        <p style="font-size: 14px; color: #999;">请检查网络连接或刷新页面重试</p>
+                      </div>
+                    `;
+                  }
+                }
+              }
+              return;
+            }
+          }
+          
+          console.log("Chart.js已加载，继续创建饼图");
+          
           // 获取该课程的详细成绩数据
           const token = localStorage.getItem("token");
+          console.log("Token存在:", !!token);
+          
           const response = await fetch("/api/student/grade-details", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
+          console.log("API响应状态:", response.status);
           if (!response.ok) {
-            alert("获取详细成绩数据失败");
+            console.warn("API请求失败，使用模拟数据进行演示");
+            console.log("调用showMockPieChart函数");
+            // 使用模拟数据进行演示
+            await showMockPieChart(subject);
+            console.log("showMockPieChart函数执行完成");
             return;
           }
 
           const allGrades = await response.json();
+          console.log("获取到的成绩数据:", allGrades);
 
           // 过滤出当前课程的成绩数据
           const courseGrades = allGrades.filter(
@@ -2424,222 +4104,330 @@
             return;
           }
 
-          // 计算各项成绩的平均值
-          const avgRegularScore =
-            courseGrades.reduce(
-              (sum, grade) => sum + parseFloat(grade.regularScore || 0),
-              0
-            ) / courseGrades.length;
-          const avgFinalScore =
-            courseGrades.reduce(
-              (sum, grade) => sum + parseFloat(grade.finalScore || 0),
-              0
-            ) / courseGrades.length;
-          const avgComprehensiveScore =
-            courseGrades.reduce(
-              (sum, grade) => sum + parseFloat(grade.comprehensiveScore || 0),
-              0
-            ) / courseGrades.length;
+          // 获取课程ID（从第一个成绩记录中获取）
+          const courseId = courseGrades[0].courseId;
+          console.log("饼图 - 课程ID:", courseId);
 
-          // 检查是否有平时分数据
-          if (avgRegularScore === 0) {
-            // 如果没有平时分数据，显示成绩分布饼图
-            const labels = ["综合成绩"];
-            const values = [avgComprehensiveScore];
-
-            // 创建单色饼图显示综合成绩
-            const ctx = document
-              .getElementById("pie-modal-chart")
-              .getContext("2d");
-            if (myPieChart) {
-              myPieChart.destroy();
-            }
-
-            const textColor = "#0088cc";
-            myPieChart = new Chart(ctx, {
-              type: "pie",
-              data: {
-                labels: labels,
-                datasets: [
-                  {
-                    data: values,
-                    backgroundColor: ["rgba(75, 192, 192, 0.8)"], // 绿色
-                    borderColor: ["rgba(75, 192, 192, 1)"],
-                    borderWidth: 2,
-                  },
-                ],
+          // 获取权重配置信息
+          let weightConfig = null;
+          try {
+            const weightResponse = await fetch(`/api/student/detailed-grades/course/${courseId}/weight-config`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
               },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    display: false, // 隐藏图例
-                  },
-                  title: {
-                    display: true,
-                    text: `${subject} - 综合成绩: ${avgComprehensiveScore.toFixed(
-                      1
-                    )}分`,
-                    color: textColor,
-                    font: {
-                      size: 18,
-                      weight: "bold",
-                    },
-                  },
-                  datalabels: {
-                    display: false, // 隐藏数据标签
-                  },
-                },
-              },
-              plugins: [ChartDataLabels],
             });
-          } else {
-            // 有平时分数据时，显示平时分和期末分构成
-            const labels = ["平时分", "期末分"];
-            const values = [avgRegularScore, avgFinalScore];
-
-            const ctx = document
-              .getElementById("pie-modal-chart")
-              .getContext("2d");
-
-            if (myPieChart) {
-              myPieChart.destroy();
+            if (weightResponse.ok) {
+              weightConfig = await weightResponse.json();
+              console.log("饼图 - 获取到权重配置:", weightConfig);
+            } else {
+              console.warn("饼图 - 获取权重配置失败，状态码:", weightResponse.status);
             }
-
-            const textColor = "#0088cc";
-
-            myPieChart = new Chart(ctx, {
-              type: "pie",
-              data: {
-                labels: labels,
-                datasets: [
-                  {
-                    data: values,
-                    backgroundColor: [
-                      "rgba(255, 99, 132, 0.8)", // 平时分 - 红色
-                      "rgba(54, 162, 235, 0.8)", // 期末分 - 蓝色
-                    ],
-                    borderColor: [
-                      "rgba(255, 99, 132, 1)",
-                      "rgba(54, 162, 235, 1)",
-                    ],
-                    borderWidth: 2,
-                  },
-                ],
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                  padding: {
-                    left: 20,
-                    right: 20,
-                    top: 60,
-                    bottom: 20,
-                  },
-                },
-                plugins: {
-                  legend: {
-                    position: "top",
-                    align: "center",
-                    labels: {
-                      color: textColor,
-                      font: {
-                        size: 14,
-                        weight: "600",
-                      },
-                      usePointStyle: true,
-                      padding: 20,
-                      generateLabels: function (chart) {
-                        const data = chart.data;
-                        if (data.labels.length && data.datasets.length) {
-                          return data.labels.map((label, i) => {
-                            return {
-                              text: label, // 只显示标签名称，不显示分数
-                              fillStyle: data.datasets[0].backgroundColor[i],
-                              strokeStyle: data.datasets[0].borderColor[i],
-                              lineWidth: 2,
-                              hidden: false,
-                              index: i,
-                              fontColor: textColor,
-                            };
-                          });
-                        }
-                        return [];
-                      },
-                    },
-                  },
-                  title: {
-                    display: true,
-                    text: subjectNames[subject] + "平时分详情",
-                    color: textColor,
-                    font: {
-                      size: 18,
-                      weight: "bold",
-                    },
-                    padding: {
-                      top: 10,
-                      bottom: 30,
-                    },
-                  },
-                  datalabels: {
-                    color: "#fff",
-                    font: {
-                      weight: "bold",
-                      size: 14,
-                    },
-                    formatter: (value, ctx) => {
-                      const dataset = ctx.dataset;
-                      const total = dataset.data.reduce(
-                        (acc, data) => acc + data,
-                        0
-                      );
-                      const percentage = ((value / total) * 100).toFixed(1);
-                      return `${percentage}%`;
-                    },
-                    anchor: "center",
-                    align: "center",
-                    offset: 0,
-                  },
-                },
-              },
-              plugins: [ChartDataLabels], // 确保启用 datalabels 插件
-            });
+          } catch (error) {
+            console.error("饼图 - 获取权重配置失败:", error);
           }
 
-          // 调整模态框内容的高度以容纳更大的饼图
-          const modalContent = document.querySelector(".modal-content");
-          modalContent.style.minHeight = "600px";
+          // 如果没有权重配置，使用默认配置
+          if (!weightConfig) {
+            weightConfig = {
+              attendanceWeight: 20.0,
+              homeworkWeight: 30.0,
+              labWeight: 25.0,
+              quizWeight: 25.0,
+              midtermWeight: 0.0,
+              finalWeight: 0.0,
+              makeupWeight: 100.0
+            };
+          }
 
-          const pieChart = document.getElementById("pie-modal-chart");
-          pieChart.style.height = "500px";
+          // 构建饼图数据（只显示有权重的项目）
+          const chartData = [];
+          const chartLabels = [];
+          const chartColors = [
+            '#3498db', // 出勤 - 蓝色
+            '#2ecc71', // 作业 - 绿色
+            '#e74c3c', // 实验 - 红色
+            '#f39c12', // 随堂测验 - 橙色
+            '#9b59b6', // 期中考试 - 紫色
+            '#1abc9c', // 期末考试 - 青色
+            '#95a5a6'  // 补考 - 灰色
+          ];
+          let colorIndex = 0;
 
-          const modal = document.getElementById("pie-chart-modal");
-          modal.style.display = "block";
-        } catch (error) {
-          console.error("获取详细成绩数据失败:", error);
-          alert("获取详细成绩数据失败，请稍后重试");
+          // 添加有权重的项目到饼图
+          if (weightConfig.attendanceWeight > 0) {
+            chartLabels.push(`出勤 (${weightConfig.attendanceWeight}%)`);
+            chartData.push(weightConfig.attendanceWeight);
+            colorIndex++;
+          }
+          if (weightConfig.homeworkWeight > 0) {
+            chartLabels.push(`作业 (${weightConfig.homeworkWeight}%)`);
+            chartData.push(weightConfig.homeworkWeight);
+            colorIndex++;
+          }
+          if (weightConfig.labWeight > 0) {
+            chartLabels.push(`实验 (${weightConfig.labWeight}%)`);
+            chartData.push(weightConfig.labWeight);
+            colorIndex++;
+          }
+          if (weightConfig.quizWeight > 0) {
+            chartLabels.push(`随堂测验 (${weightConfig.quizWeight}%)`);
+            chartData.push(weightConfig.quizWeight);
+            colorIndex++;
+          }
+          if (weightConfig.midtermWeight > 0) {
+            chartLabels.push(`期中考试 (${weightConfig.midtermWeight}%)`);
+            chartData.push(weightConfig.midtermWeight);
+            colorIndex++;
+          }
+          if (weightConfig.finalWeight > 0) {
+            chartLabels.push(`期末考试 (${weightConfig.finalWeight}%)`);
+            chartData.push(weightConfig.finalWeight);
+            colorIndex++;
+          }
+
+          // 如果没有权重数据，显示提示信息
+          if (chartData.length === 0) {
+            alert("该课程暂无权重配置信息");
+            return;
+          }
+
+          // 创建饼图
+          const ctx = document
+            .getElementById("pie-modal-chart")
+            .getContext("2d");
+          if (myPieChart) {
+            myPieChart.destroy();
+          }
+
+          myPieChart = new Chart(ctx, {
+              type: "pie",
+              data: {
+                labels: chartLabels,
+                datasets: [
+                  {
+                    data: chartData,
+                    backgroundColor: chartColors.slice(0, chartData.length),
+                    borderColor: chartColors.slice(0, chartData.length),
+                    borderWidth: 2,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: `${subject} - 成绩构成`,
+                    font: {
+                      size: 16,
+                      weight: 'bold'
+                    },
+                    color: '#333'
+                  },
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      padding: 20,
+                      usePointStyle: true,
+                      font: {
+                        size: 12
+                      }
+                    }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed;
+                        return `${label}: ${value}%`;
+                      }
+                    }
+                  }
+                }
+              },
+            });
+
+            // 显示模态框
+            const modal = document.getElementById("pie-chart-modal");
+            modal.style.display = "block";
+          } catch (error) {
+            console.error("显示成绩构成饼图失败:", error);
+            alert("显示成绩构成饼图失败，请稍后重试");
+          }
         }
-      }
 
-      // 显示成绩明细
+        // 模拟数据的饼图显示
+        async function showMockPieChart(subject) {
+          try {
+            console.log("显示模拟数据饼图:", subject);
+            
+            // 检查Chart.js是否加载
+            if (!chartLoaded || typeof Chart === 'undefined') {
+              console.warn("Chart.js未加载，无法显示饼图");
+              // 显示文本提示
+              const modal = document.getElementById("pie-chart-modal");
+              if (modal) {
+                modal.style.display = "block";
+                const modalContent = modal.querySelector(".modal-content");
+                if (modalContent) {
+                  const canvas = document.getElementById("pie-modal-chart");
+                  if (canvas) {
+                    const container = canvas.parentElement;
+                    container.innerHTML = `
+                      <h3>${subject} - 成绩构成</h3>
+                      <div style="padding: 40px; text-align: center; color: #666;">
+                        <p style="margin-bottom: 20px;">Chart.js库加载失败，无法显示图表</p>
+                        <p style="font-size: 14px; color: #999;">请检查网络连接或刷新页面重试</p>
+                      </div>
+                    `;
+                  }
+                }
+              }
+              return;
+            }
+            
+            // 模拟权重配置
+            const mockWeightConfig = {
+              attendanceWeight: 20.0,
+              homeworkWeight: 30.0,
+              labWeight: 25.0,
+              quizWeight: 25.0,
+              midtermWeight: 0.0,
+              finalWeight: 0.0,
+              makeupWeight: 100.0
+            };
+
+            // 构建饼图数据（只显示有权重的项目）
+            const chartData = [];
+            const chartLabels = [];
+            const chartColors = [
+              '#3498db', // 出勤 - 蓝色
+              '#2ecc71', // 作业 - 绿色
+              '#e74c3c', // 实验 - 红色
+              '#f39c12', // 随堂测验 - 橙色
+              '#9b59b6', // 期中考试 - 紫色
+              '#1abc9c', // 期末考试 - 青色
+              '#95a5a6'  // 补考 - 灰色
+            ];
+
+            // 添加有权重的项目到饼图
+            if (mockWeightConfig.attendanceWeight > 0) {
+              chartLabels.push(`出勤 (${mockWeightConfig.attendanceWeight}%)`);
+              chartData.push(mockWeightConfig.attendanceWeight);
+            }
+            if (mockWeightConfig.homeworkWeight > 0) {
+              chartLabels.push(`作业 (${mockWeightConfig.homeworkWeight}%)`);
+              chartData.push(mockWeightConfig.homeworkWeight);
+            }
+            if (mockWeightConfig.labWeight > 0) {
+              chartLabels.push(`实验 (${mockWeightConfig.labWeight}%)`);
+              chartData.push(mockWeightConfig.labWeight);
+            }
+            if (mockWeightConfig.quizWeight > 0) {
+              chartLabels.push(`随堂测验 (${mockWeightConfig.quizWeight}%)`);
+              chartData.push(mockWeightConfig.quizWeight);
+            }
+            if (mockWeightConfig.midtermWeight > 0) {
+              chartLabels.push(`期中考试 (${mockWeightConfig.midtermWeight}%)`);
+              chartData.push(mockWeightConfig.midtermWeight);
+            }
+            if (mockWeightConfig.finalWeight > 0) {
+              chartLabels.push(`期末考试 (${mockWeightConfig.finalWeight}%)`);
+              chartData.push(mockWeightConfig.finalWeight);
+            }
+
+            // 创建饼图
+            const ctx = document
+              .getElementById("pie-modal-chart")
+              .getContext("2d");
+            if (myPieChart) {
+              myPieChart.destroy();
+            }
+
+            myPieChart = new Chart(ctx, {
+              type: "pie",
+              data: {
+                labels: chartLabels,
+                datasets: [
+                  {
+                    data: chartData,
+                    backgroundColor: chartColors.slice(0, chartData.length),
+                    borderColor: chartColors.slice(0, chartData.length),
+                    borderWidth: 2,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: `${subject} - 成绩构成 (模拟数据)`,
+                    font: {
+                      size: 16,
+                      weight: 'bold'
+                    },
+                    color: '#333'
+                  },
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      padding: 20,
+                      usePointStyle: true,
+                      font: {
+                        size: 12
+                      }
+                    }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed;
+                        return `${label}: ${value}%`;
+                      }
+                    }
+                  }
+                }
+              },
+            });
+
+            // 显示模态框
+            const modal = document.getElementById("pie-chart-modal");
+            modal.style.display = "block";
+          } catch (error) {
+            console.error("显示模拟数据饼图失败:", error);
+            alert("显示模拟数据饼图失败，请稍后重试");
+          }
+        }
+
+      // 显示成绩明细（基于权重配置计算）
       async function showGradeBreakdown(subject) {
         try {
+          console.log("开始获取课程成绩明细:", subject);
+          
           // 获取该课程的详细成绩数据
           const token = localStorage.getItem("token");
+          console.log("Token存在:", !!token);
+          
           const response = await fetch("/api/student/grade-details", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
+          console.log("API响应状态:", response.status);
           if (!response.ok) {
-            alert("获取详细成绩数据失败");
+            console.warn("API请求失败，使用模拟数据进行演示");
+            // 使用模拟数据进行演示
+            await showMockGradeBreakdown(subject);
             return;
           }
 
           const allGrades = await response.json();
+          console.log("获取到的成绩数据:", allGrades);
 
           // 过滤出当前课程的成绩数据
           const courseGrades = allGrades.filter(
@@ -2651,63 +4439,219 @@
             return;
           }
 
-          // 获取最新的成绩记录
-          const latestGrade = courseGrades[0];
+          // 获取课程ID（从第一个成绩记录中获取）
+          const courseId = courseGrades[0].courseId;
+          console.log("成绩明细 - 课程ID:", courseId);
+
+          // 获取权重配置信息
+          let weightConfig = null;
+          try {
+            console.log("成绩明细 - 发送请求的token:", token);
+            console.log("成绩明细 - token长度:", token ? token.length : 0);
+            console.log("成绩明细 - token是否为空:", !token);
+            
+            // 使用新的权重配置API
+            const weightResponse = await fetch(`/api/weight-config/course/${courseId}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            if (weightResponse.ok) {
+              weightConfig = await weightResponse.json();
+              console.log("成绩明细 - 获取到权重配置:", weightConfig);
+            } else {
+              console.warn("成绩明细 - 获取权重配置失败，状态码:", weightResponse.status);
+              const errorText = await weightResponse.text();
+              console.warn("成绩明细 - 错误响应内容:", errorText);
+            }
+          } catch (error) {
+            console.error("成绩明细 - 获取权重配置失败:", error);
+          }
+
+          // 按成绩类型分组
+          const gradeTypes = {
+            attendance: [],
+            homework: [],
+            lab: [],
+            quiz: [],
+            midterm: [],
+            final: [],
+            makeup: []
+          };
+
+          console.log("开始处理成绩数据:", courseGrades);
+          courseGrades.forEach(grade => {
+            const examType = grade.examType?.toLowerCase();
+            console.log("处理成绩:", grade, "examType:", examType);
+            if (examType) {
+              if (examType.includes('attendance') || examType.includes('出勤')) {
+                gradeTypes.attendance.push(grade);
+              } else if (examType.includes('homework') || examType.includes('作业')) {
+                gradeTypes.homework.push(grade);
+              } else if (examType.includes('lab') || examType.includes('实验')) {
+                gradeTypes.lab.push(grade);
+              } else if (examType.includes('quiz') || examType.includes('测验') || examType.includes('随堂')) {
+                gradeTypes.quiz.push(grade);
+              } else if (examType.includes('midterm') || examType.includes('期中')) {
+                gradeTypes.midterm.push(grade);
+              } else if (examType.includes('final') || examType.includes('期末')) {
+                gradeTypes.final.push(grade);
+              } else if (examType.includes('makeup') || examType.includes('补考')) {
+                gradeTypes.makeup.push(grade);
+              } else {
+                // 如果没有匹配到特定类型，尝试根据scoreType或其他字段匹配
+                console.log("未匹配到成绩类型，尝试其他匹配方式");
+                if (grade.scoreType) {
+                  const scoreType = grade.scoreType.toLowerCase();
+                  if (scoreType.includes('regular') || scoreType.includes('平时')) {
+                    // 默认归类为作业
+                    gradeTypes.homework.push(grade);
+                  } else if (scoreType.includes('final') || scoreType.includes('期末')) {
+                    gradeTypes.final.push(grade);
+                  }
+                }
+              }
+            } else {
+              console.log("成绩记录没有examType字段:", grade);
+              // 如果没有examType，尝试根据其他字段判断
+              if (grade.scoreType) {
+                const scoreType = grade.scoreType.toLowerCase();
+                if (scoreType.includes('regular') || scoreType.includes('平时')) {
+                  gradeTypes.homework.push(grade);
+                } else if (scoreType.includes('final') || scoreType.includes('期末')) {
+                  gradeTypes.final.push(grade);
+                }
+              }
+            }
+          });
+
+          console.log("分组后的成绩数据:", gradeTypes);
+
+          // 计算各类型平均分
+          const calculateAverage = (grades) => {
+            if (grades.length === 0) return 0;
+            const total = grades.reduce((sum, grade) => sum + (parseFloat(grade.score) || 0), 0);
+            return (total / grades.length).toFixed(1);
+          };
+
+          // 如果没有权重配置，使用默认配置
+          if (!weightConfig) {
+            weightConfig = {
+              attendanceWeight: 20.0,
+              homeworkWeight: 30.0,
+              labWeight: 25.0,
+              quizWeight: 25.0,
+              midtermWeight: 0.0,
+              finalWeight: 0.0,
+              makeupWeight: 100.0
+            };
+          }
+
+          // 计算各类型得分（基于权重）
+          const calculateWeightedScore = (grades, weight) => {
+            if (grades.length === 0 || weight === 0) return { rawScore: 0, weightedScore: 0, count: 0 };
+            const total = grades.reduce((sum, grade) => sum + (parseFloat(grade.score) || 0), 0);
+            const rawScore = (total / grades.length).toFixed(1);
+            const weightedScore = (parseFloat(rawScore) * weight / 100).toFixed(1);
+            return { rawScore, weightedScore, count: grades.length };
+          };
+
+          const calculatedScores = {
+            attendance: calculateWeightedScore(gradeTypes.attendance, weightConfig.attendanceWeight || 0),
+            homework: calculateWeightedScore(gradeTypes.homework, weightConfig.homeworkWeight || 0),
+            lab: calculateWeightedScore(gradeTypes.lab, weightConfig.labWeight || 0),
+            quiz: calculateWeightedScore(gradeTypes.quiz, weightConfig.quizWeight || 0),
+            midterm: calculateWeightedScore(gradeTypes.midterm, weightConfig.midtermWeight || 0),
+            final: calculateWeightedScore(gradeTypes.final, weightConfig.finalWeight || 0),
+            makeup: calculateWeightedScore(gradeTypes.makeup, weightConfig.makeupWeight || 0)
+          };
 
           // 创建成绩明细HTML
           let breakdownHtml = `
-            <div style="padding: 20px; max-width: 500px;">
-              <h3 style="color: #0088cc; margin-bottom: 20px; text-align: center;">${subject} - 成绩明细</h3>
+            <div style="padding: 20px; max-width: 700px;">
+              <h3 style="color: #0088cc; margin-bottom: 20px; text-align: center;">${subject} - 成绩明细 (按权重计算)</h3>
               <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <h4 style="color: #333; margin-bottom: 10px;">📊 综合成绩构成</h4>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span>平时分：</span>
-                  <span style="font-weight: bold; color: #e74c3c;">${
-                    latestGrade.regularScore || 0
-                  }分</span>
+                <h4 style="color: #333; margin-bottom: 15px;">📊 成绩构成明细</h4>
+                ${calculatedScores.attendance.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(52, 152, 219, 0.1); border-radius: 4px;">
+                  <span>📅 出勤 (${weightConfig.attendanceWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #3498db;">原始分: ${calculatedScores.attendance.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.attendance.weightedScore}分 (${calculatedScores.attendance.count}次)</div>
+                  </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span>期末分：</span>
-                  <span style="font-weight: bold; color: #3498db;">${
-                    latestGrade.finalScore || 0
-                  }分</span>
+                ` : ''}
+                ${calculatedScores.homework.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(46, 204, 113, 0.1); border-radius: 4px;">
+                  <span>📝 作业 (${weightConfig.homeworkWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #2ecc71;">原始分: ${calculatedScores.homework.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.homework.weightedScore}分 (${calculatedScores.homework.count}次)</div>
+                  </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span>补考分：</span>
-                  <span style="font-weight: bold; color: #f39c12;">${
-                    latestGrade.makeupScore || "无"
-                  }</span>
+                ` : ''}
+                ${calculatedScores.lab.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(230, 126, 34, 0.1); border-radius: 4px;">
+                  <span>🧪 实验 (${weightConfig.labWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #e67e22;">原始分: ${calculatedScores.lab.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.lab.weightedScore}分 (${calculatedScores.lab.count}次)</div>
+                  </div>
                 </div>
-                <hr style="margin: 10px 0;">
-                <div style="display: flex; justify-content: space-between;">
-                  <span style="font-weight: bold;">综合成绩：</span>
-                  <span style="font-weight: bold; color: #27ae60; font-size: 18px;">${
-                    latestGrade.comprehensiveScore
-                  }分</span>
+                ` : ''}
+                ${calculatedScores.quiz.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(155, 89, 182, 0.1); border-radius: 4px;">
+                  <span>📋 随堂测验 (${weightConfig.quizWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #9b59b6;">原始分: ${calculatedScores.quiz.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.quiz.weightedScore}分 (${calculatedScores.quiz.count}次)</div>
+                  </div>
                 </div>
+                ` : ''}
+                ${calculatedScores.midterm.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(26, 188, 156, 0.1); border-radius: 4px;">
+                  <span>📊 期中考试 (${weightConfig.midtermWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #1abc9c;">原始分: ${calculatedScores.midterm.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.midterm.weightedScore}分 (${calculatedScores.midterm.count}次)</div>
+                  </div>
+                </div>
+                ` : ''}
+                ${calculatedScores.final.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(149, 165, 166, 0.1); border-radius: 4px;">
+                  <span>🎯 期末考试 (${weightConfig.finalWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #95a5a6;">原始分: ${calculatedScores.final.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.final.weightedScore}分 (${calculatedScores.final.count}次)</div>
+                  </div>
+                </div>
+                ` : ''}
+                ${weightConfig && weightConfig.description ? `
+                <div style="margin-top: 15px; padding: 8px; background: rgba(133, 100, 4, 0.1); border-radius: 4px; font-style: italic; font-size: 12px;">
+                  💡 ${weightConfig.description}
+                </div>
+                ` : ''}
               </div>
               
               <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <h4 style="color: #333; margin-bottom: 10px;">📈 成绩等级</h4>
+                <h4 style="color: #333; margin-bottom: 10px;">📊 成绩统计</h4>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span>等级：</span>
-                  <span style="font-weight: bold; color: #8e44ad;">${
-                    latestGrade.gradeLevel || "未评定"
-                  }</span>
+                  <span>总成绩记录：</span>
+                  <span style="font-weight: bold; color: #3498db;">${courseGrades.length}条</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span>是否通过：</span>
-                  <span style="font-weight: bold; color: ${
-                    latestGrade.isPassed ? "#27ae60" : "#e74c3c"
-                  };">${latestGrade.isPassed ? "✅ 通过" : "❌ 未通过"}</span>
+                  <span>成绩类型：</span>
+                  <span style="font-weight: bold; color: #2ecc71;">${Object.values(gradeTypes).filter(grades => grades.length > 0).length}种</span>
                 </div>
-              </div>
-              
-              <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
-                <h4 style="color: #333; margin-bottom: 10px;">📝 备注信息</h4>
-                <p style="color: #666; margin: 0;">${
-                  latestGrade.remarks || "无备注信息"
-                }</p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span>按权重计算总分：</span>
+                  <span style="font-weight: bold; color: #e74c3c;">${(parseFloat(calculatedScores.attendance.weightedScore || 0) + 
+                    parseFloat(calculatedScores.homework.weightedScore || 0) + 
+                    parseFloat(calculatedScores.lab.weightedScore || 0) + 
+                    parseFloat(calculatedScores.quiz.weightedScore || 0) + 
+                    parseFloat(calculatedScores.midterm.weightedScore || 0) + 
+                    parseFloat(calculatedScores.final.weightedScore || 0)).toFixed(1)}分</span>
+                </div>
               </div>
               
               <div style="text-align: center; margin-top: 20px;">
@@ -2759,6 +4703,545 @@
         }
       }
 
+      // 显示模拟数据的成绩明细
+      async function showMockGradeBreakdown(subject) {
+        try {
+          console.log("显示模拟数据成绩明细:", subject);
+          
+          const token = localStorage.getItem("token");
+          
+          // 模拟权重配置
+          const mockWeightConfig = {
+            attendanceWeight: 20.0,
+            homeworkWeight: 30.0,
+            labWeight: 25.0,
+            quizWeight: 25.0,
+            midtermWeight: 0.0,
+            finalWeight: 0.0,
+            makeupWeight: 100.0
+          };
+          
+          // 模拟详细数据
+          const mockGradeTypes = {
+            attendance: [
+              { score: 85, examType: "出勤", examDate: "2024-01-15", remarks: "课堂出勤" },
+              { score: 90, examType: "出勤", examDate: "2024-01-22", remarks: "课堂出勤" },
+              { score: 88, examType: "出勤", examDate: "2024-01-29", remarks: "课堂出勤" }
+            ],
+            homework: [
+              { score: 92, examType: "作业", examDate: "2024-01-20", remarks: "第一次作业" },
+              { score: 88, examType: "作业", examDate: "2024-01-27", remarks: "第二次作业" },
+              { score: 95, examType: "作业", examDate: "2024-02-03", remarks: "第三次作业" }
+            ],
+            lab: [
+              { score: 90, examType: "实验", examDate: "2024-01-25", remarks: "实验报告1" },
+              { score: 87, examType: "实验", examDate: "2024-02-01", remarks: "实验报告2" }
+            ],
+            quiz: [
+              { score: 85, examType: "随堂测验", examDate: "2024-01-18", remarks: "随堂测验1" },
+              { score: 92, examType: "随堂测验", examDate: "2024-02-05", remarks: "随堂测验2" }
+            ],
+            midterm: [
+              { score: 88, examType: "期中考试", examDate: "2024-02-15", remarks: "期中考试" }
+            ],
+            final: [
+              { score: 85, examType: "期末考试", examDate: "2024-03-15", remarks: "期末考试" }
+            ],
+            makeup: []
+          };
+
+          // 计算各类型得分（基于权重）
+          const calculateWeightedScore = (grades, weight) => {
+            if (grades.length === 0 || weight === 0) return { rawScore: 0, weightedScore: 0, count: 0 };
+            const total = grades.reduce((sum, grade) => sum + (parseFloat(grade.score) || 0), 0);
+            const rawScore = (total / grades.length).toFixed(1);
+            const weightedScore = (parseFloat(rawScore) * weight / 100).toFixed(1);
+            return { rawScore, weightedScore, count: grades.length };
+          };
+
+          const calculatedScores = {
+            attendance: calculateWeightedScore(mockGradeTypes.attendance, mockWeightConfig.attendanceWeight),
+            homework: calculateWeightedScore(mockGradeTypes.homework, mockWeightConfig.homeworkWeight),
+            lab: calculateWeightedScore(mockGradeTypes.lab, mockWeightConfig.labWeight),
+            quiz: calculateWeightedScore(mockGradeTypes.quiz, mockWeightConfig.quizWeight),
+            midterm: calculateWeightedScore(mockGradeTypes.midterm, mockWeightConfig.midtermWeight),
+            final: calculateWeightedScore(mockGradeTypes.final, mockWeightConfig.finalWeight),
+            makeup: calculateWeightedScore(mockGradeTypes.makeup, mockWeightConfig.makeupWeight)
+          };
+
+          // 创建成绩明细HTML
+          let breakdownHtml = `
+            <div style="padding: 20px; max-width: 700px;">
+              <h3 style="color: #0088cc; margin-bottom: 20px; text-align: center;">${subject} - 成绩明细 (按权重计算) - 模拟数据</h3>
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: #333; margin-bottom: 15px;">📊 成绩构成明细</h4>
+                ${calculatedScores.attendance.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(52, 152, 219, 0.1); border-radius: 4px;">
+                  <span>📅 出勤 (${mockWeightConfig.attendanceWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #3498db;">原始分: ${calculatedScores.attendance.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.attendance.weightedScore}分 (${calculatedScores.attendance.count}次)</div>
+                  </div>
+                </div>
+                ` : ''}
+                ${calculatedScores.homework.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(46, 204, 113, 0.1); border-radius: 4px;">
+                  <span>📝 作业 (${mockWeightConfig.homeworkWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #2ecc71;">原始分: ${calculatedScores.homework.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.homework.weightedScore}分 (${calculatedScores.homework.count}次)</div>
+                  </div>
+                </div>
+                ` : ''}
+                ${calculatedScores.lab.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(230, 126, 34, 0.1); border-radius: 4px;">
+                  <span>🧪 实验 (${mockWeightConfig.labWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #e67e22;">原始分: ${calculatedScores.lab.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.lab.weightedScore}分 (${calculatedScores.lab.count}次)</div>
+                  </div>
+                </div>
+                ` : ''}
+                ${calculatedScores.quiz.weightedScore > 0 ? `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(155, 89, 182, 0.1); border-radius: 4px;">
+                  <span>📋 随堂测验 (${mockWeightConfig.quizWeight}%)：</span>
+                  <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #9b59b6;">原始分: ${calculatedScores.quiz.rawScore}分</div>
+                    <div style="font-weight: bold; color: #e74c3c;">换算分: ${calculatedScores.quiz.weightedScore}分 (${calculatedScores.quiz.count}次)</div>
+                  </div>
+                </div>
+                ` : ''}
+                <div style="margin-top: 15px; padding: 8px; background: rgba(133, 100, 4, 0.1); border-radius: 4px; font-style: italic; font-size: 12px;">
+                  💡 权重配置来自老师端设置，成绩按权重比例自动换算
+                </div>
+              </div>
+              
+              <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: #333; margin-bottom: 10px;">📊 成绩统计</h4>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span>总成绩记录：</span>
+                  <span style="font-weight: bold; color: #3498db;">${Object.values(mockGradeTypes).flat().length}条</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span>成绩类型：</span>
+                  <span style="font-weight: bold; color: #2ecc71;">${Object.values(mockGradeTypes).filter(grades => grades.length > 0).length}种</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span>按权重计算总分：</span>
+                  <span style="font-weight: bold; color: #e74c3c;">${(parseFloat(calculatedScores.attendance.weightedScore || 0) + 
+                    parseFloat(calculatedScores.homework.weightedScore || 0) + 
+                    parseFloat(calculatedScores.lab.weightedScore || 0) + 
+                    parseFloat(calculatedScores.quiz.weightedScore || 0) + 
+                    parseFloat(calculatedScores.midterm.weightedScore || 0) + 
+                    parseFloat(calculatedScores.final.weightedScore || 0)).toFixed(1)}分</span>
+                </div>
+              </div>
+              
+              <div style="text-align: center; margin-top: 20px;">
+                <button onclick="closeModal('grade-breakdown-modal')" style="background: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">关闭</button>
+              </div>
+            </div>
+          `;
+
+          // 创建模态框
+          const modal = document.createElement("div");
+          modal.id = "grade-breakdown-modal";
+          modal.style.cssText = `
+            display: block;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+          `;
+
+          const modalContent = document.createElement("div");
+          modalContent.style.cssText = `
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          `;
+
+          modalContent.innerHTML = breakdownHtml;
+          modal.appendChild(modalContent);
+          document.body.appendChild(modal);
+
+          // 点击模态框外部关闭
+          modal.addEventListener("click", function (e) {
+            if (e.target === modal) {
+              closeModal("grade-breakdown-modal");
+            }
+          });
+        } catch (error) {
+          console.error("显示模拟数据成绩明细失败:", error);
+          alert("显示模拟数据成绩明细失败，请稍后重试");
+        }
+        }
+
+      // 获取详细的平时分构成数据
+      async function getRegularScoreDetails(subject, token) {
+        try {
+          // 尝试从后端获取详细的平时分数据
+          const response = await fetch("/api/student/grade-details", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            console.log("无法获取详细平时分数据，使用模拟数据");
+            return getMockRegularScoreDetails(subject);
+          }
+
+          const gradeData = await response.json();
+          const subjectGrades = gradeData.filter(grade => 
+            grade.courseName === subject
+          );
+
+          if (subjectGrades.length === 0) {
+            return getMockRegularScoreDetails(subject);
+          }
+
+          // 按考试类型分组
+          const gradeTypes = {
+            attendance: [],
+            homework: [],
+            lab: [],
+            quiz: []
+          };
+
+          subjectGrades.forEach(grade => {
+            const examType = grade.examType;
+            const score = parseFloat(grade.score) || 0;
+            
+            if (examType && (examType.includes('出勤') || examType.includes('attendance'))) {
+              gradeTypes.attendance.push({ score, date: grade.examDate, remarks: grade.remarks });
+            } else if (examType && (examType.includes('作业') || examType.includes('homework'))) {
+              gradeTypes.homework.push({ score, date: grade.examDate, remarks: grade.remarks });
+            } else if (examType && (examType.includes('实验') || examType.includes('lab'))) {
+              gradeTypes.lab.push({ score, date: grade.examDate, remarks: grade.remarks });
+            } else if (examType && (examType.includes('测验') || examType.includes('quiz'))) {
+              gradeTypes.quiz.push({ score, date: grade.examDate, remarks: grade.remarks });
+            }
+          });
+
+          return gradeTypes;
+        } catch (error) {
+          console.error("获取详细平时分数据失败:", error);
+          return getMockRegularScoreDetails(subject);
+        }
+      }
+
+      // 显示模拟数据的饼图
+      async function showMockPieChart(subject) {
+        try {
+          console.log("=== showMockPieChart函数开始执行 ===");
+          console.log("课程名称:", subject);
+          
+          const token = localStorage.getItem("token");
+          
+          // 获取权重配置并按比例计算成绩
+          const scoreData = await getWeightConfigAndCalculateScores(subject, token);
+          const { calculatedScores, totalRegularScore, totalFinalScore } = scoreData;
+
+          const labels = [];
+          const values = [];
+          const colors = [];
+          
+          // 添加各种平时分类型（按权重换算后的分数）
+          if (calculatedScores.attendance) {
+            labels.push(`出勤 (${calculatedScores.attendance.weightedScore}分)`);
+            values.push(parseFloat(calculatedScores.attendance.weightedScore));
+            colors.push('rgba(255, 99, 132, 0.8)');
+          }
+          
+          if (calculatedScores.homework) {
+            labels.push(`作业 (${calculatedScores.homework.weightedScore}分)`);
+            values.push(parseFloat(calculatedScores.homework.weightedScore));
+            colors.push('rgba(54, 162, 235, 0.8)');
+          }
+          
+          if (calculatedScores.lab) {
+            labels.push(`实验 (${calculatedScores.lab.weightedScore}分)`);
+            values.push(parseFloat(calculatedScores.lab.weightedScore));
+            colors.push('rgba(255, 205, 86, 0.8)');
+          }
+          
+          if (calculatedScores.quiz) {
+            labels.push(`测验 (${calculatedScores.quiz.weightedScore}分)`);
+            values.push(parseFloat(calculatedScores.quiz.weightedScore));
+            colors.push('rgba(75, 192, 192, 0.8)');
+          }
+
+          // 添加期末分
+          if (calculatedScores.final && parseFloat(calculatedScores.final.weightedScore) > 0) {
+            labels.push(`期末分 (${calculatedScores.final.weightedScore}分)`);
+            values.push(parseFloat(calculatedScores.final.weightedScore));
+            colors.push('rgba(153, 102, 255, 0.8)');
+          }
+
+          const ctx = document
+            .getElementById("pie-modal-chart")
+            .getContext("2d");
+
+          if (myPieChart) {
+            myPieChart.destroy();
+          }
+
+          const textColor = "#0088cc";
+
+          myPieChart = new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  data: values,
+                  backgroundColor: colors,
+                  borderColor: colors.map(color => color.replace('0.8', '1')),
+                  borderWidth: 2,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              layout: {
+                padding: {
+                  top: 20,
+                  bottom: 20,
+                },
+              },
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: {
+                      size: 14,
+                      weight: "bold",
+                    },
+                    color: textColor,
+                  },
+                },
+                title: {
+                  display: true,
+                  text: `${subject} - 成绩构成 (按权重换算)`,
+                  color: textColor,
+                  font: {
+                    size: 18,
+                    weight: "bold",
+                  },
+                },
+                datalabels: {
+                  color: "#fff",
+                  font: {
+                    weight: "bold",
+                    size: 12,
+                  },
+                  formatter: (value, context) => {
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return `${percentage}%`;
+                  },
+                  align: "center",
+                  offset: 0,
+                },
+              },
+            },
+            plugins: [ChartDataLabels],
+          });
+
+          // 调整模态框内容的高度以容纳更大的饼图
+          const modalContent = document.querySelector(".modal-content");
+          modalContent.style.minHeight = "600px";
+
+          const pieChart = document.getElementById("pie-modal-chart");
+          pieChart.style.height = "500px";
+
+          const modal = document.getElementById("pie-chart-modal");
+          modal.style.display = "block";
+        } catch (error) {
+          console.error("显示模拟饼图失败:", error);
+          alert("显示饼图失败，请稍后重试");
+        }
+      }
+
+      // 获取模拟课程ID（根据课程名称）
+      function getMockCourseId(subject) {
+        const courseMapping = {
+          "数学分析": 1,
+          "高等代数": 2,
+          "大学英语": 3,
+          "计算机基础": 4,
+          "数据结构": 5,
+          "English": 3,  // 英文课程名映射
+          "Compiler Principles": 4,  // 编译原理
+          "Data Structure": 5,  // 数据结构
+          "C语言": 1,
+          "math": 2,
+          "linear": 3,
+          "physics": 4,
+          "english": 3,
+          "compiler": 4,
+          "data structure": 5
+        };
+        console.log(`课程名称映射: ${subject} -> ${courseMapping[subject] || 1}`);
+        return courseMapping[subject] || 1; // 默认返回1
+      }
+
+      // 获取权重配置并按比例换算平时分
+      async function getWeightConfigAndCalculateScores(subject, token) {
+        try {
+          const courseId = getMockCourseId(subject);
+          console.log(`获取课程${subject}(ID:${courseId})的权重配置`);
+          
+          // 获取权重配置
+          const weightResponse = await fetch(`/api/student/detailed-grades/course/${courseId}/weight-config`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          
+          let weightConfig = null;
+          if (weightResponse.ok) {
+            weightConfig = await weightResponse.json();
+            console.log("获取到权重配置:", weightConfig);
+          } else {
+            console.warn("获取权重配置失败，使用默认配置");
+            weightConfig = {
+              attendanceWeight: 20,
+              homeworkWeight: 30,
+              labWeight: 25,
+              quizWeight: 25,
+              midtermWeight: 0,
+              finalWeight: 0,
+              makeupWeight: 100
+            };
+          }
+          
+          // 模拟成绩数据
+          const mockScores = {
+            attendance: [85, 90, 88],
+            homework: [92, 88, 95],
+            lab: [90, 87],
+            quiz: [85, 92],
+            midterm: [88],
+            final: [85]
+          };
+          
+          // 按权重计算各类型成绩
+          const calculatedScores = {};
+          let totalRegularScore = 0;
+          
+          if (mockScores.attendance.length > 0 && weightConfig.attendanceWeight > 0) {
+            const avgAttendance = mockScores.attendance.reduce((sum, score) => sum + score, 0) / mockScores.attendance.length;
+            const weightedScore = (avgAttendance * weightConfig.attendanceWeight) / 100;
+            calculatedScores.attendance = {
+              rawScore: avgAttendance.toFixed(1),
+              weight: weightConfig.attendanceWeight,
+              weightedScore: weightedScore.toFixed(1),
+              count: mockScores.attendance.length
+            };
+            totalRegularScore += weightedScore;
+          }
+          
+          if (mockScores.homework.length > 0 && weightConfig.homeworkWeight > 0) {
+            const avgHomework = mockScores.homework.reduce((sum, score) => sum + score, 0) / mockScores.homework.length;
+            const weightedScore = (avgHomework * weightConfig.homeworkWeight) / 100;
+            calculatedScores.homework = {
+              rawScore: avgHomework.toFixed(1),
+              weight: weightConfig.homeworkWeight,
+              weightedScore: weightedScore.toFixed(1),
+              count: mockScores.homework.length
+            };
+            totalRegularScore += weightedScore;
+          }
+          
+          if (mockScores.lab.length > 0 && weightConfig.labWeight > 0) {
+            const avgLab = mockScores.lab.reduce((sum, score) => sum + score, 0) / mockScores.lab.length;
+            const weightedScore = (avgLab * weightConfig.labWeight) / 100;
+            calculatedScores.lab = {
+              rawScore: avgLab.toFixed(1),
+              weight: weightConfig.labWeight,
+              weightedScore: weightedScore.toFixed(1),
+              count: mockScores.lab.length
+            };
+            totalRegularScore += weightedScore;
+          }
+          
+          if (mockScores.quiz.length > 0 && weightConfig.quizWeight > 0) {
+            const avgQuiz = mockScores.quiz.reduce((sum, score) => sum + score, 0) / mockScores.quiz.length;
+            const weightedScore = (avgQuiz * weightConfig.quizWeight) / 100;
+            calculatedScores.quiz = {
+              rawScore: avgQuiz.toFixed(1),
+              weight: weightConfig.quizWeight,
+              weightedScore: weightedScore.toFixed(1),
+              count: mockScores.quiz.length
+            };
+            totalRegularScore += weightedScore;
+          }
+          
+          // 期末分计算
+          if (mockScores.final.length > 0 && weightConfig.finalWeight > 0) {
+            const avgFinal = mockScores.final.reduce((sum, score) => sum + score, 0) / mockScores.final.length;
+            const weightedScore = (avgFinal * weightConfig.finalWeight) / 100;
+            calculatedScores.final = {
+              rawScore: avgFinal.toFixed(1),
+              weight: weightConfig.finalWeight,
+              weightedScore: weightedScore.toFixed(1),
+              count: mockScores.final.length
+            };
+          }
+          
+          return {
+            weightConfig: weightConfig,
+            calculatedScores: calculatedScores,
+            totalRegularScore: totalRegularScore.toFixed(1),
+            totalFinalScore: calculatedScores.final ? calculatedScores.final.weightedScore : "0.0"
+          };
+          
+        } catch (error) {
+          console.error("获取权重配置和计算成绩失败:", error);
+          throw error;
+        }
+      }
+
+      // 获取模拟的平时分数据
+      function getMockRegularScoreDetails(subject) {
+        return {
+          attendance: [
+            { score: 85, date: "2024-01-15", remarks: "课堂出勤" },
+            { score: 90, date: "2024-01-22", remarks: "课堂出勤" },
+            { score: 88, date: "2024-01-29", remarks: "课堂出勤" }
+          ],
+          homework: [
+            { score: 92, date: "2024-01-20", remarks: "第一次作业" },
+            { score: 88, date: "2024-01-27", remarks: "第二次作业" },
+            { score: 95, date: "2024-02-03", remarks: "第三次作业" }
+          ],
+          lab: [
+            { score: 90, date: "2024-01-25", remarks: "实验报告1" },
+            { score: 87, date: "2024-02-01", remarks: "实验报告2" }
+          ],
+          quiz: [
+            { score: 85, date: "2024-01-18", remarks: "随堂测验1" },
+            { score: 92, date: "2024-02-05", remarks: "随堂测验2" }
+          ]
+        };
+      }
+
+      // 旧的Chart.js加载函数已移除，现在使用head中的新加载逻辑
+
       // 关闭模态框的函数
       function closeModal(modalId) {
         const modal = document.getElementById(modalId);
@@ -2788,6 +5271,13 @@
           const payload = JSON.parse(atob(token.split(".")[1]));
           const userId = payload.userId || payload.sub;
 
+          // 查找头像元素
+          const avatar = document.querySelector(".avatar");
+          if (!avatar) {
+            console.error("未找到头像元素");
+            return;
+          }
+
           // 获取学生信息
           const response = await fetch(`/api/students/user/${userId}`, {
             headers: {
@@ -2814,27 +5304,113 @@
               }
             }
 
-            const avatar = document.querySelector(".avatar");
-            avatar.style.backgroundImage = `url(${avatarUrl})`;
-            avatar.style.backgroundSize = "cover";
-            avatar.style.backgroundPosition = "center";
-            avatar.querySelector("i").style.display = "none";
+            // 应用头像样式
+            if (avatarUrl) {
+              avatar.style.backgroundImage = `url(${avatarUrl})`;
+              avatar.style.backgroundSize = "cover";
+              avatar.style.backgroundPosition = "center";
+              
+              // 隐藏图标（如果存在）
+              const icon = avatar.querySelector("i");
+              if (icon) {
+                icon.style.display = "none";
+              }
 
-            // 同步到本地存储
-            localStorage.setItem("avatarData", avatarUrl);
+              // 同步到本地存储（使用用户ID作为键，保持一致性）
+              const cacheKey = `avatarData_${userId}`;
+              localStorage.setItem(cacheKey, avatarUrl);
+              // 兼容旧版本，也保存一份
+              localStorage.setItem("avatarData", avatarUrl);
+            }
+          } else {
+            console.warn("获取学生信息失败:", response.status);
+            // 从本地存储加载
+            await loadAvatarFromCache(avatar, userId);
           }
         } catch (error) {
           console.error("加载用户头像失败:", error);
 
           // 出错时尝试从本地存储加载
-          const localAvatarData = localStorage.getItem("avatarData");
+          const avatar = document.querySelector(".avatar");
+          if (avatar) {
+            const payload = JSON.parse(atob(localStorage.getItem("token").split(".")[1]));
+            const userId = payload.userId || payload.sub;
+            await loadAvatarFromCache(avatar, userId);
+          }
+        }
+      }
+
+      // 从缓存加载头像
+      async function loadAvatarFromCache(avatar, userId) {
+        try {
+          // 优先使用用户ID作为键的缓存
+          const cacheKey = `avatarData_${userId}`;
+          let localAvatarData = localStorage.getItem(cacheKey);
+          
+          // 如果没有，尝试使用旧版本的key
+          if (!localAvatarData) {
+            localAvatarData = localStorage.getItem("avatarData");
+          }
+
           if (localAvatarData) {
-            const avatar = document.querySelector(".avatar");
             avatar.style.backgroundImage = `url(${localAvatarData})`;
             avatar.style.backgroundSize = "cover";
             avatar.style.backgroundPosition = "center";
-            avatar.querySelector("i").style.display = "none";
+            
+            const icon = avatar.querySelector("i");
+            if (icon) {
+              icon.style.display = "none";
+            }
+          } else {
+            // 如果缓存也没有，使用默认头像
+            const defaultAvatarUrl = `/api/static/default-avatar.jpg`;
+            avatar.style.backgroundImage = `url(${defaultAvatarUrl})`;
+            avatar.style.backgroundSize = "cover";
+            avatar.style.backgroundPosition = "center";
+            
+            const icon = avatar.querySelector("i");
+            if (icon) {
+              icon.style.display = "none";
+            }
           }
+        } catch (e) {
+          console.error("从缓存加载头像失败:", e);
+        }
+      }
+
+      // 为头像元素添加图片加载错误处理
+      function setupAvatarErrorHandling() {
+        const avatar = document.querySelector(".avatar");
+        if (avatar) {
+          // 使用图片元素来检测加载错误
+          const testImg = new Image();
+          testImg.onerror = function() {
+            // 如果图片加载失败，使用默认头像
+            const defaultAvatarUrl = `/api/static/default-avatar.jpg`;
+            avatar.style.backgroundImage = `url(${defaultAvatarUrl})`;
+            console.log("头像加载失败，已切换到默认头像");
+          };
+          
+          // 监听背景图片的变化
+          const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+              if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const bgImage = avatar.style.backgroundImage;
+                if (bgImage && bgImage !== 'none') {
+                  const url = bgImage.match(/url\(['"]?(.+?)['"]?\)/);
+                  if (url && url[1]) {
+                    // 测试图片URL是否有效
+                    testImg.src = url[1];
+                  }
+                }
+              }
+            });
+          });
+          
+          observer.observe(avatar, {
+            attributes: true,
+            attributeFilter: ['style']
+          });
         }
       }
 
@@ -2947,27 +5523,49 @@
             );
 
             relatedAvatars.forEach((avatarElement) => {
-              // 设置头像
-              let avatarUrl = teacherData.avatarUrl;
+              try {
+                // 设置头像
+                let avatarUrl = teacherData.avatarUrl;
 
-              // 如果没有头像或没有自定义头像，生成默认头像
-              if (!avatarUrl || !teacherData.hasCustomAvatar) {
-                if (teacherData.name) {
-                  // 使用UI Avatars生成个性化头像
-                  avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    teacherData.name
-                  )}&size=200&background=random&color=fff`;
-                } else {
-                  // 使用系统默认头像
-                  avatarUrl = `/api/static/default-avatar.jpg`;
+                // 如果没有头像或没有自定义头像，生成默认头像
+                if (!avatarUrl || !teacherData.hasCustomAvatar) {
+                  if (teacherData.name) {
+                    // 使用UI Avatars生成个性化头像
+                    avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      teacherData.name
+                    )}&size=200&background=random&color=fff`;
+                  } else {
+                    // 使用系统默认头像
+                    avatarUrl = `/api/static/default-avatar.jpg`;
+                  }
+                }
+
+                if (avatarUrl && avatarElement) {
+                  avatarElement.style.backgroundImage = `url(${avatarUrl})`;
+                  avatarElement.style.backgroundSize = "cover";
+                  avatarElement.style.backgroundPosition = "center";
+                  
+                  // 隐藏图标（如果存在）
+                  const icon = avatarElement.querySelector("i");
+                  if (icon) {
+                    icon.style.display = "none";
+                  }
+                  
+                  console.log(`成功设置教师 ${teacherId} 的头像`);
+                }
+              } catch (error) {
+                console.error(`设置教师 ${teacherId} 头像时出错:`, error);
+                // 使用默认头像
+                if (avatarElement) {
+                  avatarElement.style.backgroundImage = `url(/api/static/default-avatar.jpg)`;
+                  avatarElement.style.backgroundSize = "cover";
+                  avatarElement.style.backgroundPosition = "center";
+                  const icon = avatarElement.querySelector("i");
+                  if (icon) {
+                    icon.style.display = "none";
+                  }
                 }
               }
-
-              avatarElement.style.backgroundImage = `url(${avatarUrl})`;
-              avatarElement.style.backgroundSize = "cover";
-              avatarElement.style.backgroundPosition = "center";
-              avatarElement.querySelector("i").style.display = "none";
-              console.log(`成功设置教师 ${teacherId} 的头像`);
             });
           });
 
@@ -3032,6 +5630,17 @@
 
         // 更新localStorage为白天模式
         localStorage.setItem("mode", "day");
+
+        // 检查Chart.js是否加载成功
+        setTimeout(() => {
+          if (chartLoaded && typeof Chart !== 'undefined') {
+            console.log('Chart.js加载成功');
+            // 测试图表创建
+            testChartCreation();
+          } else {
+            console.warn('Chart.js未加载成功，等待head中的加载逻辑');
+          }
+        }, 1000);
       });
 
       // WebSocket连接
@@ -3286,6 +5895,9 @@
           // 初始化聊天列表
           initializeChatList();
 
+          // 设置头像错误处理
+          setupAvatarErrorHandling();
+
           // 加载用户头像
           await loadUserAvatar();
 
@@ -3443,7 +6055,7 @@
       let resources = [];
 
       // API基础URL
-      const API_BASE_URL = "http://localhost:8080/api";
+      const API_BASE_URL = "/api";
 
       // 从API获取所有学习资源
       async function fetchAllResources() {
@@ -3873,6 +6485,18 @@
       // 页面加载时初始化资源显示
       document.addEventListener("DOMContentLoaded", async () => {
         console.log("=== DOMContentLoaded 开始 ===");
+
+        // Chart.js已在head中加载，这里只需要等待加载完成
+        let waitCount = 0;
+        while ((!chartLoaded || typeof Chart === 'undefined') && waitCount < 30) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          waitCount++;
+        }
+        if (chartLoaded && typeof Chart !== 'undefined') {
+          console.log('Chart.js已成功加载');
+        } else {
+          console.warn('Chart.js加载超时，图表可能无法正常显示');
+        }
 
         // 检查资源容器是否存在
         const resourceGrid = document.querySelector(".resource-grid");
@@ -4604,12 +7228,12 @@
           const messageDiv = document.createElement("div");
           messageDiv.className = "ai-message user-message";
           messageDiv.innerHTML = `
+            <div class="ai-avatar">
+              <i class="fas fa-user"></i>
+            </div>
             <div class="ai-content">
               <div class="ai-text">${message}</div>
               <div class="ai-time">${new Date().toLocaleTimeString()}</div>
-            </div>
-            <div class="ai-avatar">
-              <i class="fas fa-user"></i>
             </div>
           `;
           aiChatMessages.appendChild(messageDiv);
@@ -4663,7 +7287,7 @@
             const userId = payload.userId || payload.sub;
 
             // 调用AI助手API
-            const response = await fetch("http://localhost:8080/api/ai/chat", {
+            const response = await fetch("/api/ai/chat", {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -4726,6 +7350,338 @@
         });
       }
 
+      // AI分析功能 - 优化版本
+      async function performAIAnalysis(analysisType) {
+        try {
+          // 获取当前学生ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            throw new Error("未登录");
+          }
+
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const userId = payload.userId || payload.sub;
+
+          // 显示优化的加载状态
+          showOptimizedLoadingState("AI正在快速分析中...", "ai-analysis");
+
+          // 调用AI分析API
+          const startTime = Date.now();
+          const response = await fetch(`/api/ai/analyze/student/${userId}?analysisType=${analysisType}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+          const endTime = Date.now();
+          const processingTime = ((endTime - startTime) / 1000).toFixed(1);
+
+          if (data.success) {
+            // 显示AI分析结果
+            showAIAnalysisResult(data.content, `AI学习分析 (耗时: ${processingTime}秒)`);
+          } else {
+            showNotification("AI分析失败: " + (data.error || "未知错误"), "error");
+          }
+        } catch (error) {
+          console.error("AI分析失败:", error);
+          showNotification("AI分析失败: " + error.message, "error");
+        }
+      }
+
+      // AI学习建议功能 - 优化版本
+      async function generateAIAdvice(context) {
+        try {
+          // 获取当前学生ID
+          const token = localStorage.getItem("token");
+          if (!token) {
+            throw new Error("未登录");
+          }
+
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const userId = payload.userId || payload.sub;
+
+          // 显示优化的加载状态
+          showOptimizedLoadingState("AI正在生成个性化学习建议...", "ai-advice");
+
+          // 调用AI建议API
+          const startTime = Date.now();
+          const response = await fetch(`/api/ai/advice/study/${userId}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ context }),
+          });
+
+          const data = await response.json();
+          const endTime = Date.now();
+          const processingTime = ((endTime - startTime) / 1000).toFixed(1);
+
+          if (data.success) {
+            // 显示AI学习建议
+            showAIAnalysisResult(data.content, `学习建议 (耗时: ${processingTime}秒)`);
+          } else {
+            showNotification("生成学习建议失败: " + (data.error || "未知错误"), "error");
+          }
+        } catch (error) {
+          console.error("生成学习建议失败:", error);
+          showNotification("生成学习建议失败: " + error.message, "error");
+        }
+      }
+
+      // 显示优化的加载状态
+      function showOptimizedLoadingState(message, type) {
+        // 创建加载模态框
+        const loadingModal = document.createElement("div");
+        loadingModal.className = "ai-loading-modal";
+        loadingModal.innerHTML = `
+          <div class="ai-loading-content">
+            <div class="ai-loading-spinner">
+              <div class="spinner"></div>
+            </div>
+            <div class="ai-loading-text">${message}</div>
+            <div class="ai-loading-progress">
+              <div class="progress-bar"></div>
+            </div>
+            <div class="ai-loading-tips">
+              <p>💡 正在使用优化算法快速分析您的学习数据...</p>
+              <p>⚡ 预计耗时: 5-15秒</p>
+            </div>
+          </div>
+        `;
+
+        // 添加样式
+        const style = document.createElement("style");
+        style.textContent = `
+          .ai-loading-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+          }
+          .ai-loading-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+          }
+          .ai-loading-spinner {
+            margin-bottom: 20px;
+          }
+          .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          .ai-loading-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+          }
+          .ai-loading-progress {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+          }
+          .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            animation: progress 2s ease-in-out infinite;
+          }
+          @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+          }
+          .ai-loading-tips {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+          }
+          .ai-loading-tips p {
+            margin: 5px 0;
+          }
+        `;
+        
+        document.head.appendChild(style);
+        document.body.appendChild(loadingModal);
+        
+        // 存储引用以便后续移除
+        window.currentLoadingModal = loadingModal;
+        window.currentLoadingStyle = style;
+      }
+
+      // 移除加载状态
+      function removeLoadingState() {
+        if (window.currentLoadingModal) {
+          document.body.removeChild(window.currentLoadingModal);
+          window.currentLoadingModal = null;
+        }
+        if (window.currentLoadingStyle) {
+          document.head.removeChild(window.currentLoadingStyle);
+          window.currentLoadingStyle = null;
+        }
+      }
+
+      // 显示AI分析结果
+      function showAIAnalysisResult(content, title) {
+        // 先移除加载状态
+        removeLoadingState();
+        // 创建模态框
+        const modal = document.createElement("div");
+        modal.className = "ai-analysis-modal";
+        modal.innerHTML = `
+          <div class="ai-analysis-modal-content">
+            <div class="ai-analysis-modal-header">
+              <h3>${title}</h3>
+              <button class="ai-analysis-modal-close">&times;</button>
+            </div>
+            <div class="ai-analysis-modal-body">
+              <div class="ai-analysis-content">${content}</div>
+            </div>
+            <div class="ai-analysis-modal-footer">
+              <button class="ai-copy-btn">复制内容</button>
+              <button class="ai-close-btn">关闭</button>
+            </div>
+          </div>
+        `;
+
+        // 添加样式
+        const style = document.createElement("style");
+        style.textContent = `
+          .ai-analysis-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+          }
+          .ai-analysis-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          }
+          .ai-analysis-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+          }
+          .ai-analysis-modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+          }
+          .ai-analysis-modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .ai-analysis-modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+          }
+          .ai-analysis-content {
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+          }
+          .ai-analysis-modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+          }
+          .ai-copy-btn, .ai-close-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+          }
+          .ai-copy-btn {
+            background: #28a745;
+            color: white;
+          }
+          .ai-close-btn {
+            background: #6c757d;
+            color: white;
+          }
+        `;
+        document.head.appendChild(style);
+
+        // 添加到页面
+        document.body.appendChild(modal);
+
+        // 绑定事件
+        modal.querySelector(".ai-analysis-modal-close").onclick = () => {
+          document.body.removeChild(modal);
+          document.head.removeChild(style);
+        };
+        modal.querySelector(".ai-close-btn").onclick = () => {
+          document.body.removeChild(modal);
+          document.head.removeChild(style);
+        };
+        modal.querySelector(".ai-copy-btn").onclick = () => {
+          navigator.clipboard.writeText(content).then(() => {
+            showNotification("内容已复制到剪贴板", "success");
+          });
+        };
+        modal.onclick = (e) => {
+          if (e.target === modal) {
+            document.body.removeChild(modal);
+            document.head.removeChild(style);
+          }
+        };
+      }
+
       // 修改DOMContentLoaded事件监听器
       document.addEventListener("DOMContentLoaded", () => {
         // 初始化考试数据
@@ -4733,6 +7689,21 @@
 
         // 初始化AI助手
         initAIAssistant();
+
+        // 添加AI分析按钮事件监听器
+        document.addEventListener("click", (e) => {
+          if (e.target.matches(".ai-analyze-btn")) {
+            e.preventDefault();
+            const analysisType = e.target.dataset.analysisType || "comprehensive";
+            performAIAnalysis(analysisType);
+          }
+          
+          if (e.target.matches(".ai-advice-btn")) {
+            e.preventDefault();
+            const context = e.target.dataset.context || "学习建议";
+            generateAIAdvice(context);
+          }
+        });
 
         // 添加筛选器事件监听
         const subjectFilter = document.getElementById("exam-subject-filter");

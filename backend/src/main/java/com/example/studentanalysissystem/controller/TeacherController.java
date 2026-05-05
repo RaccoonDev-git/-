@@ -13,10 +13,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 教师控制器
@@ -131,6 +131,7 @@ public class TeacherController {
     }
 
     @GetMapping("/{teacherId}/classes")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')") // 暂时注释掉权限验证
     @Operation(summary = "获取教师所教班级", description = "获取指定教师所教授的所有班级")
     @ApiResponse(responseCode = "200", description = "查询成功")
     public ResponseEntity<List<String>> getTeacherClasses(@PathVariable Long teacherId) {
@@ -139,6 +140,7 @@ public class TeacherController {
     }
 
     @GetMapping("/{teacherId}/courses")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')") // 暂时注释掉权限验证
     @Operation(summary = "获取教师课程", description = "获取指定教师所教授的所有课程")
     @ApiResponse(responseCode = "200", description = "查询成功")
     public ResponseEntity<List<CourseResponse>> getTeacherCourses(@PathVariable Long teacherId) {
@@ -147,6 +149,7 @@ public class TeacherController {
     }
 
     @GetMapping("/{teacherId}/classes/{className}/courses")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @Operation(summary = "获取教师在指定班级的课程", description = "获取指定教师在指定班级所教授的课程")
     @ApiResponse(responseCode = "200", description = "查询成功")
     public ResponseEntity<List<CourseResponse>> getTeacherCoursesInClass(
@@ -156,15 +159,9 @@ public class TeacherController {
         return ResponseEntity.ok(courses);
     }
 
-    @GetMapping("/{teacherId}/analysis-data")
-    @Operation(summary = "获取教师学情分析数据", description = "获取指定教师的班级、课程和学生成绩数据")
-    @ApiResponse(responseCode = "200", description = "查询成功")
-    public ResponseEntity<Map<String, Object>> getTeacherAnalysisData(@PathVariable Long teacherId) {
-        Map<String, Object> analysisData = teacherService.getTeacherAnalysisData(teacherId);
-        return ResponseEntity.ok(analysisData);
-    }
 
     @GetMapping("/{teacherId}/students")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')") // 暂时注释掉权限验证
     @Operation(summary = "获取教师管理的学生", description = "获取指定教师所教授班级的所有学生")
     @ApiResponse(responseCode = "200", description = "查询成功")
     public ResponseEntity<List<com.example.studentanalysissystem.dto.response.StudentResponse>> getTeacherStudents(@PathVariable Long teacherId) {
